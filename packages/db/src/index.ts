@@ -1,8 +1,9 @@
 import { env } from "@churn-signal/env/server";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+// import { neon } from "@neondatabase/serverless";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import * as schema from "./schema";
 
-const sql = neon(env.DATABASE_URL);
-export const db = drizzle(sql, { schema });
+export const db: NodePgDatabase<typeof schema> = drizzle(env.DATABASE_URL, {
+	schema,
+});
