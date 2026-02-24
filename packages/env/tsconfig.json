@@ -1,0 +1,3 @@
+{
+  "extends": "@churn-signal/config/tsconfig.base.json"
+}

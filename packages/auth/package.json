@@ -1,0 +1,24 @@
+{
+  "name": "@churn-signal/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@churn-signal/db": "workspace:*",
+    "@churn-signal/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@churn-signal/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,31 @@
+// Better-T-Stack
+//
+// Website: https://www.better-t-stack.dev/
+// Stack Builder: https://www.better-t-stack.dev/new
+// Analytics: https://www.better-t-stack.dev/analytics
+// Showcase: https://www.better-t-stack.dev/showcase
+// Sponsor: https://github.com/sponsors/AmanVarshney01
+//
+// Add new addons with: bun create better-t-stack add
+// This file is safe to delete
+
+{
+  "$schema": "https://r2.better-t-stack.dev/schema.json",
+  "version": "3.21.5",
+  "createdAt": "2026-02-24T18:05:14.332Z",
+  "reproducibleCommand": "bun create better-t-stack@latest churn-signal --frontend tanstack-start --backend self --runtime none --database postgres --orm drizzle --api none --auth better-auth --payments none --addons mcp skills turborepo --examples none --db-setup neon --web-deploy none --server-deploy none --git --package-manager bun --install",
+  "database": "postgres",
+  "orm": "drizzle",
+  "backend": "self",
+  "runtime": "none",
+  "frontend": ["tanstack-start"],
+  "addons": ["mcp", "skills", "turborepo"],
+  "examples": [],
+  "auth": "better-auth",
+  "payments": "none",
+  "packageManager": "bun",
+  "dbSetup": "neon",
+  "api": "none",
+  "webDeploy": "none",
+  "serverDeploy": "none",
+}
