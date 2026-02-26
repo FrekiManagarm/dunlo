@@ -1,5 +1,11 @@
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { RootProvider } from "fumadocs-ui/provider/tanstack";
 
 import { Toaster } from "@/components/ui/sonner";
 
@@ -35,14 +41,16 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootDocument() {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
         <div className="grid h-svh grid-rows-[auto_1fr]">
           <Header />
-          <Outlet />
+          <RootProvider>
+            <Outlet />
+          </RootProvider>
         </div>
         <Toaster richColors />
         <TanStackRouterDevtools position="bottom-left" />
