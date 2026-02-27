@@ -1,0 +1,46 @@
+---
+description: UI, Tailwind, shadcn et composants
+globs: apps/web/**/*.tsx,apps/web/**/*.css
+alwaysApply: false
+---
+
+# UI et styling
+
+## Stack
+
+- **Tailwind 4** avec `@tailwindcss/vite`
+- **shadcn/ui** : composants dans `components/ui/`
+- **Base UI** : primitives (`@base-ui/react/button`, etc.)
+- **CVA** : `class-variance-authority` pour les variants
+- **Utilitaires** : `cn()` de `@/lib/utils` (clsx + tailwind-merge)
+
+## Composants UI
+
+```tsx
+import { cn } from "@/lib/utils";
+
+function Button({ className, variant, size, ...props }) {
+  return (
+    <ButtonPrimitive
+      className={cn(buttonVariants({ variant, size }), className)}
+      {...props}
+    />
+  );
+}
+```
+
+- Utiliser `cn()` pour fusionner les classes
+- Variants via CVA : `variant`, `size`, etc.
+- Composants shadcn : respecter la structure existante (Slot, etc.)
+
+## Thème et variables CSS
+
+- Variables dans `:root` et `.dark` (index.css)
+- Tokens : `--primary`, `--background`, `--destructive`, `--radius`, etc.
+- Préférer les variables (`bg-primary`, `text-foreground`) aux couleurs en dur
+
+## Design
+
+- Projet en mode dark par défaut (`className="dark"` sur `<html>`)
+- Consulter le skill `frontend-design` pour les nouvelles pages/landing
+- Éviter Inter par défaut pour le branding ; privilégier des polices distinctives

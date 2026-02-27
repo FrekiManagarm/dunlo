@@ -13,7 +13,7 @@
   "$schema": "https://r2.better-t-stack.dev/schema.json",
   "version": "3.21.5",
   "createdAt": "2026-02-24T18:05:14.332Z",
-  "reproducibleCommand": "bun create better-t-stack@latest churn-signal --frontend tanstack-start --backend self --runtime none --database postgres --orm drizzle --api none --auth better-auth --payments none --addons mcp skills turborepo --examples none --db-setup neon --web-deploy none --server-deploy none --git --package-manager bun --install",
+  "reproducibleCommand": "bun create better-t-stack@latest dunlo --frontend tanstack-start --backend self --runtime none --database postgres --orm drizzle --api none --auth better-auth --payments none --addons mcp skills turborepo --examples none --db-setup neon --web-deploy none --server-deploy none --git --package-manager bun --install",
   "database": "postgres",
   "orm": "drizzle",
   "backend": "self",

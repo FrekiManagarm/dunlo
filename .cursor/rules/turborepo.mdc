@@ -1,0 +1,33 @@
+---
+description: Turborepo et scripts du monorepo
+globs: turbo.json,package.json,apps/*/package.json,packages/*/package.json
+alwaysApply: false
+---
+
+# Turborepo
+
+Réf. Context7 : `/vercel/turborepo`, `/websites/turborepo`
+
+## Structure
+
+- Racine : `turbo.json` définit les tâches partagées
+- Apps : `apps/web`
+- Packages : `packages/auth`, `packages/db`, `packages/env`, `packages/config`
+
+## Tâches
+
+- `build` : `dependsOn: ["^build"]`, outputs `dist/**`
+- `dev` : `cache: false`, `persistent: true`
+- `db:*` : toutes sans cache
+- `check-types` : propagation aux dépendances
+
+## Nouveaux packages
+
+- Ajouter dans `workspaces.packages` du `package.json` racine si nouveau dossier
+- Utiliser le catalog pour les versions partagées (zod, typescript, etc.)
+- Dépendances inter-packages : `"@dunlo/foo": "workspace:*"`
+
+## Filtrage
+
+- `turbo -F web dev` : lancer uniquement l'app web
+- `turbo -F @dunlo/db db:push` : tâche db sur le package db

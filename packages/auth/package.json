@@ -1,5 +1,5 @@
 {
-  "name": "@churn-signal/auth",
+  "name": "@dunlo/auth",
   "type": "module",
   "exports": {
     ".": {
@@ -11,14 +11,14 @@
   },
   "scripts": {},
   "dependencies": {
-    "@churn-signal/db": "workspace:*",
-    "@churn-signal/env": "workspace:*",
+    "@dunlo/db": "workspace:*",
+    "@dunlo/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@churn-signal/config": "workspace:*",
+    "@dunlo/config": "workspace:*",
     "typescript": "catalog:"
   }
 }

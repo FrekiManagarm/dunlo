@@ -1,0 +1,47 @@
+---
+description: Standards TypeScript du projet
+globs: **/*.ts
+alwaysApply: false
+---
+
+# Standards TypeScript
+
+## Configuration
+
+Le projet utilise `verbatimModuleSyntax`, `strict`, `noUnusedLocals`, `noUnusedParameters`, `noUncheckedIndexedAccess`.
+
+## Imports
+
+- Préférer les imports nommés : `import { foo } from "bar"`
+- Types uniquement : `import type { Foo } from "bar"` ou `import { type Foo } from "bar"`
+- Packages internes : toujours `@dunlo/*`
+
+## Variables d'environnement
+
+```typescript
+// Côté serveur (Node) - packages/auth, packages/db, server functions
+import { env } from "@dunlo/env/server";
+// env.DATABASE_URL, env.BETTER_AUTH_SECRET, etc.
+
+// Côté client (Vite) - apps/web côté navigateur
+// @dunlo/env/web exporte createEnv avec clientPrefix "VITE_"
+```
+
+Ne jamais importer `@dunlo/env/server` dans du code exécuté côté client.
+
+## Exemples
+
+```typescript
+// ❌ Mauvais - import default inutile
+import env from "@dunlo/env/server";
+
+// ✅ Correct
+import { env } from "@dunlo/env/server";
+
+// ❌ Mauvais - any
+const data: any = await fetch();
+
+// ✅ Correct
+const data = await fetch() as ExpectedType;
+// ou typer correctement la réponse
+```

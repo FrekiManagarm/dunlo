@@ -1,0 +1,63 @@
+---
+description: Conventions Drizzle ORM et schéma
+globs: packages/db/**/*.ts
+alwaysApply: false
+---
+
+# Base de données - Drizzle
+
+Réf. Context7 : `/llmstxt/orm_drizzle_team_llms_txt`, docs : orm.drizzle.team
+
+## Emplacement
+
+- Schéma : `packages/db/src/schema/`
+- Migrations : `packages/db/src/migrations/`
+- Export : `packages/db/src/index.ts` → `db`
+
+## Conventions de schéma
+
+- Tables : `pgTable("nom_table", { colonnes }, (table) => [index(...)])`
+- Colonnes : `text()`, `integer()`, `timestamp()`, etc. avec `.notNull()`, `.primaryKey()`
+- Colonnes : préférer `text("id")`, `timestamp("created_at").defaultNow().notNull()`
+- `updatedAt` : utiliser `.$onUpdate(() => new Date())`
+- Relations : exporter `relations()` depuis le même fichier que les tables
+- Index : définir dans le 3e argument de `pgTable(..., (table) => [index("xxx_idx").on(table.column)])`
+
+## Schéma Auth (Better Auth)
+
+- Schéma dans `@dunlo/db/schema/auth` : user, session, account, verification
+- Ne pas modifier sans consulter better-auth.com/docs
+- Réutiliser ce schéma pour l'adaptateur Drizzle dans `@dunlo/auth`
+
+## Import
+
+```typescript
+import { db } from "@dunlo/db";
+import * as schema from "@dunlo/db/schema/auth";  // si besoin des tables auth
+```
+
+## Drizzle Kit config
+
+```typescript
+export default defineConfig({
+  dialect: "postgresql",
+  schema: "./src/schema",
+  out: "./src/migrations",
+  dbCredentials: { url: process.env.DATABASE_URL },
+});
+```
+
+- `.env` chargé depuis `../../apps/web/.env`
+- `bun run db:push` pour synchroniser le schéma
+
+## Relations
+
+```typescript
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts),
+}));
+
+export const postsRelations = relations(posts, ({ one }) => ({
+  author: one(users, { fields: [posts.authorId], references: [users.id] }),
+}));
+```

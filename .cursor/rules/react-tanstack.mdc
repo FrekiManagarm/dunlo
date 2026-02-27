@@ -1,0 +1,83 @@
+---
+description: Patterns React et TanStack (Start, Router, Form)
+globs: **/*.tsx
+alwaysApply: false
+---
+
+# React et TanStack
+
+Réf. Context7 : `/websites/tanstack_start_framework_react`, `/websites/tanstack_router`
+
+## Structure de l'app web
+
+- **Routes** : file-based dans `apps/web/src/routes/`
+- **Composants** : `components/` (PascalCase, export default pour les pages)
+- **Server functions** : `createServerFn` dans `functions/` ou à côté des routes
+- **Lib** : utilitaires dans `lib/`
+
+## TanStack Router - Routes serveur
+
+```typescript
+// Route API
+export const Route = createFileRoute("/api/auth/$")({
+  server: {
+    handlers: {
+      GET: ({ request }) => auth.handler(request),
+      POST: ({ request }) => auth.handler(request),
+    },
+  },
+});
+
+// Middleware au niveau route (optionnel)
+export const Route = createFileRoute("/hello")({
+  server: {
+    middleware: [authMiddleware],
+    handlers: { GET: async ({ request }) => new Response("Hello") },
+  },
+});
+```
+
+## TanStack Router - Routes avec loader
+
+```typescript
+export const Route = createFileRoute("/")({
+  component: Home,
+  loader: async () => await getCount(),  // ou données depuis server fn
+});
+
+// Dans le composant
+const state = Route.useLoaderData();
+```
+
+## TanStack Start - Server Functions
+
+```typescript
+import { createServerFn } from "@tanstack/react-start";
+
+const getCount = createServerFn({ method: "GET" }).handler(() => readCount());
+
+const updateCount = createServerFn({ method: "POST" })
+  .inputValidator((d: number) => d)
+  .handler(async ({ data }) => { ... });
+```
+
+- Pour données protégées : `.middleware([authMiddleware])` puis `context.session`
+- Invalidation : `router.invalidate()` après mutation
+
+## Routes protégées
+
+- `beforeLoad` : appeler `getUser()` (server fn avec authMiddleware)
+- `loader` : vérifier `context.session` et `redirect({ to: "/login" })` si absent
+- Contexte : `Route.useRouteContext()`
+
+## TanStack Form
+
+- `useForm` avec `validators.onSubmit` (Zod)
+- `form.Field` avec render prop
+- `form.Subscribe` pour canSubmit, isSubmitting
+
+## Conventions composants
+
+- Composants fonctionnels uniquement
+- Export default pour les composants de page/layout
+- Import `Link` et `useNavigate` de `@tanstack/react-router`

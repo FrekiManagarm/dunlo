@@ -1,0 +1,47 @@
+---
+description: Structure du monorepo et conventions du projet Dunlo
+alwaysApply: true
+---
+
+# Dunlo - Conventions du projet
+
+## Documentation à jour
+
+Pour les librairies du stack, utiliser **Context7 MCP** (resolve-library-id → query-docs) :
+- TanStack Start : `/websites/tanstack_start_framework_react`
+- Better Auth : `/llmstxt/better-auth_llms_txt` ou `/better-auth/better-auth`
+- Drizzle ORM : `/llmstxt/orm_drizzle_team_llms_txt` ou `/drizzle-team/drizzle-orm-docs`
+
+## Stack technique
+
+- **Package manager** : Bun (toujours utiliser `bun` et non npm/yarn)
+- **Monorepo** : Turborepo avec workspaces `apps/*` et `packages/*`
+- **Frontend** : TanStack Start (React 19, Vite 7, TanStack Router)
+- **Base de données** : PostgreSQL + Drizzle ORM
+- **Auth** : Better Auth
+- **UI** : Tailwind 4, shadcn/ui, Base UI, class-variance-authority
+
+## Structure des packages internes
+
+Les packages partagés sont préfixés par `@dunlo/` :
+
+| Package | Rôle |
+|---------|------|
+| `@dunlo/auth` | Configuration Better Auth, adaptateur Drizzle |
+| `@dunlo/db` | Schéma Drizzle, client DB |
+| `@dunlo/env` | Variables d'environnement (server vs web) |
+| `@dunlo/config` | tsconfig.base.json partagé |
+
+## Conventions d'import
+
+- Packages internes : `import { x } from "@dunlo/auth"`
+- App web : alias `@/` vers `apps/web/src/`
+- Toujours utiliser les exports nommés, pas les default (sauf composants React)
+
+## Scripts disponibles
+
+- `bun run dev` : dev global
+- `bun run dev:web` : uniquement l'app web
+- `bun run db:push` : push schéma Drizzle
+- `bun run db:studio` : Drizzle Studio
+- `bun run check-types` : vérification TypeScript

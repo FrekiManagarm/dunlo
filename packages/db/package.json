@@ -1,5 +1,5 @@
 {
-  "name": "@churn-signal/db",
+  "name": "@dunlo/db",
   "type": "module",
   "exports": {
     ".": {
@@ -16,7 +16,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@churn-signal/env": "workspace:*",
+    "@dunlo/env": "workspace:*",
     "@neondatabase/serverless": "^1.0.2",
     "dotenv": "catalog:",
     "drizzle-orm": "^0.45.1",
@@ -24,7 +24,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@churn-signal/config": "workspace:*",
+    "@dunlo/config": "workspace:*",
     "drizzle-kit": "^0.31.8",
     "typescript": "catalog:"
   }

@@ -1,5 +1,5 @@
 {
-  "name": "churn-signal",
+  "name": "dunlo",
   "private": true,
   "workspaces": {
     "packages": [
@@ -21,18 +21,18 @@
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
-    "db:push": "turbo -F @churn-signal/db db:push",
-    "db:studio": "turbo -F @churn-signal/db db:studio",
-    "db:generate": "turbo -F @churn-signal/db db:generate",
-    "db:migrate": "turbo -F @churn-signal/db db:migrate"
+    "db:push": "turbo -F @dunlo/db db:push",
+    "db:studio": "turbo -F @dunlo/db db:studio",
+    "db:generate": "turbo -F @dunlo/db db:generate",
+    "db:migrate": "turbo -F @dunlo/db db:migrate"
   },
   "dependencies": {
-    "@churn-signal/env": "workspace:*",
+    "@dunlo/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@churn-signal/config": "workspace:*",
+    "@dunlo/config": "workspace:*",
     "@types/node": "catalog:",
     "turbo": "^2.6.3",
     "typescript": "catalog:"

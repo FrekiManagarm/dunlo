@@ -1,4 +1,4 @@
-import { auth } from "@churn-signal/auth";
+import { auth } from "@dunlo/auth";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/auth/$")({

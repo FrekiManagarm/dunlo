@@ -1,5 +1,5 @@
 {
-  "name": "@churn-signal/env",
+  "name": "@dunlo/env",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@churn-signal/config": "workspace:*",
+    "@dunlo/config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   }

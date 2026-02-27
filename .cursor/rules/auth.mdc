@@ -1,0 +1,64 @@
+---
+description: Patterns Better Auth et authentification
+globs: packages/auth/**/*.ts,apps/web/src/**/auth*.ts,apps/web/src/middleware/auth.ts
+alwaysApply: false
+---
+
+# Authentification - Better Auth
+
+Réf. Context7 : `/llmstxt/better-auth_llms_txt`, docs : better-auth.com/docs
+
+## Configuration
+
+```typescript
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
+
+export const auth = betterAuth({
+  database: drizzleAdapter(db, { provider: "pg", schema }),
+  trustedOrigins: [env.CORS_ORIGIN],
+  emailAndPassword: { enabled: true },
+  plugins: [tanstackStartCookies()],  // doit être en dernier dans le tableau
+});
+```
+
+- Config : `packages/auth/src/index.ts`
+- `tanstackStartCookies()` : gère les cookies pour signIn/signUp côté TanStack Start
+
+## Routes API
+
+- Handler auth : `apps/web/src/routes/api/auth/$.ts`
+- `auth.handler(request)` pour GET et POST
+
+## Middleware session
+
+```typescript
+// apps/web/src/middleware/auth.ts
+const authMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const session = await auth.api.getSession({ headers: request.headers });
+  return next({ context: { session } });
+});
+```
+
+## Client côté navigateur
+
+```typescript
+import { createAuthClient } from "better-auth/react";
+export const authClient = createAuthClient({});
+```
+
+- `authClient.useSession()` pour React
+- `authClient.signIn.email()`, `authClient.signUp.email()`, `authClient.signOut()`
+- Callbacks : `onSuccess`, `onError` dans les options
+
+## Routes protégées
+
+- `beforeLoad` : appeler `getUser()` (server function avec authMiddleware)
+- `loader` : vérifier `context.session` et `redirect({ to: "/login" })` si absent
+
+## Env requises
+
+- `BETTER_AUTH_SECRET` (min 32 chars)
+- `BETTER_AUTH_URL`
+- `CORS_ORIGIN`
