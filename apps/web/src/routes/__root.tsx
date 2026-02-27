@@ -1,5 +1,11 @@
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { RootProvider } from "fumadocs-ui/provider/tanstack";
 
 import { Toaster } from "@/components/ui/sonner";
 
@@ -24,7 +30,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" as const },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous" as const,
+      },
       { rel: "stylesheet", href: GOOGLE_FONTS_URL },
       { rel: "stylesheet", href: appCss },
     ],
@@ -35,12 +45,17 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootDocument() {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        <Outlet />
+        <div className="grid h-svh grid-rows-[auto_1fr]">
+          <Header />
+          <RootProvider>
+            <Outlet />
+          </RootProvider>
+        </div>
         <Toaster richColors />
         <TanStackRouterDevtools position="bottom-left" />
         <Scripts />
