@@ -10,6 +10,7 @@ import { RootProvider } from "fumadocs-ui/provider/tanstack";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../index.css?url";
+import Header from "@/components/header";
 
 export interface RouterAppContext {}
 
@@ -51,7 +52,6 @@ function RootDocument() {
       </head>
       <body>
         <div className="grid h-svh grid-rows-[auto_1fr]">
-          <Header />
           <RootProvider>
             <Outlet />
           </RootProvider>
