@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogSplatRouteImport } from './routes/blog/$'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiStripeConnectFallbackRouteImport } from './routes/api/stripe/connect/fallback'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -46,6 +47,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStripeConnectFallbackRoute =
+  ApiStripeConnectFallbackRouteImport.update({
+    id: '/api/stripe/connect/fallback',
+    path: '/api/stripe/connect/fallback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/api/search': typeof ApiSearchRoute
   '/blog/$': typeof BlogSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/stripe/connect/fallback': typeof ApiStripeConnectFallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +70,7 @@ export interface FileRoutesByTo {
   '/api/search': typeof ApiSearchRoute
   '/blog/$': typeof BlogSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/stripe/connect/fallback': typeof ApiStripeConnectFallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +80,7 @@ export interface FileRoutesById {
   '/api/search': typeof ApiSearchRoute
   '/blog/$': typeof BlogSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/stripe/connect/fallback': typeof ApiStripeConnectFallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +91,16 @@ export interface FileRouteTypes {
     | '/api/search'
     | '/blog/$'
     | '/api/auth/$'
+    | '/api/stripe/connect/fallback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/api/search' | '/blog/$' | '/api/auth/$'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/api/search'
+    | '/blog/$'
+    | '/api/auth/$'
+    | '/api/stripe/connect/fallback'
   id:
     | '__root__'
     | '/'
@@ -91,6 +109,7 @@ export interface FileRouteTypes {
     | '/api/search'
     | '/blog/$'
     | '/api/auth/$'
+    | '/api/stripe/connect/fallback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,6 +119,7 @@ export interface RootRouteChildren {
   ApiSearchRoute: typeof ApiSearchRoute
   BlogSplatRoute: typeof BlogSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiStripeConnectFallbackRoute: typeof ApiStripeConnectFallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -146,6 +166,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stripe/connect/fallback': {
+      id: '/api/stripe/connect/fallback'
+      path: '/api/stripe/connect/fallback'
+      fullPath: '/api/stripe/connect/fallback'
+      preLoaderRoute: typeof ApiStripeConnectFallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -156,6 +183,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSearchRoute: ApiSearchRoute,
   BlogSplatRoute: BlogSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiStripeConnectFallbackRoute: ApiStripeConnectFallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
