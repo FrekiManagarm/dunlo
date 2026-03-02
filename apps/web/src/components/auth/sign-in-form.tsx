@@ -5,12 +5,12 @@ import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
 
-import Loader from "./loader";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import Loader from "@/components/loader";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
+export default function SignInForm() {
   const navigate = useNavigate({
     from: "/",
   });
@@ -35,7 +35,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
             toast.success("Sign in successful");
           },
           onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
+            toast.error(error.error.message ?? error.error.statusText);
           },
         },
       );
@@ -53,8 +53,19 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
   }
 
   return (
-    <div className="mx-auto w-full mt-10 max-w-md p-6">
-      <h1 className="mb-6 text-center text-3xl font-bold">Welcome Back</h1>
+    <>
+      <h1
+        className="auth-stagger mb-8 font-display text-2xl font-normal tracking-tight text-landing-text sm:text-3xl"
+        style={{ animationDelay: "50ms" }}
+      >
+        Welcome back
+      </h1>
+      <p
+        className="auth-stagger mb-8 font-body text-sm text-landing-text-secondary"
+        style={{ animationDelay: "100ms" }}
+      >
+        Sign in to continue to your dashboard.
+      </p>
 
       <form
         onSubmit={(e) => {
@@ -62,23 +73,27 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
           e.stopPropagation();
           form.handleSubmit();
         }}
-        className="space-y-4"
+        className="space-y-5"
       >
-        <div>
+        <div className="auth-stagger" style={{ animationDelay: "150ms" }}>
           <form.Field name="email">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name}>Email</Label>
+                <Label htmlFor={field.name} className="font-body text-xs font-medium text-landing-text-secondary">
+                  Email
+                </Label>
                 <Input
                   id={field.name}
                   name={field.name}
                   type="email"
+                  placeholder="you@example.com"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
+                  className="h-10 border-landing-border bg-landing-bg/50 font-body text-sm transition-colors placeholder:text-landing-text-muted focus-visible:border-landing-accent focus-visible:ring-landing-accent/30"
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-500">
+                  <p key={error?.message} className="text-xs text-red-400">
                     {error?.message}
                   </p>
                 ))}
@@ -87,21 +102,25 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
           </form.Field>
         </div>
 
-        <div>
+        <div className="auth-stagger" style={{ animationDelay: "200ms" }}>
           <form.Field name="password">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name}>Password</Label>
+                <Label htmlFor={field.name} className="font-body text-xs font-medium text-landing-text-secondary">
+                  Password
+                </Label>
                 <Input
                   id={field.name}
                   name={field.name}
                   type="password"
+                  placeholder="••••••••"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
+                  className="h-10 border-landing-border bg-landing-bg/50 font-body text-sm transition-colors placeholder:text-landing-text-muted focus-visible:border-landing-accent focus-visible:ring-landing-accent/30"
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-500">
+                  <p key={error?.message} className="text-xs text-red-400">
                     {error?.message}
                   </p>
                 ))}
@@ -112,26 +131,18 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
 
         <form.Subscribe>
           {(state) => (
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!state.canSubmit || state.isSubmitting}
-            >
-              {state.isSubmitting ? "Submitting..." : "Sign In"}
-            </Button>
+            <div className="auth-stagger pt-2" style={{ animationDelay: "250ms" }}>
+              <Button
+                type="submit"
+                className="h-11 w-full font-body text-sm font-semibold bg-landing-accent text-landing-bg transition-all hover:shadow-[0_0_30px_rgba(0,232,123,0.2)] disabled:opacity-50"
+                disabled={!state.canSubmit || state.isSubmitting}
+              >
+                {state.isSubmitting ? "Signing in…" : "Sign in"}
+              </Button>
+            </div>
           )}
         </form.Subscribe>
       </form>
-
-      <div className="mt-4 text-center">
-        <Button
-          variant="link"
-          onClick={onSwitchToSignUp}
-          className="text-indigo-600 hover:text-indigo-800"
-        >
-          Need an account? Sign Up
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }
