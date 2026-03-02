@@ -280,3 +280,10 @@
   opacity: 0;
   animation: auth-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ─── Onboarding page ─── */
+
+@keyframes onb-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 232, 123, 0.05); }
+  50% { box-shadow: 0 0 40px rgba(0, 232, 123, 0.15); }
+}

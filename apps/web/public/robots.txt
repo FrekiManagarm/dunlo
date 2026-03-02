@@ -1,3 +1,11 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /escalations
+Disallow: /payment/
+Disallow: /api/
+
+Sitemap: https://dunlo.io/sitemap.xml

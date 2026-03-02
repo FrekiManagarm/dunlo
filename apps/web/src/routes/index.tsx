@@ -7,10 +7,33 @@ import { HeroSection } from "@/components/landing/hero";
 import { PricingSection } from "@/components/landing/pricing";
 import { ProblemSection } from "@/components/landing/problem";
 import { SolutionSection } from "@/components/landing/solution";
+import {
+  SEO_DEFAULTS,
+  SITE_URL,
+  getOpenGraphMeta,
+  getTwitterMeta,
+} from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
+  head: () => ({
+    meta: [
+      { title: SEO_DEFAULTS.title },
+      { name: "description", content: SEO_DEFAULTS.description },
+      { name: "keywords", content: SEO_DEFAULTS.keywords },
+      ...getOpenGraphMeta({
+        title: SEO_DEFAULTS.title,
+        description: SEO_DEFAULTS.description,
+        url: SITE_URL,
+      }),
+      ...getTwitterMeta({
+        title: SEO_DEFAULTS.title,
+        description: SEO_DEFAULTS.description,
+      }),
+    ],
+    links: [{ rel: "canonical", href: SITE_URL }],
+  }),
 });
 
 function LandingNav() {
@@ -27,8 +50,8 @@ function LandingNav() {
   return (
     <nav
       className={cn(
-        "fixed top-0 right-0 left-0 z-40 flex items-center justify-between px-6 py-4 font-body transition-all duration-500 md:px-10",
-        scrolled && "border-b border-landing-border bg-landing-bg/80 py-3 backdrop-blur-xl",
+        "fixed top-0 right-0 left-0 z-40 flex items-center justify-between border-b border-landing-border/50 bg-landing-bg/80 px-6 py-4 font-body backdrop-blur-xl transition-all duration-500 md:px-10",
+        scrolled && "py-3",
       )}
     >
       <Link to="/" className="font-display text-2xl text-landing-text">
@@ -36,6 +59,12 @@ function LandingNav() {
       </Link>
 
       <div className="flex items-center gap-8">
+        <Link
+          to="/blog"
+          className="hidden text-sm text-landing-text-secondary transition-colors hover:text-landing-text md:block"
+        >
+          Blog
+        </Link>
         <a
           href="#pricing"
           className="hidden text-sm text-landing-text-secondary transition-colors hover:text-landing-text md:block"
