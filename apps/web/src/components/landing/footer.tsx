@@ -28,7 +28,15 @@ export function FooterSection() {
         </Reveal>
 
         <div className="mt-32 flex flex-col items-center gap-6 border-t border-landing-border pt-10 md:flex-row md:justify-between">
-          <span className="font-display text-xl text-landing-text">dunlo</span>
+          <div className="flex items-center gap-8">
+            <span className="font-display text-xl text-landing-text">dunlo</span>
+            <Link
+              to="/blog"
+              className="text-xs text-landing-text-muted transition-colors hover:text-landing-text"
+            >
+              Blog
+            </Link>
+          </div>
           <span className="font-body text-xs text-landing-text-muted">
             © {new Date().getFullYear()} Dunlo. All rights reserved.
           </span>

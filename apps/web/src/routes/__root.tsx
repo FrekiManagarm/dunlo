@@ -8,9 +8,15 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
 
 import { Toaster } from "@/components/ui/sonner";
+import {
+  SEO_DEFAULTS,
+  SITE_URL,
+  getOpenGraphMeta,
+  getSoftwareApplicationSchema,
+  getTwitterMeta,
+} from "@/lib/seo";
 
 import appCss from "../index.css?url";
-import Header from "@/components/header";
 
 export interface RouterAppContext {}
 
@@ -22,14 +28,25 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Dunlo — Stop losing revenue to failed payments" },
-      {
-        name: "description",
-        content:
-          "Dunlo connects to Stripe and automatically recovers failed payments, then escalates high-value accounts to you — in 10 minutes setup.",
-      },
+      { title: SEO_DEFAULTS.title },
+      { name: "description", content: SEO_DEFAULTS.description },
+      { name: "keywords", content: SEO_DEFAULTS.keywords },
+      { name: "robots", content: "index, follow" },
+      { name: "theme-color", content: "#0a0a0a" },
+      ...getOpenGraphMeta({
+        title: SEO_DEFAULTS.title,
+        description: SEO_DEFAULTS.description,
+        url: SITE_URL,
+      }),
+      ...getTwitterMeta({
+        title: SEO_DEFAULTS.title,
+        description: SEO_DEFAULTS.description,
+      }),
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
     ],
     links: [
+      { rel: "canonical", href: SITE_URL },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",
@@ -38,6 +55,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       },
       { rel: "stylesheet", href: GOOGLE_FONTS_URL },
       { rel: "stylesheet", href: appCss },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(getSoftwareApplicationSchema()),
+      },
     ],
   }),
 
@@ -51,7 +74,7 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body>
-        <div className="grid h-svh grid-rows-[auto_1fr]">
+        <div className="min-h-svh">
           <RootProvider>
             <Outlet />
           </RootProvider>

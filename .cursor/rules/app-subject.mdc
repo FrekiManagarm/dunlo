@@ -1,0 +1,40 @@
+---
+description: Sujet et domaine métier de l'application Dunlo
+alwaysApply: true
+---
+
+# Dunlo - Sujet de l'application
+
+## Résumé
+
+**Dunlo** est une application SaaS de **récupération des paiements (payment recovery)** pour les entreprises SaaS. Le slogan : *« Stop losing revenue to failed payments »*.
+
+## Problème adressé
+
+Les fondateurs SaaS perdent **5–10 % du MRR** à cause des paiements échoués :
+- Carte expirée → Stripe réessaie → le client ne met pas à jour → churn silencieux
+- Paiement échoué à 2h du matin → découvert une semaine plus tard en vérifiant le MRR
+- Compte à 500 €/mo qui part sans suivi, emails manuels envoyés trop tard
+
+Les clients ne quittent pas volontairement : **personne ne détecte le problème à temps**.
+
+## Solution – Les 3 piliers
+
+1. **Detects** — Connexion Stripe, détection en temps réel de chaque paiement échoué (plus de découverte une semaine après).
+2. **Recovers** — Séquences d’emails adaptées au type d’échec : carte expirée vs fonds insuffisants, pas d’emails génériques « veuillez mettre à jour votre carte ».
+3. **Escalates** — Comptes à forte valeur qui ne répondent pas → alerte directe avec contexte (qui, montant, depuis quand) pour intervenir avant qu’il soit trop tard.
+
+## Proposition de valeur
+
+- **Setup** : environ 10 minutes, sans complexité supplémentaire, sans équipe dédiée
+- **Tarification** : 0 $/mo pendant la beta, pas de % de MRR, pas de mauvaises surprises
+- **Intégration** : Stripe, séquences d’emails automatisées, alertes pour comptes à forte valeur
+- **Cible** : fondateurs et équipes SaaS (MRR, paiements récurrents)
+
+## Vocabulaire métier à privilégier
+
+- **Payment recovery** / récupération des paiements
+- **Failed payments** / paiements échoués
+- **MRR** (Monthly Recurring Revenue)
+- **Escalations** / escalades (comptes à forte valeur à traiter manuellement)
+- **Churn silencieux** (churn sans action du client)
