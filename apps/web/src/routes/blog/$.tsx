@@ -3,7 +3,6 @@ import "@/styles/blog-article.css";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { createServerFn } from "@tanstack/react-start";
-import { source } from "@/lib/docs/source";
 import { SEO_DEFAULTS, SITE_URL } from "@/lib/seo";
 import browserCollections from "fumadocs-mdx:collections/browser";
 import defaultMdxComponents from "fumadocs-ui/mdx";
@@ -45,6 +44,7 @@ const serverLoader = createServerFn({
 })
   .inputValidator((slugs: string[]) => slugs)
   .handler(async ({ data: slugs }) => {
+    const { source } = await import("@/lib/docs/source");
     const page = source.getPage(slugs);
     if (!page) throw notFound();
 
@@ -111,8 +111,7 @@ function Page() {
             Home
           </Link>
           <Link
-            to="/login"
-            search={{ mode: "sign-up" }}
+            to="/register"
             className="group inline-flex items-center gap-2 bg-landing-accent px-4 py-2 text-sm font-semibold text-landing-bg transition-all hover:shadow-[0_0_30px_rgba(0,232,123,0.2)]"
           >
             Get started

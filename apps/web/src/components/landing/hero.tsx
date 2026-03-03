@@ -40,8 +40,7 @@ export function HeroSection() {
           style={{ animationDelay: "550ms" }}
         >
           <Link
-            to="/login"
-            search={{ mode: "sign-up" }}
+            to="/register"
             className="group relative inline-flex items-center gap-3 bg-landing-accent px-8 py-4 font-body text-base font-semibold text-landing-bg transition-all duration-300 hover:shadow-[0_0_50px_rgba(0,232,123,0.25)]"
           >
             Join the beta — it's free to start

@@ -1,12 +1,17 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { createServerFn } from "@tanstack/react-start";
 
-import { getBlogPosts } from "@/lib/docs/get-posts";
 import { SEO_DEFAULTS, SITE_URL } from "@/lib/seo";
+
+const getBlogPostsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { getBlogPosts } = await import("@/lib/docs/get-posts");
+  return getBlogPosts();
+});
 
 export const Route = createFileRoute("/blog/")({
   component: BlogIndexPage,
-  loader: () => getBlogPosts(),
+  loader: () => getBlogPostsFn(),
   head: () => ({
     meta: [
       { title: `Blog — ${SEO_DEFAULTS.siteName}` },
@@ -45,8 +50,7 @@ function BlogIndexPage() {
             Home
           </Link>
           <Link
-            to="/login"
-            search={{ mode: "sign-up" }}
+            to="/register"
             className="group inline-flex items-center gap-2 bg-landing-accent px-4 py-2 text-sm font-semibold text-landing-bg transition-all hover:shadow-[0_0_30px_rgba(0,232,123,0.2)]"
           >
             Get started

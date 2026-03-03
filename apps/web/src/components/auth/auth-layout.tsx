@@ -26,8 +26,7 @@ export function AuthLayout({
         <p className="auth-stagger mt-6 text-center font-body text-sm text-landing-text-muted" style={{ animationDelay: "400ms" }}>
           {showSignIn ? (
             <Link
-              to="/login"
-              search={{ mode: "sign-up" }}
+              to="/register"
               className="text-landing-accent transition-colors hover:underline"
             >
               Create an account
@@ -35,7 +34,6 @@ export function AuthLayout({
           ) : (
             <Link
               to="/login"
-              search={{ mode: "sign-in" }}
               className="text-landing-accent transition-colors hover:underline"
             >
               Already have an account?

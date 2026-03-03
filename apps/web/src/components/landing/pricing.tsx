@@ -66,8 +66,7 @@ export function PricingSection() {
 
             <div className="mt-12 flex flex-col items-center gap-4">
               <Link
-                to="/login"
-                search={{ mode: "sign-up" }}
+                to="/register"
                 className="group inline-flex items-center gap-3 bg-landing-accent px-8 py-4 font-body text-base font-semibold text-landing-bg transition-all duration-300 hover:shadow-[0_0_50px_rgba(0,232,123,0.25)]"
               >
                 Start recovering revenue

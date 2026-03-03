@@ -27,13 +27,6 @@ export function AppNavbar() {
           dunlo
         </Link>
 
-        <Link
-          to="/blog"
-          className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Blog
-        </Link>
-
         <div className="flex items-center gap-1">
           {navItems.map(({ to, label, icon: Icon }) => {
             const isActive =
