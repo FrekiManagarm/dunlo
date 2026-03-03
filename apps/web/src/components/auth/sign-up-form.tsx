@@ -4,8 +4,6 @@ import { toast } from "sonner";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
-
-import Loader from "../loader";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -14,7 +12,6 @@ export default function SignUpForm() {
   const navigate = useNavigate({
     from: "/",
   });
-  const { isPending } = authClient.useSession();
 
   const form = useForm({
     defaultValues: {
@@ -51,22 +48,12 @@ export default function SignUpForm() {
     },
   });
 
-  if (isPending) {
-    return <Loader />;
-  }
-
   return (
     <>
-      <h1
-        className="auth-stagger mb-8 font-display text-2xl font-normal tracking-tight text-landing-text sm:text-3xl"
-        style={{ animationDelay: "50ms" }}
-      >
+      <h1 className="mb-8 font-display text-2xl font-normal tracking-tight text-landing-text sm:text-3xl">
         Create your account
       </h1>
-      <p
-        className="auth-stagger mb-8 font-body text-sm text-landing-text-secondary"
-        style={{ animationDelay: "100ms" }}
-      >
+      <p className="mb-8 font-body text-sm text-landing-text-secondary">
         Join the beta — 10 minute setup, cancel anytime.
       </p>
 
@@ -78,11 +65,14 @@ export default function SignUpForm() {
         }}
         className="space-y-5"
       >
-        <div className="auth-stagger" style={{ animationDelay: "120ms" }}>
+        <div>
           <form.Field name="name">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="font-body text-xs font-medium text-landing-text-secondary">
+                <Label
+                  htmlFor={field.name}
+                  className="font-body text-xs font-medium text-landing-text-secondary"
+                >
                   Name
                 </Label>
                 <Input
@@ -104,11 +94,14 @@ export default function SignUpForm() {
           </form.Field>
         </div>
 
-        <div className="auth-stagger" style={{ animationDelay: "170ms" }}>
+        <div>
           <form.Field name="email">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="font-body text-xs font-medium text-landing-text-secondary">
+                <Label
+                  htmlFor={field.name}
+                  className="font-body text-xs font-medium text-landing-text-secondary"
+                >
                   Email
                 </Label>
                 <Input
@@ -131,11 +124,14 @@ export default function SignUpForm() {
           </form.Field>
         </div>
 
-        <div className="auth-stagger" style={{ animationDelay: "220ms" }}>
+        <div>
           <form.Field name="password">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="font-body text-xs font-medium text-landing-text-secondary">
+                <Label
+                  htmlFor={field.name}
+                  className="font-body text-xs font-medium text-landing-text-secondary"
+                >
                   Password
                 </Label>
                 <Input
@@ -160,7 +156,7 @@ export default function SignUpForm() {
 
         <form.Subscribe>
           {(state) => (
-            <div className="auth-stagger pt-2" style={{ animationDelay: "270ms" }}>
+            <div className="pt-2">
               <Button
                 type="submit"
                 className="h-11 w-full font-body text-sm font-semibold bg-landing-accent text-landing-bg transition-all hover:shadow-[0_0_30px_rgba(0,232,123,0.2)] disabled:opacity-50"

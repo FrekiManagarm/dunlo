@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 
 import { AuthLayout } from "@/components/auth/auth-layout";
 import SignInForm from "@/components/auth/sign-in-form";
@@ -7,6 +6,9 @@ import SignUpForm from "@/components/auth/sign-up-form";
 import { SEO_DEFAULTS, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    mode: (search.mode as "sign-in" | "sign-up" | undefined) ?? "sign-up",
+  }),
   component: RouteComponent,
   head: () => ({
     meta: [
@@ -25,10 +27,11 @@ export const Route = createFileRoute("/login")({
 });
 
 function RouteComponent() {
-  const [showSignIn, setShowSignIn] = useState(false);
+  const { mode } = Route.useSearch();
+  const showSignIn = mode === "sign-in";
 
   return (
-    <AuthLayout showSignIn={showSignIn} onSwitch={() => setShowSignIn(!showSignIn)}>
+    <AuthLayout showSignIn={showSignIn}>
       {showSignIn ? <SignInForm /> : <SignUpForm />}
     </AuthLayout>
   );

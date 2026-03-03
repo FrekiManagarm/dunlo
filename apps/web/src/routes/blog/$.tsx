@@ -112,6 +112,7 @@ function Page() {
           </Link>
           <Link
             to="/login"
+            search={{ mode: "sign-up" }}
             className="group inline-flex items-center gap-2 bg-landing-accent px-4 py-2 text-sm font-semibold text-landing-bg transition-all hover:shadow-[0_0_30px_rgba(0,232,123,0.2)]"
           >
             Get started

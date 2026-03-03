@@ -3,11 +3,9 @@ import { Link } from "@tanstack/react-router";
 export function AuthLayout({
   children,
   showSignIn,
-  onSwitch,
 }: {
   children: React.ReactNode;
   showSignIn: boolean;
-  onSwitch: () => void;
 }) {
   return (
     <div className="landing-grain relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-landing-bg landing-grid-bg">
@@ -26,13 +24,23 @@ export function AuthLayout({
         </div>
 
         <p className="auth-stagger mt-6 text-center font-body text-sm text-landing-text-muted" style={{ animationDelay: "400ms" }}>
-          <button
-            type="button"
-            onClick={onSwitch}
-            className="text-landing-accent transition-colors hover:underline"
-          >
-            {showSignIn ? "Create an account" : "Already have an account?"}
-          </button>
+          {showSignIn ? (
+            <Link
+              to="/login"
+              search={{ mode: "sign-up" }}
+              className="text-landing-accent transition-colors hover:underline"
+            >
+              Create an account
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              search={{ mode: "sign-in" }}
+              className="text-landing-accent transition-colors hover:underline"
+            >
+              Already have an account?
+            </Link>
+          )}
         </p>
       </div>
 
