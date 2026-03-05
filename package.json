@@ -21,6 +21,7 @@
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
+    "dev:front": "turbo -F front dev",
     "db:push": "turbo -F @dunlo/db db:push",
     "db:studio": "turbo -F @dunlo/db db:studio",
     "db:generate": "turbo -F @dunlo/db db:generate",

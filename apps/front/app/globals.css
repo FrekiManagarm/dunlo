@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Palette Dunlo — thème global (dark) et landing */
+:root {
+  --dunlo-bg: #040404;
+  --dunlo-surface: #0e0e0e;
+  --dunlo-surface-elevated: #161616;
+  --dunlo-accent: #00e87b;
+  --dunlo-accent-muted: rgba(0, 232, 123, 0.12);
+  --dunlo-text: #ebebeb;
+  --dunlo-text-secondary: #8a8a8a;
+  --dunlo-text-muted: #555555;
+  --dunlo-border: rgba(255, 255, 255, 0.06);
+  --dunlo-border-strong: rgba(255, 255, 255, 0.1);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.58 0.22 27);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: var(--dunlo-bg);
+  --foreground: var(--dunlo-text);
+  --card: var(--dunlo-surface);
+  --card-foreground: var(--dunlo-text);
+  --popover: var(--dunlo-surface);
+  --popover-foreground: var(--dunlo-text);
+  --primary: var(--dunlo-accent);
+  --primary-foreground: var(--dunlo-bg);
+  --secondary: var(--dunlo-surface-elevated);
+  --secondary-foreground: var(--dunlo-text);
+  --muted: var(--dunlo-surface);
+  --muted-foreground: var(--dunlo-text-secondary);
+  --accent: var(--dunlo-accent-muted);
+  --accent-foreground: var(--dunlo-accent);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: var(--dunlo-border);
+  --input: var(--dunlo-border-strong);
+  --ring: var(--dunlo-accent);
+}
+
+@theme inline {
+  --font-sans: var(--font-outfit), sans-serif;
+  --font-display: var(--font-instrument-serif), serif;
+  --font-body: var(--font-outfit), sans-serif;
+  --color-landing-accent: var(--dunlo-accent);
+  --color-landing-accent-muted: var(--dunlo-accent-muted);
+  --color-landing-bg: var(--dunlo-bg);
+  --color-landing-surface: var(--dunlo-surface);
+  --color-landing-border: var(--dunlo-border);
+  --color-landing-text: var(--dunlo-text);
+  --color-landing-text-secondary: var(--dunlo-text-secondary);
+  --color-landing-text-muted: var(--dunlo-text-muted);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-destructive: var(--destructive);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Landing */
+@keyframes l-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes l-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.l-stagger {
+  opacity: 0;
+  animation: l-fade-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.landing-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.landing-hero-glow {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 232, 123, 0.08) 0%,
+    transparent 70%
+  );
+  animation: l-glow-pulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.landing-grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.landing-headline {
+  font-size: clamp(2.8rem, 7vw, 6.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+/* Auth */
+@keyframes auth-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-stagger {
+  opacity: 0;
+  animation: auth-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Onboarding */
+@keyframes onb-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(0, 232, 123, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 232, 123, 0.15);
+  }
+}

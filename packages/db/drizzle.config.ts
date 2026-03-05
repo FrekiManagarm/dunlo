@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
 dotenv.config({
-  path: "../../apps/web/.env",
+  path: "../../apps/app/.env",
 });
 
 export default defineConfig({

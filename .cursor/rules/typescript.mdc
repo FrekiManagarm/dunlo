@@ -23,8 +23,8 @@ Le projet utilise `verbatimModuleSyntax`, `strict`, `noUnusedLocals`, `noUnusedP
 import { env } from "@dunlo/env/server";
 // env.DATABASE_URL, env.BETTER_AUTH_SECRET, etc.
 
-// Côté client (Vite) - apps/web côté navigateur
-// @dunlo/env/web exporte createEnv avec clientPrefix "VITE_"
+// Côté client - @dunlo/env/web pour variables NEXT_PUBLIC_ (Next.js)
+// Ajouter les clés dans client: { NEXT_PUBLIC_X: z.string() } et runtimeEnv
 ```
 
 Ne jamais importer `@dunlo/env/server` dans du code exécuté côté client.

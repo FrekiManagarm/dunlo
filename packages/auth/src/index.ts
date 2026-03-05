@@ -6,8 +6,7 @@ import { verifications } from "@dunlo/db/schema/verification";
 import { env } from "@dunlo/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { tanstackStartCookies } from "better-auth/tanstack-start";
-import { dash, sentinel } from "@better-auth/infra";
+import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -24,5 +23,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [tanstackStartCookies(), dash(), sentinel()],
+  plugins: [nextCookies()],
 });

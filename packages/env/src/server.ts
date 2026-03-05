@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { createEnv } from "@t3-oss/env-core";
+import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 export const env = createEnv({
@@ -15,6 +15,6 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().min(1),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   },
-  runtimeEnv: process.env,
+  experimental__runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });
