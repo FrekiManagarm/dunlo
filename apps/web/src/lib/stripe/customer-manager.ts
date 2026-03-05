@@ -29,7 +29,7 @@ export async function getOrCreateCustomer(
   const customer = await stripeClient.customers.create({
     email,
     metadata: {
-      created_by: "orylo",
+      created_by: "dunlo",
       ...metadata,
     },
   });

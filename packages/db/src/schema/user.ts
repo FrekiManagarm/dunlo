@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 import { relations, type InferSelectModel } from "drizzle-orm";
 import { sessions, type Sessions } from "./session";
 import { accounts, type Accounts } from "./account";
@@ -12,6 +12,8 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  escalationThreshold: integer("escalation_threshold").default(200),
+  notificationEmail: text("notification_email"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

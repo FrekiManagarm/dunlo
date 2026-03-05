@@ -1,26 +1,73 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Check, Unplug, Save } from "lucide-react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Check, Unplug, Save, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  getStripeConnectionStatus,
+  disconnectStripe,
+  getUserSettings,
+  updateUserSettings,
+} from "@/functions/stripe";
 
 export const Route = createFileRoute("/_app/settings")({
   component: SettingsPage,
+  loader: async () => {
+    const [connection, settings] = await Promise.all([
+      getStripeConnectionStatus(),
+      getUserSettings(),
+    ]);
+    return { connection, settings };
+  },
 });
 
 function SettingsPage() {
-  const { session } = Route.useRouteContext();
-  const [escalationThreshold, setEscalationThreshold] = useState("200");
-  const [notificationEmail, setNotificationEmail] = useState(
-    session?.user.email ?? "",
-  );
+  const { connection, settings } = Route.useLoaderData();
+  const router = useRouter();
 
-  const isConnected = true;
-  const stripeAccountId = "acct_1PxQ2r3sT4u5vW6x";
+  const [escalationThreshold, setEscalationThreshold] = useState(
+    String(settings.escalationThreshold),
+  );
+  const [notificationEmail, setNotificationEmail] = useState(
+    settings.notificationEmail,
+  );
+  const [saving, setSaving] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await updateUserSettings({
+        data: {
+          escalationThreshold: Number(escalationThreshold) || 200,
+          notificationEmail,
+        },
+      });
+      toast.success("Settings saved");
+    } catch {
+      toast.error("Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDisconnect() {
+    setDisconnecting(true);
+    try {
+      await disconnectStripe();
+      toast.success("Stripe disconnected");
+      router.invalidate();
+    } catch {
+      toast.error("Failed to disconnect Stripe");
+    } finally {
+      setDisconnecting(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -39,7 +86,7 @@ function SettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isConnected ? (
+            {connection.isConnected ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex size-7 items-center justify-center border border-emerald-500/20 bg-emerald-500/10">
@@ -50,12 +97,22 @@ function SettingsPage() {
                       Connected
                     </p>
                     <p className="font-mono text-[11px] text-muted-foreground">
-                      {stripeAccountId}
+                      {connection.stripeAccountId}
                     </p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive">
-                  <Unplug className="size-3" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 text-destructive hover:text-destructive"
+                  onClick={handleDisconnect}
+                  disabled={disconnecting}
+                >
+                  {disconnecting ? (
+                    <Loader2 className="size-3 animate-spin" />
+                  ) : (
+                    <Unplug className="size-3" />
+                  )}
                   Disconnect
                 </Button>
               </div>
@@ -64,7 +121,12 @@ function SettingsPage() {
                 <p className="text-xs text-muted-foreground">
                   No Stripe account connected.
                 </p>
-                <Button size="sm">Connect Stripe</Button>
+                <Button
+                  size="sm"
+                  onClick={() => router.navigate({ to: "/onboarding" })}
+                >
+                  Connect Stripe
+                </Button>
               </div>
             )}
           </CardContent>
@@ -154,8 +216,17 @@ function SettingsPage() {
         </Card>
 
         <div className="flex justify-end">
-          <Button size="lg" className="gap-2">
-            <Save className="size-3.5" />
+          <Button
+            size="lg"
+            className="gap-2"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Save className="size-3.5" />
+            )}
             Save settings
           </Button>
         </div>

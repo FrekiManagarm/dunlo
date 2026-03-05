@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Check,
@@ -7,60 +7,23 @@ import {
   MailOpen,
   AlertTriangle,
   CheckCircle2,
+  ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import {
+  getPaymentDetail,
+  markPaymentResolved,
+  escalatePayment,
+} from "@/functions/payments";
 
 export const Route = createFileRoute("/_app/payment/$id")({
   component: PaymentDetailPage,
+  loader: ({ params }) => getPaymentDetail({ data: { id: params.id } }),
 });
-
-interface TimelineEvent {
-  step: number;
-  label: string;
-  date: string;
-  status: "completed" | "opened" | "scheduled";
-  detail?: string;
-}
-
-const mockTimeline: TimelineEvent[] = [
-  {
-    step: 1,
-    label: "Recovery email sent",
-    date: "Feb 27, 2026",
-    status: "completed",
-  },
-  {
-    step: 2,
-    label: "Follow-up email sent",
-    date: "Mar 2, 2026",
-    status: "opened",
-    detail: "Opened 2 hours ago",
-  },
-  {
-    step: 3,
-    label: "Final reminder",
-    date: "Mar 6, 2026",
-    status: "scheduled",
-  },
-];
-
-const mockPayment = {
-  id: "fp_1",
-  customerName: "John Doe",
-  customerEmail: "john@acme.co",
-  amount: 29900,
-  currency: "eur",
-  failureReason: "Card expired",
-  detectedAt: "Feb 27, 2026",
-  daysSinceDetection: 3,
-  status: "emailing" as const,
-  currentStep: 2,
-  totalSteps: 3,
-};
 
 function formatAmount(cents: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -70,7 +33,27 @@ function formatAmount(cents: number, currency: string) {
   }).format(cents / 100);
 }
 
-function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean }) {
+function TimelineItem({
+  event,
+  isLast,
+}: {
+  event: {
+    step: number;
+    label: string;
+    scheduledAt: string;
+    sentAt: string | null;
+    openedAt: string | null;
+    status: string;
+  };
+  isLast: boolean;
+}) {
+  const displayStatus =
+    event.status === "opened" || event.status === "clicked"
+      ? "opened"
+      : event.status === "sent"
+        ? "completed"
+        : "scheduled";
+
   const iconMap = {
     completed: <Check className="size-3" />,
     opened: <MailOpen className="size-3" />,
@@ -83,6 +66,18 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
     scheduled: "bg-muted text-muted-foreground border-border",
   };
 
+  const displayDate = event.sentAt
+    ? new Date(event.sentAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : new Date(event.scheduledAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+
   return (
     <div className="relative flex gap-4 pb-8 last:pb-0">
       {!isLast && (
@@ -92,10 +87,10 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
       <div
         className={cn(
           "relative z-10 flex size-7 shrink-0 items-center justify-center border",
-          colorMap[event.status],
+          colorMap[displayStatus],
         )}
       >
-        {iconMap[event.status]}
+        {iconMap[displayStatus]}
       </div>
 
       <div className="flex-1 pt-0.5">
@@ -103,7 +98,7 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
           <span
             className={cn(
               "text-xs font-medium",
-              event.status === "scheduled"
+              displayStatus === "scheduled"
                 ? "text-muted-foreground"
                 : "text-foreground",
             )}
@@ -111,11 +106,17 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
             {event.label}
           </span>
           <span className="text-[11px] text-muted-foreground">
-            {event.date}
+            {displayDate}
           </span>
         </div>
-        {event.detail && (
-          <p className="mt-0.5 text-[11px] text-primary">{event.detail}</p>
+        {event.openedAt && (
+          <p className="mt-0.5 text-[11px] text-primary">
+            Opened{" "}
+            {new Date(event.openedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </p>
         )}
       </div>
     </div>
@@ -123,7 +124,21 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
 }
 
 function PaymentDetailPage() {
-  void Route.useParams();
+  const payment = Route.useLoaderData();
+  const router = useRouter();
+
+  async function handleResolve() {
+    await markPaymentResolved({ data: { paymentId: payment.id } });
+    router.invalidate();
+  }
+
+  async function handleEscalate() {
+    await escalatePayment({ data: { paymentId: payment.id } });
+    router.invalidate();
+  }
+
+  const isResolved =
+    payment.status === "recovered" || payment.status === "lost";
 
   return (
     <div className="space-y-6">
@@ -138,11 +153,11 @@ function PaymentDetailPage() {
         <Separator orientation="vertical" className="h-4" />
         <div>
           <h1 className="font-display text-xl text-foreground">
-            {mockPayment.customerName}
+            {payment.customerName}
           </h1>
           <p className="text-xs text-muted-foreground">
-            {formatAmount(mockPayment.amount, mockPayment.currency)}/mo
-            &middot; {mockPayment.customerEmail}
+            {formatAmount(payment.amount, payment.currency)}/mo
+            &middot; {payment.customerEmail}
           </p>
         </div>
       </div>
@@ -156,7 +171,7 @@ function PaymentDetailPage() {
           </CardHeader>
           <CardContent>
             <span className="text-sm font-medium text-foreground">
-              {mockPayment.failureReason}
+              {payment.failureReason}
             </span>
           </CardContent>
         </Card>
@@ -169,10 +184,14 @@ function PaymentDetailPage() {
           </CardHeader>
           <CardContent>
             <span className="text-sm font-medium text-foreground">
-              {mockPayment.daysSinceDetection} days ago
+              {payment.daysSinceDetection} days ago
             </span>
             <p className="text-[11px] text-muted-foreground">
-              {mockPayment.detectedAt}
+              {new Date(payment.detectedAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
             </p>
           </CardContent>
         </Card>
@@ -187,10 +206,10 @@ function PaymentDetailPage() {
             <div className="flex items-center gap-2">
               <Mail className="size-3.5 text-amber-400" />
               <span className="text-sm font-medium capitalize text-foreground">
-                {mockPayment.status}
+                {payment.status}
               </span>
               <span className="font-mono text-xs text-muted-foreground">
-                (step {mockPayment.currentStep}/{mockPayment.totalSteps})
+                (step {payment.currentStep}/{payment.totalSteps})
               </span>
             </div>
           </CardContent>
@@ -198,40 +217,61 @@ function PaymentDetailPage() {
       </div>
 
       <Card className="border border-border">
-        <CardHeader>
+        <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="text-sm text-foreground">Timeline</CardTitle>
+          <a
+            href={`https://dashboard.stripe.com/payments/${payment.stripePaymentIntentId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary"
+          >
+            View in Stripe
+            <ExternalLink className="size-3" />
+          </a>
         </CardHeader>
         <CardContent>
-          <div>
-            {mockTimeline.map((event, i) => (
-              <TimelineItem
-                key={event.step}
-                event={event}
-                isLast={i === mockTimeline.length - 1}
-              />
-            ))}
-          </div>
+          {payment.timeline.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              No emails scheduled yet.
+            </p>
+          ) : (
+            <div>
+              {payment.timeline.map((event, i) => (
+                <TimelineItem
+                  key={event.step}
+                  event={event}
+                  isLast={i === payment.timeline.length - 1}
+                />
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <div className="flex gap-3">
-        <Button
-          variant="default"
-          size="lg"
-          className="gap-2"
-        >
-          <CheckCircle2 className="size-3.5" />
-          Mark as resolved
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          className="gap-2"
-        >
-          <AlertTriangle className="size-3.5" />
-          Escalate manually
-        </Button>
-      </div>
+      {!isResolved && (
+        <div className="flex gap-3">
+          <Button
+            variant="default"
+            size="lg"
+            className="gap-2"
+            onClick={handleResolve}
+          >
+            <CheckCircle2 className="size-3.5" />
+            Mark as resolved
+          </Button>
+          {!payment.isEscalated && (
+            <Button
+              variant="outline"
+              size="lg"
+              className="gap-2"
+              onClick={handleEscalate}
+            >
+              <AlertTriangle className="size-3.5" />
+              Escalate manually
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

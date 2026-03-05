@@ -9,7 +9,10 @@ export const stripeConnection = pgTable(
     userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
     stripeAccountId: text("stripe_account_id"),
     accessToken: text("access_token"),
+    webhookEndpointId: text("webhook_endpoint_id"),
+    webhookSecret: text("webhook_secret"),
     connectedAt: timestamp("connected_at").defaultNow().notNull(),
+    lastSyncAt: timestamp("last_sync_at"),
     isActive: boolean("is_active").default(true).notNull(),
   },
 );

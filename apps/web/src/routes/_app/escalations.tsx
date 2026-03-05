@@ -1,52 +1,14 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { AlertTriangle, ExternalLink, CheckCircle2, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getEscalations, resolveEscalation } from "@/functions/payments";
 
 export const Route = createFileRoute("/_app/escalations")({
   component: EscalationsPage,
+  loader: () => getEscalations(),
 });
-
-interface MockEscalation {
-  id: string;
-  paymentId: string;
-  customerName: string;
-  customerEmail: string;
-  amount: number;
-  currency: string;
-  emailsSent: number;
-  daysSince: number;
-  reason: string;
-  sequenceComplete: boolean;
-}
-
-const mockEscalations: MockEscalation[] = [
-  {
-    id: "esc_1",
-    paymentId: "fp_2",
-    customerName: "Sara Martin",
-    customerEmail: "sara@bigcorp.io",
-    amount: 49900,
-    currency: "eur",
-    emailsSent: 3,
-    daysSince: 7,
-    reason: "No response after full sequence",
-    sequenceComplete: true,
-  },
-  {
-    id: "esc_2",
-    paymentId: "fp_6",
-    customerName: "Marc Dupont",
-    customerEmail: "marc@enterprise.fr",
-    amount: 29900,
-    currency: "eur",
-    emailsSent: 3,
-    daysSince: 5,
-    reason: "Sequence complete. No payment.",
-    sequenceComplete: true,
-  },
-];
 
 function formatAmount(cents: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -57,6 +19,14 @@ function formatAmount(cents: number, currency: string) {
 }
 
 function EscalationsPage() {
+  const escalationsList = Route.useLoaderData();
+  const router = useRouter();
+
+  async function handleResolve(escalationId: string) {
+    await resolveEscalation({ data: { escalationId } });
+    router.invalidate();
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-3">
@@ -68,14 +38,14 @@ function EscalationsPage() {
             Needs your attention
           </h1>
           <p className="text-xs text-muted-foreground">
-            {mockEscalations.length} escalated account
-            {mockEscalations.length !== 1 ? "s" : ""} — automated recovery
+            {escalationsList.length} escalated account
+            {escalationsList.length !== 1 ? "s" : ""} — automated recovery
             didn't work, they need a human touch.
           </p>
         </div>
       </div>
 
-      {mockEscalations.length === 0 ? (
+      {escalationsList.length === 0 ? (
         <Card className="border border-border">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <CheckCircle2 className="mb-4 size-10 text-emerald-400/60" />
@@ -89,7 +59,7 @@ function EscalationsPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {mockEscalations.map((esc) => (
+          {escalationsList.map((esc) => (
             <Card
               key={esc.id}
               className="group border border-border transition-colors hover:border-border-strong"
@@ -128,7 +98,12 @@ function EscalationsPage() {
                       View details
                     </Button>
                   </Link>
-                  <Button variant="default" size="sm" className="gap-1.5">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => handleResolve(esc.id)}
+                  >
                     <CheckCircle2 className="size-3" />
                     Mark resolved
                   </Button>

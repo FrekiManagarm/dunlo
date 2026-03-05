@@ -20,8 +20,10 @@ import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
 import { Route as AppEscalationsRouteImport } from './routes/_app/escalations'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as ApiCronProcessEmailsRouteImport } from './routes/api/cron/process-emails'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AppPaymentIdRouteImport } from './routes/_app/payment.$id'
+import { Route as ApiWebhooksStripeIndexRouteImport } from './routes/api/webhooks/stripe/index'
 import { Route as ApiStripeConnectFallbackRouteImport } from './routes/api/stripe/connect/fallback'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -78,6 +80,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiCronProcessEmailsRoute = ApiCronProcessEmailsRouteImport.update({
+  id: '/api/cron/process-emails',
+  path: '/api/cron/process-emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -87,6 +94,11 @@ const AppPaymentIdRoute = AppPaymentIdRouteImport.update({
   id: '/payment/$id',
   path: '/payment/$id',
   getParentRoute: () => AppRoute,
+} as any)
+const ApiWebhooksStripeIndexRoute = ApiWebhooksStripeIndexRouteImport.update({
+  id: '/api/webhooks/stripe/',
+  path: '/api/webhooks/stripe/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStripeConnectFallbackRoute =
   ApiStripeConnectFallbackRouteImport.update({
@@ -108,7 +120,9 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/payment/$id': typeof AppPaymentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/process-emails': typeof ApiCronProcessEmailsRoute
   '/api/stripe/connect/fallback': typeof ApiStripeConnectFallbackRoute
+  '/api/webhooks/stripe/': typeof ApiWebhooksStripeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -123,7 +137,9 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/payment/$id': typeof AppPaymentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/process-emails': typeof ApiCronProcessEmailsRoute
   '/api/stripe/connect/fallback': typeof ApiStripeConnectFallbackRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -140,7 +156,9 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/_app/payment/$id': typeof AppPaymentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/process-emails': typeof ApiCronProcessEmailsRoute
   '/api/stripe/connect/fallback': typeof ApiStripeConnectFallbackRoute
+  '/api/webhooks/stripe/': typeof ApiWebhooksStripeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,7 +175,9 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/payment/$id'
     | '/api/auth/$'
+    | '/api/cron/process-emails'
     | '/api/stripe/connect/fallback'
+    | '/api/webhooks/stripe/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -172,7 +192,9 @@ export interface FileRouteTypes {
     | '/blog'
     | '/payment/$id'
     | '/api/auth/$'
+    | '/api/cron/process-emails'
     | '/api/stripe/connect/fallback'
+    | '/api/webhooks/stripe'
   id:
     | '__root__'
     | '/'
@@ -188,7 +210,9 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/_app/payment/$id'
     | '/api/auth/$'
+    | '/api/cron/process-emails'
     | '/api/stripe/connect/fallback'
+    | '/api/webhooks/stripe/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -200,7 +224,9 @@ export interface RootRouteChildren {
   BlogSplatRoute: typeof BlogSplatRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCronProcessEmailsRoute: typeof ApiCronProcessEmailsRoute
   ApiStripeConnectFallbackRoute: typeof ApiStripeConnectFallbackRoute
+  ApiWebhooksStripeIndexRoute: typeof ApiWebhooksStripeIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -282,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/cron/process-emails': {
+      id: '/api/cron/process-emails'
+      path: '/api/cron/process-emails'
+      fullPath: '/api/cron/process-emails'
+      preLoaderRoute: typeof ApiCronProcessEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -295,6 +328,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/payment/$id'
       preLoaderRoute: typeof AppPaymentIdRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/api/webhooks/stripe/': {
+      id: '/api/webhooks/stripe/'
+      path: '/api/webhooks/stripe'
+      fullPath: '/api/webhooks/stripe/'
+      preLoaderRoute: typeof ApiWebhooksStripeIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/stripe/connect/fallback': {
       id: '/api/stripe/connect/fallback'
@@ -333,7 +373,9 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSplatRoute: BlogSplatRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCronProcessEmailsRoute: ApiCronProcessEmailsRoute,
   ApiStripeConnectFallbackRoute: ApiStripeConnectFallbackRoute,
+  ApiWebhooksStripeIndexRoute: ApiWebhooksStripeIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

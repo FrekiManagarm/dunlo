@@ -1,11 +1,32 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ArrowRight, Shield, Zap, Clock } from "lucide-react";
+import { useState } from "react";
+
+import { getStripeConnectionStatus, getStripeConnectUrl } from "@/functions/stripe";
 
 export const Route = createFileRoute("/_app/onboarding")({
   component: OnboardingPage,
+  beforeLoad: async () => {
+    const status = await getStripeConnectionStatus();
+    if (status.isConnected) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });
 
 function OnboardingPage() {
+  const [loading, setLoading] = useState(false);
+
+  async function handleConnect() {
+    setLoading(true);
+    try {
+      const { url } = await getStripeConnectUrl();
+      window.location.href = url;
+    } catch {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-[calc(100svh-8rem)] items-center justify-center">
       <div className="mx-auto w-full max-w-lg text-center">
@@ -26,9 +47,11 @@ function OnboardingPage() {
 
         <button
           type="button"
-          className="group mt-8 inline-flex items-center gap-3 bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:shadow-[0_0_40px_rgba(0,232,123,0.2)]"
+          onClick={handleConnect}
+          disabled={loading}
+          className="group mt-8 inline-flex items-center gap-3 bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:shadow-[0_0_40px_rgba(0,232,123,0.2)] disabled:opacity-50"
         >
-          Connect with Stripe
+          {loading ? "Redirecting to Stripe…" : "Connect with Stripe"}
           <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
         </button>
 

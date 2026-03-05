@@ -2,22 +2,19 @@ import Stripe from "stripe";
 import { eq } from "drizzle-orm";
 import { encrypt } from "./encryption";
 import { db } from "@dunlo/db";
+import { stripeConnection } from "@dunlo/db/schema";
+import { env } from "@dunlo/env/server";
 
 /**
  * Setup webhook endpoint on connected Stripe account
  */
 export async function setupWebhooks(
   stripeAccountId: string,
-  accessToken: string,
-  organizationId: string,
 ): Promise<{ webhookEndpointId: string; webhookSecret: string } | null> {
   try {
-    // URL utilisée pour les webhooks (reste spécifique au compte pour le routage)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://orylo.app";
-    const webhookUrl = `${baseUrl}/api/webhooks/stripe/${stripeAccountId}`;
+    const baseUrl = env.APP_URL;
+    const webhookUrl = `${baseUrl}/api/webhooks/stripe`;
 
-    // En développement local, skip la création du webhook
-    // Utiliser Stripe CLI à la place : stripe listen --forward-to localhost:3000/api/webhooks/stripe/{accountId}
     if (
       baseUrl.includes("localhost") ||
       baseUrl.includes("127.0.0.1") ||
@@ -28,17 +25,16 @@ export async function setupWebhooks(
       );
       console.warn(`💡 Use Stripe CLI to test webhooks locally:`);
       console.warn(
-        `   stripe listen --forward-to ${baseUrl}/api/webhooks/stripe/${stripeAccountId}`,
+        `   stripe listen --forward-to ${baseUrl}/api/webhooks/stripe`,
       );
 
-      // Retourner des valeurs temporaires pour le développement local
       await db
-        .update(stripeConnections)
+        .update(stripeConnection)
         .set({
           webhookSecret: encrypt("whsec_local_dev_secret"),
           lastSyncAt: new Date(),
         })
-        .where(eq(stripeConnections.stripeAccountId, stripeAccountId));
+        .where(eq(stripeConnection.stripeAccountId, stripeAccountId));
 
       return {
         webhookEndpointId: "local_dev_webhook",
@@ -46,47 +42,38 @@ export async function setupWebhooks(
       };
     }
 
-    console.log(`🔗 Setting up Connect webhook for account ${stripeAccountId}`);
+    console.log(`🔗 Setting up webhook for account ${stripeAccountId}`);
 
-    // Créer un webhook Connect au niveau plateforme
-    // (Les comptes Standard ne permettent pas de créer des webhooks directement)
-    const platformStripe = new Stripe(accessToken, {
+    const platformStripe = new Stripe(env.STRIPE_SECRET_KEY, {
       apiVersion: "2026-02-25.clover",
     });
 
-    const webhookEndpoint = await platformStripe.webhookEndpoints.create(
-      {
-        url: webhookUrl,
-        connect: true, // Recevoir les événements des comptes connectés
-        enabled_events: [
-          "payment_intent.created", // 🎯 Principal : détection précoce
-          "payment_intent.succeeded", // Pour remboursement si trop tard
-          "payment_intent.payment_failed", // Analyse des échecs
-          "charge.dispute.created", // Chargeback = fraude confirmée
-          "customer.created", // Création d'un nouveau client
-          "charge.refund.updated", // Suivi des remboursements
-          "checkout.session.completed", // Card testing detection
-          "checkout.session.expired", // Card testing detection
-          "checkout.session.async_payment_succeeded", // Card testing detection
-        ],
-        description: `Orylo Fraud Shield - Connect (${stripeAccountId})`,
+    const webhookEndpoint = await platformStripe.webhookEndpoints.create({
+      url: webhookUrl,
+      enabled_events: [
+        "payment_intent.payment_failed",
+        "payment_intent.succeeded",
+        "customer.subscription.deleted",
+        "invoice.payment_action_required",
+      ],
+      description: `Dunlo Payment Recovery - ${stripeAccountId}`,
+      metadata: {
+        stripeAccountId,
       },
-      {
-        stripeAccount: stripeAccountId,
-      },
-    );
+    });
 
     console.log(
-      `✅ Platform-level Connect webhook created: ${webhookEndpoint.id} for account ${stripeAccountId}`,
+      `✅ Webhook created: ${webhookEndpoint.id} for account ${stripeAccountId}`,
     );
 
     await db
-      .update(stripeConnections)
+      .update(stripeConnection)
       .set({
+        webhookEndpointId: webhookEndpoint.id,
         webhookSecret: encrypt(webhookEndpoint.secret!),
         lastSyncAt: new Date(),
       })
-      .where(eq(stripeConnections.stripeAccountId, stripeAccountId));
+      .where(eq(stripeConnection.stripeAccountId, stripeAccountId));
 
     return {
       webhookEndpointId: webhookEndpoint.id,
@@ -102,26 +89,19 @@ export async function setupWebhooks(
 }
 
 /**
- * Delete webhook endpoint (Connect webhook at platform level)
+ * Delete webhook endpoint
  */
 export async function deleteWebhooks(
-  stripeAccountId: string,
-  accessToken: string,
   webhookEndpointId: string,
 ): Promise<boolean> {
   try {
-    // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
-    const stripe = new Stripe(accessToken, {
+    const platformStripe = new Stripe(env.STRIPE_SECRET_KEY, {
       apiVersion: "2026-02-25.clover",
     });
 
-    await stripe.webhookEndpoints.del(webhookEndpointId, {
-      stripeAccount: stripeAccountId,
-    });
+    await platformStripe.webhookEndpoints.del(webhookEndpointId);
 
-    console.log(
-      `✅ Deleted Connect webhook endpoint ${webhookEndpointId} for account ${stripeAccountId}`,
-    );
+    console.log(`✅ Deleted webhook endpoint ${webhookEndpointId}`);
     return true;
   } catch (error) {
     console.error(
@@ -129,72 +109,5 @@ export async function deleteWebhooks(
       error,
     );
     return false;
-  }
-}
-
-/**
- * Update webhook endpoint events (Connect webhook at platform level)
- */
-export async function updateWebhookEvents(
-  accessToken: string,
-  webhookEndpointId: string,
-  stripeAccountId: string,
-  events: string[],
-): Promise<boolean> {
-  try {
-    // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
-    const stripe = new Stripe(accessToken, {
-      apiVersion: "2026-02-25.clover",
-    });
-
-    await stripe.webhookEndpoints.update(
-      webhookEndpointId,
-      {
-        enabled_events: events as any,
-      },
-      {
-        stripeAccount: stripeAccountId,
-      },
-    );
-
-    console.log(
-      `✅ Updated Connect webhook endpoint ${webhookEndpointId} events`,
-    );
-    return true;
-  } catch (error) {
-    console.error(
-      `❌ Error updating webhook endpoint ${webhookEndpointId}:`,
-      error,
-    );
-    return false;
-  }
-}
-
-/**
- * List all Connect webhook endpoints at platform level
- */
-export async function listWebhooks(
-  accessToken: string,
-  stripeAccountId: string,
-): Promise<Stripe.WebhookEndpoint[]> {
-  try {
-    // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
-    const stripe = new Stripe(accessToken, {
-      apiVersion: "2026-02-25.clover",
-    });
-
-    // Lister tous les webhooks Connect (filtrer côté client si nécessaire)
-    const endpoints = await stripe.webhookEndpoints.list(
-      { limit: 100 },
-      {
-        stripeAccount: stripeAccountId,
-      },
-    );
-    return endpoints.data.filter((endpoint) =>
-      endpoint.url?.includes(stripeAccountId),
-    );
-  } catch (error) {
-    console.error("❌ Error listing webhook endpoints:", error);
-    return [];
   }
 }

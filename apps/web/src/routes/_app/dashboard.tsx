@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ExternalLink,
 } from "lucide-react";
+import { useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,9 +17,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { getDashboardData } from "@/functions/payments";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: DashboardPage,
+  loader: () => getDashboardData(),
 });
 
 const statusConfig = {
@@ -51,81 +54,14 @@ const statusConfig = {
 
 type PaymentStatus = keyof typeof statusConfig;
 
-interface MockPayment {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  amount: number;
-  currency: string;
-  status: PaymentStatus;
-  currentStep: number;
-  totalSteps: number;
-  failureReason: string;
-  detectedAt: string;
-}
-
-const mockPayments: MockPayment[] = [
-  {
-    id: "fp_1",
-    customerName: "John Doe",
-    customerEmail: "john@acme.co",
-    amount: 29900,
-    currency: "eur",
-    status: "emailing",
-    currentStep: 2,
-    totalSteps: 3,
-    failureReason: "Card expired",
-    detectedAt: "2026-02-27",
-  },
-  {
-    id: "fp_2",
-    customerName: "Sara Martin",
-    customerEmail: "sara@bigcorp.io",
-    amount: 49900,
-    currency: "eur",
-    status: "escalated",
-    currentStep: 3,
-    totalSteps: 3,
-    failureReason: "Insufficient funds",
-    detectedAt: "2026-02-23",
-  },
-  {
-    id: "fp_3",
-    customerName: "Marc Dupont",
-    customerEmail: "marc@startup.fr",
-    amount: 9900,
-    currency: "eur",
-    status: "recovered",
-    currentStep: 1,
-    totalSteps: 3,
-    failureReason: "Card expired",
-    detectedAt: "2026-02-20",
-  },
-  {
-    id: "fp_4",
-    customerName: "Lisa Chen",
-    customerEmail: "lisa@design.co",
-    amount: 19900,
-    currency: "eur",
-    status: "emailing",
-    currentStep: 1,
-    totalSteps: 3,
-    failureReason: "Authentication required",
-    detectedAt: "2026-03-01",
-  },
-  {
-    id: "fp_5",
-    customerName: "Tom Wilson",
-    customerEmail: "tom@agency.com",
-    amount: 79900,
-    currency: "eur",
-    status: "lost",
-    currentStep: 3,
-    totalSteps: 3,
-    failureReason: "Card declined",
-    detectedAt: "2026-02-15",
-  },
-];
+const FILTER_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "emailing", label: "Emailing" },
+  { value: "escalated", label: "Escalated" },
+  { value: "recovered", label: "Recovered" },
+  { value: "lost", label: "Lost" },
+  { value: "detected", label: "Detected" },
+] as const;
 
 function formatAmount(cents: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -198,18 +134,13 @@ function StatCard({
 
 function DashboardPage() {
   const { session } = Route.useRouteContext();
+  const data = Route.useLoaderData();
+  const [filter, setFilter] = useState<string>("all");
 
-  const atRisk = mockPayments
-    .filter((p) => p.status !== "recovered" && p.status !== "lost")
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const recovered = mockPayments
-    .filter((p) => p.status === "recovered")
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const needsAttention = mockPayments.filter(
-    (p) => p.status === "escalated",
-  ).length;
+  const filteredPayments =
+    filter === "all"
+      ? data.payments
+      : data.payments.filter((p) => p.status === filter);
 
   return (
     <div className="space-y-8">
@@ -224,21 +155,21 @@ function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           title="At risk"
-          value={formatAmount(atRisk, "eur")}
+          value={formatAmount(data.stats.atRisk, "eur")}
           icon={TrendingDown}
           accent="red"
           subtitle="Active failed payments"
         />
         <StatCard
           title="Recovered this month"
-          value={formatAmount(recovered, "eur")}
+          value={formatAmount(data.stats.recoveredThisMonth, "eur")}
           icon={TrendingUp}
           accent="green"
           subtitle="Successfully recovered"
         />
         <StatCard
           title="Need your attention"
-          value={String(needsAttention)}
+          value={String(data.stats.needsAttention)}
           icon={AlertTriangle}
           accent="amber"
           subtitle="Escalated accounts"
@@ -248,71 +179,97 @@ function DashboardPage() {
       <div>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-medium text-foreground">
-            Recent failed payments
+            Failed payments
           </h2>
-          <span className="text-xs text-muted-foreground">
-            {mockPayments.length} total
-          </span>
+          <div className="flex items-center gap-1">
+            {FILTER_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setFilter(opt.value)}
+                className={cn(
+                  "px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  filter === opt.value
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="overflow-hidden border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">
-                  Customer
-                </TableHead>
-                <TableHead className="text-muted-foreground">Amount</TableHead>
-                <TableHead className="text-muted-foreground">Reason</TableHead>
-                <TableHead className="text-muted-foreground">Step</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
-                <TableHead className="w-10" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockPayments.map((payment) => (
-                <TableRow
-                  key={payment.id}
-                  className="group border-border transition-colors hover:bg-muted/30"
-                >
-                  <TableCell>
-                    <div>
-                      <div className="font-medium text-foreground">
-                        {payment.customerName}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {payment.customerEmail}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-foreground">
-                    {formatAmount(payment.amount, payment.currency)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {payment.failureReason}
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-mono text-muted-foreground">
-                      {payment.currentStep}/{payment.totalSteps}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={payment.status} />
-                  </TableCell>
-                  <TableCell>
-                    <Link
-                      to="/payment/$id"
-                      params={{ id: payment.id }}
-                      className="inline-flex items-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
-                    >
-                      <ExternalLink className="size-3.5" />
-                    </Link>
-                  </TableCell>
+        {filteredPayments.length === 0 ? (
+          <Card className="border border-border">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <p className="text-sm text-muted-foreground">
+                {filter === "all"
+                  ? "No failed payments detected yet. Connect Stripe to get started."
+                  : `No payments with status "${filter}".`}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="overflow-hidden border border-border">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">
+                    Customer
+                  </TableHead>
+                  <TableHead className="text-muted-foreground">Amount</TableHead>
+                  <TableHead className="text-muted-foreground">Reason</TableHead>
+                  <TableHead className="text-muted-foreground">Step</TableHead>
+                  <TableHead className="text-muted-foreground">Status</TableHead>
+                  <TableHead className="w-10" />
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {filteredPayments.map((payment) => (
+                  <TableRow
+                    key={payment.id}
+                    className="group border-border transition-colors hover:bg-muted/30"
+                  >
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-foreground">
+                          {payment.customerName}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {payment.customerEmail}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-foreground">
+                      {formatAmount(payment.amount, payment.currency)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {payment.failureReason}
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono text-muted-foreground">
+                        {payment.currentStep}/{payment.totalSteps}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={payment.status} />
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        to="/payment/$id"
+                        params={{ id: payment.id }}
+                        className="inline-flex items-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
+                      >
+                        <ExternalLink className="size-3.5" />
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
     </div>
   );
