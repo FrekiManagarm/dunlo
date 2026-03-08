@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { FAQSection } from "@/components/landing/faq";
 import { FooterSection } from "@/components/landing/footer";
 import { HeroSection } from "@/components/landing/hero";
 import { PricingSection } from "@/components/landing/pricing";
@@ -34,12 +35,6 @@ function LandingNav() {
       </Link>
 
       <div className="flex items-center gap-8">
-        <Link
-          href="/blog"
-          className="hidden text-sm text-landing-text-secondary transition-colors hover:text-landing-text md:block"
-        >
-          Blog
-        </Link>
         <a
           href="#pricing"
           className="hidden text-sm text-landing-text-secondary transition-colors hover:text-landing-text md:block"
@@ -84,6 +79,12 @@ export default function LandingPage() {
       <div id="pricing">
         <PricingSection />
       </div>
+
+      <div className="mx-auto max-w-5xl px-6">
+        <div className="h-px bg-linear-to-r from-transparent via-landing-border to-transparent" />
+      </div>
+
+      <FAQSection />
 
       <div className="mx-auto max-w-5xl px-6">
         <div className="h-px bg-linear-to-r from-transparent via-landing-border to-transparent" />

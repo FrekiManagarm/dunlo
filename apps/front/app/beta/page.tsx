@@ -74,7 +74,8 @@ export default function BetaPage() {
             className="l-stagger mt-4 text-center font-body text-sm text-landing-text-secondary"
             style={{ animationDelay: "150ms" }}
           >
-            Free during beta. No credit card. ~10 min setup.
+            Free during beta. No credit card. ~10 min setup. 8 founders already
+            in.
           </p>
 
           <div

@@ -12,7 +12,7 @@ export function HeroSection() {
           style={{ animationDelay: "100ms" }}
         >
           <span className="inline-block size-1.5 rounded-full bg-landing-accent" />
-          Payment recovery for SaaS
+          Beta access
         </div>
 
         <h1
@@ -33,6 +33,13 @@ export function HeroSection() {
         >
           Dunlo connects to Stripe and automatically recovers failed payments,
           then escalates high-value accounts to you — in 10 minutes setup.
+        </p>
+
+        <p
+          className="l-stagger mt-4 font-body text-sm text-landing-text-muted"
+          style={{ animationDelay: "450ms" }}
+        >
+          Built for founders at €5k–€80k MRR. 8 founders already in beta.
         </p>
 
         <div
