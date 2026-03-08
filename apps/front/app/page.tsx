@@ -47,7 +47,7 @@ function LandingNav() {
           Pricing
         </a>
         <Link
-          href="/register"
+          href="/login"
           className="group inline-flex items-center gap-2 bg-landing-accent px-5 py-2 text-sm font-semibold text-landing-bg transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,232,123,0.2)]"
         >
           Get started

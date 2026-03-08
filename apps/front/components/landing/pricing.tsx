@@ -66,10 +66,10 @@ export function PricingSection() {
 
             <div className="mt-12 flex flex-col items-center gap-4">
               <Link
-                href="/register"
+                href="/beta"
                 className="group inline-flex items-center gap-3 bg-landing-accent px-8 py-4 font-body text-base font-semibold text-landing-bg transition-all duration-300 hover:shadow-[0_0_50px_rgba(0,232,123,0.25)]"
               >
-                Start recovering revenue
+                Join the beta
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </div>
