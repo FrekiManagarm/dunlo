@@ -37,7 +37,7 @@ export default function SignInForm() {
     },
     validators: {
       onSubmit: z.object({
-        email: z.string().email("Invalid email address"),
+        email: z.email("Invalid email address"),
         password: z.string().min(8, "Password must be at least 8 characters"),
       }),
     },
@@ -53,9 +53,6 @@ export default function SignInForm() {
       </p>
 
       <form
-        method="post"
-        action="#"
-        noValidate
         className="space-y-5"
         onSubmit={(e) => {
           e.preventDefault();
@@ -123,15 +120,19 @@ export default function SignInForm() {
           </form.Field>
         </div>
 
-        <div className="pt-2">
-          <Button
-            type="submit"
-            className="h-11 w-full font-body text-sm font-semibold bg-landing-accent text-landing-bg transition-all hover:shadow-[0_0_30px_rgba(0,232,123,0.2)] disabled:opacity-50"
-            disabled={!form.state.canSubmit || form.state.isSubmitting}
-          >
-            {form.state.isSubmitting ? "Signing in…" : "Sign in"}
-          </Button>
-        </div>
+        <form.Subscribe>
+          {(state) => (
+            <div className="pt-2">
+              <Button
+                type="submit"
+                className="h-11 w-full font-body text-sm font-semibold bg-landing-accent text-landing-bg transition-all hover:shadow-[0_0_30px_rgba(0,232,123,0.2)] disabled:opacity-50"
+                disabled={!state.canSubmit || state.isSubmitting}
+              >
+                {state.isSubmitting ? "Signing in…" : "Sign in"}
+              </Button>
+            </div>
+          )}
+        </form.Subscribe>
       </form>
     </>
   );
