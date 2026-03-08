@@ -25,6 +25,7 @@ type Connection = {
 type Settings = {
   escalationThreshold: number;
   notificationEmail: string;
+  timezone: string;
 };
 
 export function SettingsClient({
@@ -41,6 +42,7 @@ export function SettingsClient({
   const [notificationEmail, setNotificationEmail] = useState(
     settings.notificationEmail,
   );
+  const [timezone, setTimezone] = useState(settings.timezone);
   const [saving, setSaving] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
 
@@ -50,6 +52,7 @@ export function SettingsClient({
       await updateUserSettings({
         escalationThreshold: Number(escalationThreshold) || 200,
         notificationEmail,
+        timezone,
       });
       toast.success("Settings saved");
     } catch {
@@ -179,6 +182,26 @@ export function SettingsClient({
               value={notificationEmail}
               onChange={(e) => setNotificationEmail(e.target.value)}
               className="max-w-sm"
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border">
+          <CardHeader>
+            <CardTitle className="text-sm text-foreground">
+              Timezone
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Recovery emails are sent between 9h and 18h in your timezone.
+            </p>
+            <Input
+              type="text"
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+              placeholder="Europe/Paris"
+              className="max-w-xs"
             />
           </CardContent>
         </Card>

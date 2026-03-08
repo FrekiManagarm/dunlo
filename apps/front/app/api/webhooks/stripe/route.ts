@@ -7,8 +7,10 @@ import {
   emailSequences,
   stripeConnection,
 } from "@dunlo/db/schema";
-import { getStripeClient, constructWebhookEvent } from "@/lib/stripe/client";
+import { getStripeClient, getConnectedStripeClient, constructWebhookEvent } from "@/lib/stripe/client";
 import { decrypt } from "@/lib/stripe/encryption";
+import { nextSendWindow } from "@/lib/recovery/schedule";
+import { tasks } from "@trigger.dev/sdk/v3";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -50,6 +52,7 @@ export async function POST(request: NextRequest) {
         await handlePaymentFailed(
           event.data.object as Stripe.PaymentIntent,
           userId,
+          matchedConnection,
         );
         break;
       case "payment_intent.succeeded":
@@ -68,6 +71,7 @@ export async function POST(request: NextRequest) {
         await handlePaymentActionRequired(
           event.data.object as Stripe.Invoice,
           userId,
+          matchedConnection,
         );
         break;
       default:
@@ -87,8 +91,18 @@ export async function POST(request: NextRequest) {
 async function handlePaymentFailed(
   paymentIntent: Stripe.PaymentIntent,
   userId: string,
+  connection: (typeof stripeConnection.$inferSelect) & { accessToken: string | null },
 ) {
-  const stripe = getStripeClient();
+  const stripe =
+    connection.accessToken != null
+      ? getConnectedStripeClient(decrypt(connection.accessToken!))
+      : getStripeClient();
+
+  const stripeCustomerId =
+    typeof paymentIntent.customer === "string"
+      ? paymentIntent.customer
+      : paymentIntent.customer?.id ?? null;
+
   let customerEmail = "unknown@unknown.com";
   let customerName = "Unknown";
 
@@ -107,9 +121,9 @@ async function handlePaymentFailed(
   }
 
   const failureReason =
-    paymentIntent.last_payment_error?.decline_code ??
-    paymentIntent.last_payment_error?.code ??
-    "unknown";
+    (paymentIntent.last_payment_error?.decline_code ??
+      paymentIntent.last_payment_error?.code ??
+      "unknown") as string;
 
   const existing = await db.query.failedPayments.findFirst({
     where: eq(failedPayments.stripePaymentIntentId, paymentIntent.id),
@@ -120,11 +134,13 @@ async function handlePaymentFailed(
     return;
   }
 
+  const now = new Date();
   const [newPayment] = await db
     .insert(failedPayments)
     .values({
       userId,
       stripePaymentIntentId: paymentIntent.id,
+      stripeCustomerId,
       customerEmail,
       customerName,
       amount: paymentIntent.amount,
@@ -136,27 +152,38 @@ async function handlePaymentFailed(
 
   console.log(`🚨 New failed payment detected: ${newPayment.id} (${failureReason})`);
 
-  const now = new Date();
   const steps = [
     { step: 1, delayDays: 0 },
     { step: 2, delayDays: 3 },
     { step: 3, delayDays: 7 },
   ];
 
-  for (const { step, delayDays } of steps) {
-    const scheduledAt = new Date(now);
-    scheduledAt.setDate(scheduledAt.getDate() + delayDays);
+  let firstSeqId: string | null = null;
 
-    await db.insert(emailSequences).values({
-      failedPaymentId: newPayment.id,
-      step,
-      scheduledAt,
-      sendAt: scheduledAt,
-      status: "pending",
+  for (const { step, delayDays } of steps) {
+    const scheduledAt = nextSendWindow(now, delayDays, "UTC");
+
+    const [seq] = await db
+      .insert(emailSequences)
+      .values({
+        failedPaymentId: newPayment.id,
+        step,
+        scheduledAt,
+        sendAt: scheduledAt,
+        status: "pending",
+      })
+      .returning({ id: emailSequences.id });
+
+    if (step === 1) firstSeqId = seq?.id ?? null;
+  }
+
+  if (firstSeqId != null) {
+    await tasks.trigger("send-recovery-email", {
+      emailSequenceId: firstSeqId,
     });
   }
 
-  console.log(`📧 Scheduled 3 recovery emails for payment ${newPayment.id}`);
+  console.log(`📧 Scheduled 3 recovery emails for payment ${newPayment.id}, J+0 triggered`);
 }
 
 async function handlePaymentSucceeded(
@@ -180,7 +207,7 @@ async function handlePaymentSucceeded(
 
   await db
     .update(emailSequences)
-    .set({ status: "sent" })
+    .set({ status: "cancelled" })
     .where(
       and(
         eq(emailSequences.failedPaymentId, existing.id),
@@ -227,7 +254,7 @@ async function handleSubscriptionDeleted(
 
     await db
       .update(emailSequences)
-      .set({ status: "sent" })
+      .set({ status: "cancelled" })
       .where(
         and(
           eq(emailSequences.failedPaymentId, payment.id),
@@ -242,8 +269,13 @@ async function handleSubscriptionDeleted(
 async function handlePaymentActionRequired(
   invoice: Stripe.Invoice,
   userId: string,
+  connection: (typeof stripeConnection.$inferSelect) & { accessToken: string | null },
 ) {
-  const stripe = getStripeClient();
+  const stripe =
+    connection.accessToken != null
+      ? getConnectedStripeClient(decrypt(connection.accessToken))
+      : getStripeClient();
+
   const invoiceAny = invoice as unknown as Record<string, unknown>;
   const rawPI = invoiceAny.payment_intent;
   const paymentIntentId =
@@ -260,6 +292,11 @@ async function handlePaymentActionRequired(
   });
 
   if (existing) return;
+
+  const stripeCustomerId =
+    typeof invoice.customer === "string"
+      ? invoice.customer
+      : invoice.customer?.id ?? null;
 
   let customerEmail = "unknown@unknown.com";
   let customerName = "Unknown";
@@ -280,37 +317,50 @@ async function handlePaymentActionRequired(
     }
   }
 
+  const now = new Date();
   const [newPayment] = await db
     .insert(failedPayments)
     .values({
       userId,
       stripePaymentIntentId: paymentIntentId,
+      stripeCustomerId,
       customerEmail,
       customerName,
-      amount: invoice.amount_due,
-      currency: invoice.currency,
+      amount: invoice.amount_due ?? 0,
+      currency: invoice.currency ?? "eur",
       failureReason: "authentication_required",
       status: "emailing",
     })
     .returning();
 
-  const now = new Date();
   const steps = [
     { step: 1, delayDays: 0 },
     { step: 2, delayDays: 3 },
     { step: 3, delayDays: 7 },
   ];
 
-  for (const { step, delayDays } of steps) {
-    const scheduledAt = new Date(now);
-    scheduledAt.setDate(scheduledAt.getDate() + delayDays);
+  let firstSeqId: string | null = null;
 
-    await db.insert(emailSequences).values({
-      failedPaymentId: newPayment.id,
-      step,
-      scheduledAt,
-      sendAt: scheduledAt,
-      status: "pending",
+  for (const { step, delayDays } of steps) {
+    const scheduledAt = nextSendWindow(now, delayDays, "UTC");
+
+    const [seq] = await db
+      .insert(emailSequences)
+      .values({
+        failedPaymentId: newPayment.id,
+        step,
+        scheduledAt,
+        sendAt: scheduledAt,
+        status: "pending",
+      })
+      .returning({ id: emailSequences.id });
+
+    if (step === 1) firstSeqId = seq?.id ?? null;
+  }
+
+  if (firstSeqId != null) {
+    await tasks.trigger("send-recovery-email", {
+      emailSequenceId: firstSeqId,
     });
   }
 

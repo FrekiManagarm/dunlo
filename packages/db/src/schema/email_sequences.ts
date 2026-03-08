@@ -3,7 +3,7 @@ import { failedPayments, type FailedPayment } from "./failed_payments";
 import { pgEnum } from "drizzle-orm/pg-core";
 import { relations, type InferSelectModel } from "drizzle-orm";
 
-export const emailSequenceStatus = pgEnum("email_sequence_status", ["pending", "sent", "opened", "clicked"]);
+export const emailSequenceStatus = pgEnum("email_sequence_status", ["pending", "sent", "cancelled", "opened", "clicked"]);
 
 export const emailSequences = pgTable("email_sequences", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),

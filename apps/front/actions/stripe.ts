@@ -1,10 +1,15 @@
 "use server";
 
+import Stripe from "stripe";
 import { eq, and } from "drizzle-orm";
 import { db } from "@dunlo/db";
 import { stripeConnection, users } from "@dunlo/db/schema";
 import { env } from "@dunlo/env/server";
-import { deleteWebhooks } from "@/lib/stripe/webhooks";
+import { encrypt, decrypt } from "@/lib/stripe/encryption";
+import {
+  deleteWebhooks,
+  setupWebhooksForDirectAccount,
+} from "@/lib/stripe/webhooks";
 import { getSession } from "./auth";
 
 export async function getStripeConnectUrl() {
@@ -64,7 +69,18 @@ export async function disconnectStripe() {
   }
 
   if (connection.webhookEndpointId) {
-    await deleteWebhooks(connection.webhookEndpointId);
+    const isApiKeyConnection = connection.stripeAccountId === "acct_api_key";
+    if (isApiKeyConnection && connection.accessToken) {
+      await deleteWebhooks(connection.webhookEndpointId, {
+        userSecretKey: decrypt(connection.accessToken),
+      });
+    } else if (connection.stripeAccountId) {
+      await deleteWebhooks(connection.webhookEndpointId, {
+        stripeAccountId: connection.stripeAccountId,
+      });
+    } else {
+      await deleteWebhooks(connection.webhookEndpointId);
+    }
   }
 
   await db
@@ -78,6 +94,7 @@ export async function disconnectStripe() {
 export async function updateUserSettings(data: {
   escalationThreshold: number;
   notificationEmail: string;
+  timezone?: string;
 }) {
   const session = await getSession();
   if (!session?.user) {
@@ -89,10 +106,104 @@ export async function updateUserSettings(data: {
     .set({
       escalationThreshold: data.escalationThreshold,
       notificationEmail: data.notificationEmail,
+      ...(data.timezone != null && { timezone: data.timezone }),
     })
     .where(eq(users.id, session.user.id));
 
   return { success: true };
+}
+
+export async function connectStripeWithApiKey(secretKey: string) {
+  const session = await getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const trimmed = secretKey.trim();
+  if (!trimmed.startsWith("sk_")) {
+    throw new Error("Invalid key format. Use sk_live_xxx or sk_test_xxx");
+  }
+
+  try {
+    const stripe = new Stripe(trimmed, {
+      apiVersion: "2026-02-25.clover",
+    });
+    await stripe.balance.retrieve();
+  } catch {
+    throw new Error("Invalid or inactive Stripe key. Please check your key.");
+  }
+
+  const stripe = new Stripe(trimmed, {
+    apiVersion: "2026-02-25.clover",
+  });
+
+  let stripeAccountId: string | null = null;
+  try {
+    const accounts = await stripe.accounts.list({ limit: 1 });
+    stripeAccountId = accounts.data[0]?.id ?? null;
+  } catch {
+    stripeAccountId = "acct_api_key";
+  }
+
+  await db
+    .update(stripeConnection)
+    .set({ isActive: false })
+    .where(
+      and(
+        eq(stripeConnection.userId, session.user.id),
+        eq(stripeConnection.isActive, true),
+      ),
+    );
+
+  const [connection] = await db
+    .insert(stripeConnection)
+    .values({
+      userId: session.user.id,
+      stripeAccountId,
+      accessToken: encrypt(trimmed),
+      isActive: true,
+    })
+    .returning();
+
+  if (connection) {
+    await setupWebhooksForDirectAccount(stripe, connection.id);
+  }
+
+  return { success: true };
+}
+
+export async function runOnboardingVerification(timezone: string) {
+  const session = await getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const connection = await db.query.stripeConnection.findFirst({
+    where: and(
+      eq(stripeConnection.userId, session.user.id),
+      eq(stripeConnection.isActive, true),
+    ),
+  });
+
+  if (!connection) {
+    throw new Error("No Stripe connection");
+  }
+
+  const { importRecentFailedPayments } = await import(
+    "@/lib/stripe/import-failed-payments"
+  );
+
+  const { imported } = await importRecentFailedPayments(
+    session.user.id,
+    connection,
+    { limit: 3, timezone },
+  );
+
+  return {
+    stripeConnected: true,
+    webhookRegistered: !!connection.webhookEndpointId,
+    failedPaymentsImported: imported,
+  };
 }
 
 export async function getUserSettings() {
@@ -111,6 +222,7 @@ export async function getUserSettings() {
 
   return {
     escalationThreshold: user.escalationThreshold ?? 200,
-    notificationEmail: user.notificationEmail ?? user.email,
+    notificationEmail: user.notificationEmail ?? user.email ?? "",
+    timezone: user.timezone ?? "UTC",
   };
 }

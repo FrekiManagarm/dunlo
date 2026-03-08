@@ -75,6 +75,19 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {data.hasActiveFailedPayments && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
+          <p className="text-sm font-medium text-red-400">
+            We found {data.activeFailedCount} failed payment
+            {data.activeFailedCount > 1 ? "s" : ""} totaling{" "}
+            {formatAmount(data.activeFailedTotal, "eur")}.
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Sequences have been started automatically.
+          </p>
+        </div>
+      )}
+
       <div>
         <h1 className="font-display text-2xl text-foreground">Dashboard</h1>
         <p className="mt-1 text-xs text-muted-foreground">

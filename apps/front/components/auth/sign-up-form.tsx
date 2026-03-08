@@ -28,8 +28,8 @@ export default function SignUpForm() {
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
-            toast.success("Sign up successful");
+            router.push("/onboarding");
+            toast.success("Account created. Connect Stripe to get started.");
           },
           onError: (error) => {
             toast.error(error.error.message ?? error.error.statusText);
