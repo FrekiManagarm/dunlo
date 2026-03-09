@@ -50,18 +50,22 @@ function TimelineItem({
       ? "opened"
       : event.status === "sent"
         ? "completed"
-        : "scheduled";
+        : event.status === "cancelled"
+          ? "cancelled"
+          : "scheduled";
 
   const iconMap = {
     completed: <Check className="size-3" />,
     opened: <MailOpen className="size-3" />,
     scheduled: <Clock className="size-3" />,
+    cancelled: <Check className="size-3" />,
   };
 
   const colorMap = {
     completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
     opened: "bg-primary/20 text-primary border-primary/30",
     scheduled: "bg-muted text-muted-foreground border-border",
+    cancelled: "bg-muted text-muted-foreground border-border",
   };
 
   const displayDate = event.sentAt
@@ -96,12 +100,13 @@ function TimelineItem({
           <span
             className={cn(
               "text-xs font-medium",
-              displayStatus === "scheduled"
+              displayStatus === "scheduled" || displayStatus === "cancelled"
                 ? "text-muted-foreground"
                 : "text-foreground",
             )}
           >
             {event.label}
+            {displayStatus === "cancelled" && " (annulé)"}
           </span>
           <span className="text-[11px] text-muted-foreground">
             {displayDate}

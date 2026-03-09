@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 
     await setupWebhooks(response.stripe_user_id);
 
-    return Response.redirect(`${baseUrl}/dashboard?stripe=connected`);
+    return Response.redirect(`${baseUrl}/onboarding`);
   } catch (err) {
     console.error("❌ Stripe OAuth token exchange failed:", err);
     return Response.redirect(

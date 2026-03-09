@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GoogleSignInButton } from "./google-sign-in-button";
 
 export function AuthLayout({
   children,
@@ -21,6 +22,7 @@ export function AuthLayout({
       <div className="auth-stagger relative z-10 w-full max-w-[500px] px-6">
         <div className="rounded-sm border border-landing-border bg-landing-surface/70 px-8 py-10 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_24px_80px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl">
           {children}
+          <GoogleSignInButton callbackURL={showSignIn ? "/dashboard" : "/onboarding"} />
         </div>
 
         <p

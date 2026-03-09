@@ -12,7 +12,7 @@ export function HeroSection() {
           style={{ animationDelay: "100ms" }}
         >
           <span className="inline-block size-1.5 rounded-full bg-landing-accent" />
-          Payment recovery for SaaS
+          Beta access
         </div>
 
         <h1
@@ -35,12 +35,19 @@ export function HeroSection() {
           then escalates high-value accounts to you — in 10 minutes setup.
         </p>
 
+        <p
+          className="l-stagger mt-4 font-body text-sm text-landing-text-muted"
+          style={{ animationDelay: "450ms" }}
+        >
+          Built for founders at €5k–€80k MRR. 8 founders already in beta.
+        </p>
+
         <div
           className="l-stagger mt-12 flex flex-col items-center gap-4"
           style={{ animationDelay: "550ms" }}
         >
           <Link
-            href="/register"
+            href="/beta"
             className="group relative inline-flex items-center gap-3 bg-landing-accent px-8 py-4 font-body text-base font-semibold text-landing-bg transition-all duration-300 hover:shadow-[0_0_50px_rgba(0,232,123,0.25)]"
           >
             Join the beta — it&apos;s free to start

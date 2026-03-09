@@ -63,9 +63,17 @@ export async function getDashboardData() {
     };
   });
 
+  const activePayments = payments.filter(
+    (p) => p.status !== "recovered" && p.status !== "lost",
+  );
+  const activeTotal = activePayments.reduce((sum, p) => sum + p.amount, 0);
+
   return {
     stats: { atRisk, recoveredThisMonth, needsAttention },
     payments: tablePayments,
+    hasActiveFailedPayments: activePayments.length > 0,
+    activeFailedCount: activePayments.length,
+    activeFailedTotal: activeTotal,
   };
 }
 
@@ -202,7 +210,7 @@ export async function markPaymentResolved(paymentId: string) {
 
   await db
     .update(emailSequences)
-    .set({ status: "sent" })
+    .set({ status: "cancelled" })
     .where(
       and(
         eq(emailSequences.failedPaymentId, paymentId),

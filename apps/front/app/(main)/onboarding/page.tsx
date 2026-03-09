@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
-import { getStripeConnectionStatus } from "@/actions/stripe";
+import {
+  getStripeConnectionStatus,
+  getUserSettings,
+} from "@/actions/stripe";
 import { getSession } from "@/actions/auth";
 import { OnboardingClient } from "./onboarding-client";
 
@@ -9,10 +12,18 @@ export default async function OnboardingPage() {
     redirect("/login");
   }
 
-  const status = await getStripeConnectionStatus();
-  if (status.isConnected) {
-    redirect("/dashboard");
-  }
+  const connection = await getStripeConnectionStatus();
+  const settings = await getUserSettings();
 
-  return <OnboardingClient />;
+  return (
+    <OnboardingClient
+      isStripeConnected={connection.isConnected}
+      stripeAccountId={connection.stripeAccountId}
+      initialSettings={{
+        notificationEmail: settings.notificationEmail ?? session.user.email,
+        escalationThreshold: settings.escalationThreshold,
+        timezone: settings.timezone,
+      }}
+    />
+  );
 }

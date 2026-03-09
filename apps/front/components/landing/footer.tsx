@@ -17,9 +17,14 @@ export function FooterSection() {
               </span>
             </h2>
 
+            <p className="mt-6 max-w-md font-body text-base text-landing-text-secondary">
+              Founders lose an average of €800/mo to failed payments. Dunlo pays
+              for itself in day one.
+            </p>
+
             <Link
-              href="/register"
-              className="group mt-12 inline-flex items-center gap-3 bg-landing-accent px-8 py-4 font-body text-base font-semibold text-landing-bg transition-all duration-300 hover:shadow-[0_0_50px_rgba(0,232,123,0.25)]"
+              href="/beta"
+              className="group mt-10 inline-flex items-center gap-3 bg-landing-accent px-8 py-4 font-body text-base font-semibold text-landing-bg transition-all duration-300 hover:shadow-[0_0_50px_rgba(0,232,123,0.25)]"
             >
               Join the beta
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -28,15 +33,7 @@ export function FooterSection() {
         </Reveal>
 
         <div className="mt-32 flex flex-col items-center gap-6 border-t border-landing-border pt-10 md:flex-row md:justify-between">
-          <div className="flex items-center gap-8">
-            <span className="font-display text-xl text-landing-text">dunlo</span>
-            <Link
-              href="/blog"
-              className="text-xs text-landing-text-muted transition-colors hover:text-landing-text"
-            >
-              Blog
-            </Link>
-          </div>
+          <span className="font-display text-xl text-landing-text">dunlo</span>
           <span className="font-body text-xs text-landing-text-muted">
             © {new Date().getFullYear()} Dunlo. All rights reserved.
           </span>

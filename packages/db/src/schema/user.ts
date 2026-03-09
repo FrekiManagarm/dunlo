@@ -14,6 +14,7 @@ export const users = pgTable("users", {
   image: text("image"),
   escalationThreshold: integer("escalation_threshold").default(200),
   notificationEmail: text("notification_email"),
+  timezone: text("timezone").default("UTC"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
