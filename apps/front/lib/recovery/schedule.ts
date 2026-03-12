@@ -14,7 +14,7 @@ export function nextSendWindow(
     // J+0 : envoyer maintenant si dans 9h-18h, sinon prochain 9h
     const now = new Date();
     const tzHour = parseInt(
-      now.toLocaleString("en-CA", {
+      now.toLocaleString("fr-FR", {
         timeZone: timezone,
         hour: "2-digit",
         hour12: false,

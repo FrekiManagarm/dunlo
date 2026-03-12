@@ -14,8 +14,14 @@ export function getStripeClient(): Stripe {
   return _platformClient;
 }
 
-export function getConnectedStripeClient(encryptedAccessToken: string): Stripe {
-  return new Stripe(decrypt(encryptedAccessToken), {
+export function getConnectedStripeClient(
+  encryptedAccessToken: string,
+  options?: { alreadyDecrypted?: boolean },
+): Stripe {
+  const secretKey = options?.alreadyDecrypted
+    ? encryptedAccessToken
+    : decrypt(encryptedAccessToken);
+  return new Stripe(secretKey, {
     apiVersion: "2026-02-25.clover",
     typescript: true,
   });

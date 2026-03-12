@@ -3,13 +3,18 @@
 import Stripe from "stripe";
 import { eq, and } from "drizzle-orm";
 import { db } from "@dunlo/db";
-import { stripeConnection, users } from "@dunlo/db/schema";
+import {
+  stripeConnection,
+  users,
+} from "@dunlo/db/schema";
 import { env } from "@dunlo/env/server";
 import { encrypt, decrypt } from "@/lib/stripe/encryption";
 import {
   deleteWebhooks,
   setupWebhooksForDirectAccount,
 } from "@/lib/stripe/webhooks";
+import { getConnectedStripeClient } from "@/lib/stripe/client";
+import { handlePaymentFailed } from "@/lib/stripe/handle-payment-failed";
 import { getSession } from "./auth";
 
 export async function getStripeConnectUrl() {
@@ -224,5 +229,85 @@ export async function getUserSettings() {
     escalationThreshold: user.escalationThreshold ?? 200,
     notificationEmail: user.notificationEmail ?? user.email ?? "",
     timezone: user.timezone ?? "UTC",
+  };
+}
+
+const STRIPE_TEST_DECLINING_PAYMENT_METHOD = "pm_card_visa_chargeDeclined";
+
+export async function simulatePaymentFailed() {
+  const session = await getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const connection = await db.query.stripeConnection.findFirst({
+    where: and(
+      eq(stripeConnection.userId, session.user.id),
+      eq(stripeConnection.isActive, true),
+    ),
+  });
+
+  if (!connection?.accessToken) {
+    throw new Error("No Stripe connection");
+  }
+
+  const rawToken = decrypt(connection.accessToken);
+  if (!rawToken.startsWith("sk_test_")) {
+    throw new Error(
+      "La simulation n'est possible qu'en mode test Stripe (sk_test_).",
+    );
+  }
+
+  const settings = await getUserSettings();
+  const customerEmail =
+    settings.notificationEmail || session.user.email || "test@example.com";
+
+  const stripe = getConnectedStripeClient(rawToken, { alreadyDecrypted: true });
+
+  const customer = await stripe.customers.create({
+    email: customerEmail,
+    name: "Test Customer (simulation)",
+    metadata: { dunlo_sim: "true" },
+  });
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: 1999,
+    currency: "eur",
+    customer: customer.id,
+    payment_method_types: ["card"],
+    metadata: { dunlo_sim: "true" },
+  });
+
+  let failedPaymentIntent: Stripe.PaymentIntent;
+  try {
+    await stripe.paymentIntents.confirm(paymentIntent.id, {
+      payment_method: STRIPE_TEST_DECLINING_PAYMENT_METHOD,
+    });
+    throw new Error("Expected card decline, but confirmation succeeded");
+  } catch (err) {
+    const stripeError = err as { payment_intent?: Stripe.PaymentIntent | string };
+    const rawPi = stripeError?.payment_intent;
+    if (rawPi) {
+      failedPaymentIntent =
+        typeof rawPi === "string"
+          ? await stripe.paymentIntents.retrieve(rawPi)
+          : rawPi;
+    } else {
+      throw err;
+    }
+  }
+
+  await handlePaymentFailed(
+    failedPaymentIntent,
+    session.user.id,
+    { accessToken: connection.accessToken },
+    { timezone: settings.timezone ?? "UTC" },
+  );
+
+  return {
+    success: true,
+    paymentIntentId: failedPaymentIntent.id,
+    customerEmail,
+    message: `Simulation créée sur Stripe. L'email J+0 sera envoyé à ${customerEmail}.`,
   };
 }

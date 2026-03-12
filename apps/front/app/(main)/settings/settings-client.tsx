@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Unplug, Save, Loader2 } from "lucide-react";
+import { Check, Unplug, Save, Loader2, TestTube } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   disconnectStripe,
   updateUserSettings,
+  simulatePaymentFailed,
 } from "@/actions/stripe";
 
 type Connection = {
@@ -45,6 +46,7 @@ export function SettingsClient({
   const [timezone, setTimezone] = useState(settings.timezone);
   const [saving, setSaving] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [simulating, setSimulating] = useState(false);
 
   async function handleSave() {
     setSaving(true);
@@ -72,6 +74,21 @@ export function SettingsClient({
       toast.error("Failed to disconnect Stripe");
     } finally {
       setDisconnecting(false);
+    }
+  }
+
+  async function handleSimulatePaymentFailed() {
+    setSimulating(true);
+    try {
+      const result = await simulatePaymentFailed();
+      toast.success(result.message);
+      router.refresh();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Échec de la simulation",
+      );
+    } finally {
+      setSimulating(false);
     }
   }
 
@@ -235,6 +252,28 @@ export function SettingsClient({
                 </div>
               ))}
             </div>
+            {connection.isConnected && (
+              <div className="pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={handleSimulatePaymentFailed}
+                  disabled={simulating}
+                >
+                  {simulating ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <TestTube className="size-3.5" />
+                  )}
+                  Simuler un paiement échoué
+                </Button>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Crée un paiement test et envoie l&apos;email J+0 à ton adresse
+                  de notification.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

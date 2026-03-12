@@ -35,7 +35,7 @@ export function RecoveryJ7({
         <Container style={container}>
           <Heading style={h1}>{displayName},</Heading>
           <Text style={textStrong}>
-            C’est notre dernier message avant la suspension de votre accès.
+            C&apos;est notre dernier message avant la suspension de votre accès.
           </Text>
           <Text style={text}>
             Si vous ne mettez pas à jour votre moyen de paiement, votre accès à{" "}

@@ -15,7 +15,7 @@
     "@dunlo/env": "workspace:*",
     "@react-email/components": "^1.0.8",
     "@tanstack/react-form": "^1.28.3",
-    "@trigger.dev/sdk": "4.4.2",
+    "@trigger.dev/sdk": "4.4.3",
     "better-auth": "^1.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@trigger.dev/build": "4.4.2",
+    "@trigger.dev/build": "4.4.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

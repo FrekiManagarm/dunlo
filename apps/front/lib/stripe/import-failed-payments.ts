@@ -24,7 +24,18 @@ export async function importRecentFailedPayments(
 
   if (!connection.accessToken) return { imported: 0, total: 0 };
 
-  const stripe = getConnectedStripeClient(decrypt(connection.accessToken));
+  let rawToken: string;
+  try {
+    rawToken = decrypt(connection.accessToken);
+  } catch (err) {
+    console.warn(
+      "Could not decrypt access token for import (legacy or invalid format), skipping:",
+      err instanceof Error ? err.message : err,
+    );
+    return { imported: 0, total: 0 };
+  }
+
+  const stripe = getConnectedStripeClient(rawToken, { alreadyDecrypted: true });
 
   let paymentIntents: Stripe.PaymentIntent[] = [];
   try {
