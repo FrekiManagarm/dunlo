@@ -1,27 +1,25 @@
 import { NextRequest } from "next/server";
 import type Stripe from "stripe";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@dunlo/db";
-import {
-  failedPayments,
-  emailSequences,
-  stripeConnection,
-} from "@dunlo/db/schema";
-import {
-  getStripeClient,
-  getConnectedStripeClient,
-  constructWebhookEvent,
-} from "@/lib/stripe/client";
+import { stripeConnection } from "@dunlo/db/schema";
+import { constructWebhookEvent } from "@/lib/stripe/client";
 import { decrypt } from "@/lib/stripe/encryption";
-import { handlePaymentFailed } from "@/lib/stripe/handle-payment-failed";
-import { nextSendWindow } from "@/lib/recovery/schedule";
-import { tasks } from "@trigger.dev/sdk/v3";
+import {
+  handlePaymentActionRequired,
+  handlePaymentFailed,
+  handlePaymentSucceeded,
+  handleSubscriptionDeleted,
+} from "@/lib/stripe/handle-payment-events";
+import { createError, useLogger, withEvlog } from "@/lib/evlog";
 
-export async function POST(request: NextRequest) {
+export const POST = withEvlog(async (request: NextRequest) => {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
+  const logger = useLogger();
 
   if (!signature) {
+    logger.set({ message: "Missing stripe-signature header", status: 400 });
     return new Response("Missing stripe-signature header", { status: 400 });
   }
 
@@ -39,14 +37,30 @@ export async function POST(request: NextRequest) {
       event = constructWebhookEvent(body, signature, secret);
       matchedConnection = conn;
       break;
-    } catch {
+    } catch (err) {
       // Signature didn't match, try next
+      const error = err instanceof Error ? err : null;
+      logger.error({
+        name: error?.name || "",
+        message: error?.message || "",
+        cause: error?.cause,
+        stack: error?.stack,
+      });
+      throw createError({
+        message: error?.message || "",
+      });
     }
   }
 
   if (!event || !matchedConnection) {
-    console.error("❌ No matching webhook secret found");
-    return new Response("Webhook signature verification failed", { status: 400 });
+    logger.set({
+      message: "❌ No matching webhook secret found",
+      status: 400,
+      service: "stripe-webhook",
+    });
+    return new Response("Webhook signature verification failed", {
+      status: 400,
+    });
   }
 
   const userId = matchedConnection.userId!;
@@ -88,188 +102,12 @@ export async function POST(request: NextRequest) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error(`❌ Error processing webhook ${event.type}:`, error);
+    logger.set({
+      message: `❌ Error processing webhook ${event.type}:`,
+      status: 500,
+      service: "stripe-webhook",
+      error,
+    });
     return new Response("Webhook handler error", { status: 500 });
   }
-}
-
-async function handlePaymentSucceeded(
-  paymentIntent: Stripe.PaymentIntent,
-  userId: string,
-) {
-  const existing = await db.query.failedPayments.findFirst({
-    where: and(
-      eq(failedPayments.stripePaymentIntentId, paymentIntent.id),
-      eq(failedPayments.userId, userId),
-    ),
-  });
-
-  if (!existing) return;
-  if (existing.status === "recovered" || existing.status === "lost") return;
-
-  await db
-    .update(failedPayments)
-    .set({ status: "recovered", recoveredAt: new Date() })
-    .where(eq(failedPayments.id, existing.id));
-
-  await db
-    .update(emailSequences)
-    .set({ status: "cancelled" })
-    .where(
-      and(
-        eq(emailSequences.failedPaymentId, existing.id),
-        eq(emailSequences.status, "pending"),
-      ),
-    );
-
-  console.log(`✅ Payment ${paymentIntent.id} recovered!`);
-}
-
-async function handleSubscriptionDeleted(
-  subscription: Stripe.Subscription,
-  userId: string,
-) {
-  const stripe = getStripeClient();
-  const customerId = subscription.customer as string;
-  let customerEmail: string | null = null;
-
-  try {
-    const customer = await stripe.customers.retrieve(customerId);
-    if (!customer.deleted) {
-      customerEmail = customer.email;
-    }
-  } catch {
-    // ignore
-  }
-
-  if (!customerEmail) return;
-
-  const activePayments = await db.query.failedPayments.findMany({
-    where: and(
-      eq(failedPayments.userId, userId),
-      eq(failedPayments.customerEmail, customerEmail),
-    ),
-  });
-
-  for (const payment of activePayments) {
-    if (payment.status === "recovered" || payment.status === "lost") continue;
-
-    await db
-      .update(failedPayments)
-      .set({ status: "lost" })
-      .where(eq(failedPayments.id, payment.id));
-
-    await db
-      .update(emailSequences)
-      .set({ status: "cancelled" })
-      .where(
-        and(
-          eq(emailSequences.failedPaymentId, payment.id),
-          eq(emailSequences.status, "pending"),
-        ),
-      );
-  }
-
-  console.log(`💀 Subscription deleted for ${customerEmail}, marked as lost`);
-}
-
-async function handlePaymentActionRequired(
-  invoice: Stripe.Invoice,
-  userId: string,
-  connection: { accessToken: string | null },
-) {
-  const stripe =
-    connection.accessToken != null
-      ? getConnectedStripeClient(decrypt(connection.accessToken))
-      : getStripeClient();
-
-  const invoiceAny = invoice as unknown as Record<string, unknown>;
-  const rawPI = invoiceAny.payment_intent;
-  const paymentIntentId =
-    typeof rawPI === "string"
-      ? rawPI
-      : rawPI && typeof rawPI === "object" && "id" in rawPI
-        ? (rawPI as { id: string }).id
-        : null;
-
-  if (!paymentIntentId) return;
-
-  const existing = await db.query.failedPayments.findFirst({
-    where: eq(failedPayments.stripePaymentIntentId, paymentIntentId),
-  });
-
-  if (existing) return;
-
-  const stripeCustomerId =
-    typeof invoice.customer === "string"
-      ? invoice.customer
-      : invoice.customer?.id ?? null;
-
-  let customerEmail = "unknown@unknown.com";
-  let customerName = "Unknown";
-
-  if (invoice.customer) {
-    try {
-      const customer = await stripe.customers.retrieve(
-        typeof invoice.customer === "string"
-          ? invoice.customer
-          : invoice.customer.id,
-      );
-      if (!customer.deleted) {
-        customerEmail = customer.email ?? customerEmail;
-        customerName = customer.name ?? customerEmail;
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  const now = new Date();
-  const [newPayment] = await db
-    .insert(failedPayments)
-    .values({
-      userId,
-      stripePaymentIntentId: paymentIntentId,
-      stripeCustomerId,
-      customerEmail,
-      customerName,
-      amount: invoice.amount_due ?? 0,
-      currency: invoice.currency ?? "eur",
-      failureReason: "authentication_required",
-      status: "emailing",
-    })
-    .returning();
-
-  const steps = [
-    { step: 1, delayDays: 0 },
-    { step: 2, delayDays: 3 },
-    { step: 3, delayDays: 7 },
-  ];
-
-  let firstSeqId: string | null = null;
-
-  for (const { step, delayDays } of steps) {
-    const scheduledAt = nextSendWindow(now, delayDays, "UTC");
-
-    const [seq] = await db
-      .insert(emailSequences)
-      .values({
-        failedPaymentId: newPayment.id,
-        step,
-        scheduledAt,
-        sendAt: scheduledAt,
-        status: "pending",
-      })
-      .returning({ id: emailSequences.id });
-
-    if (step === 1) firstSeqId = seq?.id ?? null;
-  }
-
-  if (firstSeqId != null) {
-    await tasks.trigger("send-recovery-email", {
-      emailSequenceId: firstSeqId,
-    });
-  }
-
-  console.log(`🔐 3DS required for ${paymentIntentId}, emails scheduled`);
-}
+});

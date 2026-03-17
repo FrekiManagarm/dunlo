@@ -71,10 +71,12 @@ export async function setupWebhooksForDirectAccount(
 
 export async function setupWebhooks(
   stripeAccountId: string,
+  accessToken: string,
+  userId: string,
 ): Promise<{ webhookEndpointId: string; webhookSecret: string } | null> {
   try {
-    const baseUrl = env.APP_URL;
-    const webhookUrl = `${baseUrl}/api/webhooks/stripe`;
+    const baseUrl = env.APP_URL || "https://dunlo.io";
+    const webhookUrl = `${baseUrl}/api/webhooks/stripe/${stripeAccountId}`;
 
     if (
       baseUrl.includes("localhost") ||
@@ -105,13 +107,14 @@ export async function setupWebhooks(
 
     console.log(`🔗 Setting up webhook for account ${stripeAccountId}`);
 
-    const platformStripe = new Stripe(env.STRIPE_SECRET_KEY, {
+    const platformStripe = new Stripe(accessToken, {
       apiVersion: "2026-02-25.clover",
     });
 
     const webhookEndpoint = await platformStripe.webhookEndpoints.create(
       {
         url: webhookUrl,
+        connect: true,
         enabled_events: [
           "payment_intent.payment_failed",
           "payment_intent.succeeded",
@@ -154,25 +157,17 @@ export async function setupWebhooks(
 
 export async function deleteWebhooks(
   webhookEndpointId: string,
-  options?: { userSecretKey?: string; stripeAccountId?: string },
+  accessToken: string,
+  stripeAccountId: string,
 ): Promise<boolean> {
   try {
-    const stripe = options?.userSecretKey
-      ? new Stripe(options.userSecretKey, {
-          apiVersion: "2026-02-25.clover",
-        })
-      : new Stripe(env.STRIPE_SECRET_KEY, {
-          apiVersion: "2026-02-25.clover",
-        });
+    const stripe = new Stripe(accessToken, {
+      apiVersion: "2026-02-25.clover",
+    });
 
-    const requestOptions =
-      options?.stripeAccountId ?
-        { stripeAccount: options.stripeAccountId }
-      : undefined;
-    await stripe.webhookEndpoints.del(
-      webhookEndpointId,
-      requestOptions as Stripe.RequestOptions,
-    );
+    await stripe.webhookEndpoints.del(webhookEndpointId, {
+      stripeAccountId: stripeAccountId,
+    });
 
     console.log(`✅ Deleted webhook endpoint ${webhookEndpointId}`);
     return true;
@@ -182,5 +177,69 @@ export async function deleteWebhooks(
       error,
     );
     return false;
+  }
+}
+
+export async function updateWebhookEvents(
+  accessToken: string,
+  webhookEndpointId: string,
+  stripeAccountId: string,
+  events: string[],
+): Promise<boolean> {
+  try {
+    // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
+    const stripe = new Stripe(accessToken, {
+      apiVersion: "2026-02-25.clover",
+    });
+
+    await stripe.webhookEndpoints.update(
+      webhookEndpointId,
+      {
+        enabled_events: events as any,
+      },
+      {
+        stripeAccount: stripeAccountId,
+      },
+    );
+
+    console.log(
+      `✅ Updated Connect webhook endpoint ${webhookEndpointId} events`,
+    );
+    return true;
+  } catch (error) {
+    console.error(
+      `❌ Error updating webhook endpoint ${webhookEndpointId}:`,
+      error,
+    );
+    return false;
+  }
+}
+
+/**
+ * List all Connect webhook endpoints at platform level
+ */
+export async function listWebhooks(
+  accessToken: string,
+  stripeAccountId: string,
+): Promise<Stripe.WebhookEndpoint[]> {
+  try {
+    // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
+    const stripe = new Stripe(accessToken, {
+      apiVersion: "2026-02-25.clover",
+    });
+
+    // Lister tous les webhooks Connect (filtrer côté client si nécessaire)
+    const endpoints = await stripe.webhookEndpoints.list(
+      { limit: 100 },
+      {
+        stripeAccount: stripeAccountId,
+      },
+    );
+    return endpoints.data.filter((endpoint) =>
+      endpoint.url?.includes(stripeAccountId),
+    );
+  } catch (error) {
+    console.error("❌ Error listing webhook endpoints:", error);
+    return [];
   }
 }

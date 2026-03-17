@@ -30,6 +30,7 @@
   "dependencies": {
     "@dunlo/env": "workspace:*",
     "dotenv": "^17.3.1",
+    "evlog": "^2.8.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

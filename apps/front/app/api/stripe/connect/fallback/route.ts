@@ -1,29 +1,36 @@
 import { NextRequest } from "next/server";
 import Stripe from "stripe";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@dunlo/db";
 import { stripeConnection } from "@dunlo/db/schema";
 import { env } from "@dunlo/env/server";
 import { encrypt } from "@/lib/stripe/encryption";
 import { setupWebhooks } from "@/lib/stripe/webhooks";
+import { revalidatePath } from "next/cache";
+import { useLogger, withEvlog } from "@/lib/evlog";
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+export const GET = withEvlog(async (req: NextRequest) => {
+  const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
+  const logger = useLogger();
 
-  const baseUrl = env.APP_URL;
+  const baseUrl = env.APP_URL || "https://dunlo.io";
 
   if (error) {
-    console.error(`❌ Stripe OAuth Error: ${error} - ${errorDescription}`);
+    logger.set({
+      message: `❌ Stripe OAuth Error: ${error} - ${errorDescription}`,
+      status: 500,
+    });
     return Response.redirect(
       `${baseUrl}/onboarding?error=stripe_connection_failed&reason=${error}`,
     );
   }
 
   if (!code || !state) {
+    logger.set({ message: "Failed to get code or state", status: 401 });
     return Response.redirect(
       `${baseUrl}/onboarding?error=stripe_connection_failed&reason=missing_params`,
     );
@@ -36,46 +43,100 @@ export async function GET(request: NextRequest) {
       apiVersion: "2026-02-25.clover",
     });
 
+    logger.set({ message: `🔄 Exchanging OAuth code for client ${state}` });
+
     const response = await stripe.oauth.token({
       grant_type: "authorization_code",
       code,
     });
 
+    logger.set({ message: `✅ Exchanged OAuth code for client ${state}` });
+
     if (!response.stripe_user_id || !response.access_token) {
-      console.error("❌ Missing stripe_user_id or access_token in response");
+      logger.set({
+        message: "❌ Missing stripe_user_id or access_token in response",
+      });
       return Response.redirect(
         `${baseUrl}/onboarding?error=stripe_connection_failed&reason=invalid_response`,
       );
     }
 
-    await db
-      .update(stripeConnection)
-      .set({ isActive: false })
-      .where(
-        and(
-          eq(stripeConnection.userId, userId),
-          eq(stripeConnection.isActive, true),
-        ),
-      );
+    const encryptedAccessToken = encrypt(response.access_token!);
+    const encryptedRefreshToken = response.refresh_token
+      ? encrypt(response.refresh_token!)
+      : null;
 
-    await db.insert(stripeConnection).values({
-      userId,
-      stripeAccountId: response.stripe_user_id,
-      accessToken: encrypt(response.access_token),
-      isActive: true,
+    // Check if connection already exists for specific Stripe Account
+    const existingConnection = await db.query.stripeConnection.findFirst({
+      where: (connection, { and, eq }) =>
+        and(
+          eq(connection.userId, userId),
+          eq(connection.stripeAccountId, response.stripe_user_id!),
+        ),
     });
 
-    console.log(
-      `✅ Stripe connected for user ${userId}: ${response.stripe_user_id}`,
+    let connectionId: string;
+
+    if (existingConnection) {
+      await db
+        .update(stripeConnection)
+        .set({
+          accessToken: encryptedAccessToken,
+          isActive: true,
+          lastSyncAt: new Date(),
+        })
+        .where(eq(stripeConnection.id, existingConnection.id));
+
+      connectionId = existingConnection.id;
+
+      revalidatePath(`/dashboard`);
+      revalidatePath("/onboarding");
+
+      console.log(
+        `✅ Updated existing Stripe connection ${connectionId} for account ${response.stripe_user_id}`,
+      );
+    } else {
+      const [newConnection] = await db
+        .insert(stripeConnection)
+        .values({
+          userId: state as string,
+          stripeAccountId: response.stripe_user_id!,
+          accessToken: response.access_token!,
+          isActive: true,
+        })
+        .returning()
+        .execute();
+
+      connectionId = newConnection.id;
+      console.log(
+        `✅ Created new Stripe connection ${connectionId} for user ${state}`,
+      );
+    }
+
+    const webhookResult = await setupWebhooks(
+      response.stripe_user_id,
+      response.access_token,
+      userId,
     );
 
-    await setupWebhooks(response.stripe_user_id);
+    if (webhookResult) {
+      console.log(
+        `✅ Webhooks configured for account ${response.stripe_user_id}`,
+      );
+    } else {
+      console.warn(
+        `⚠️ Failed to setup webhooks for account ${response.stripe_user_id}`,
+      );
+    }
 
     return Response.redirect(`${baseUrl}/onboarding`);
   } catch (err) {
-    console.error("❌ Stripe OAuth token exchange failed:", err);
+    logger.set({
+      message: "❌ Missing stripe_user_id or access_token in response",
+      err,
+    });
     return Response.redirect(
       `${baseUrl}/onboarding?error=stripe_connection_failed&reason=token_exchange_failed`,
     );
   }
-}
+});

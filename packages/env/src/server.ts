@@ -15,7 +15,10 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     ENCRYPTION_KEY: z.string().length(64),
     RESEND_API_KEY: z.string().min(1),
-    NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1),
+    NODE_ENV: z
+      .enum(["development", "production", "test"])
+      .default("development"),
   },
   experimental__runtimeEnv: process.env,
   emptyStringAsUndefined: true,

@@ -3,10 +3,7 @@
 import Stripe from "stripe";
 import { eq, and } from "drizzle-orm";
 import { db } from "@dunlo/db";
-import {
-  stripeConnection,
-  users,
-} from "@dunlo/db/schema";
+import { stripeConnection, users } from "@dunlo/db/schema";
 import { env } from "@dunlo/env/server";
 import { encrypt, decrypt } from "@/lib/stripe/encryption";
 import {
@@ -14,7 +11,7 @@ import {
   setupWebhooksForDirectAccount,
 } from "@/lib/stripe/webhooks";
 import { getConnectedStripeClient } from "@/lib/stripe/client";
-import { handlePaymentFailed } from "@/lib/stripe/handle-payment-failed";
+import { handlePaymentFailed } from "@/lib/stripe/handle-payment-events";
 import { getSession } from "./auth";
 
 export async function getStripeConnectUrl() {
@@ -194,9 +191,8 @@ export async function runOnboardingVerification(timezone: string) {
     throw new Error("No Stripe connection");
   }
 
-  const { importRecentFailedPayments } = await import(
-    "@/lib/stripe/import-failed-payments"
-  );
+  const { importRecentFailedPayments } =
+    await import("@/lib/stripe/import-failed-payments");
 
   const { imported } = await importRecentFailedPayments(
     session.user.id,
@@ -285,7 +281,9 @@ export async function simulatePaymentFailed() {
     });
     throw new Error("Expected card decline, but confirmation succeeded");
   } catch (err) {
-    const stripeError = err as { payment_intent?: Stripe.PaymentIntent | string };
+    const stripeError = err as {
+      payment_intent?: Stripe.PaymentIntent | string;
+    };
     const rawPi = stripeError?.payment_intent;
     if (rawPi) {
       failedPaymentIntent =
