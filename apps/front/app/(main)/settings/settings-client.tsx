@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Unplug, Save, Loader2, TestTube } from "lucide-react";
+import { Check, Unplug, Save, Loader2, TestTube, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -15,6 +15,8 @@ import {
   disconnectStripe,
   updateUserSettings,
   simulatePaymentFailed,
+  simulatePaymentRecovered,
+  simulateEscalation,
 } from "@/actions/stripe";
 
 type Connection = {
@@ -47,6 +49,8 @@ export function SettingsClient({
   const [saving, setSaving] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [simulating, setSimulating] = useState(false);
+  const [simulatingRecovery, setSimulatingRecovery] = useState(false);
+  const [simulatingEscalation, setSimulatingEscalation] = useState(false);
 
   async function handleSave() {
     setSaving(true);
@@ -89,6 +93,36 @@ export function SettingsClient({
       );
     } finally {
       setSimulating(false);
+    }
+  }
+
+  async function handleSimulatePaymentRecovered() {
+    setSimulatingRecovery(true);
+    try {
+      const result = await simulatePaymentRecovered();
+      toast.success(result.message);
+      router.refresh();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Échec de la simulation",
+      );
+    } finally {
+      setSimulatingRecovery(false);
+    }
+  }
+
+  async function handleSimulateEscalation() {
+    setSimulatingEscalation(true);
+    try {
+      const result = await simulateEscalation();
+      toast.success(result.message);
+      router.refresh();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Échec de la simulation",
+      );
+    } finally {
+      setSimulatingEscalation(false);
     }
   }
 
@@ -253,25 +287,67 @@ export function SettingsClient({
               ))}
             </div>
             {connection.isConnected && (
-              <div className="pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5"
-                  onClick={handleSimulatePaymentFailed}
-                  disabled={simulating}
-                >
-                  {simulating ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <TestTube className="size-3.5" />
-                  )}
-                  Simuler un paiement échoué
-                </Button>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  Crée un paiement test et envoie l&apos;email J+0 à ton adresse
-                  de notification.
-                </p>
+              <div className="pt-2 flex flex-col gap-3">
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={handleSimulatePaymentFailed}
+                    disabled={simulating}
+                  >
+                    {simulating ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <TestTube className="size-3.5" />
+                    )}
+                    Simuler un paiement échoué
+                  </Button>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Crée un paiement test et envoie l&apos;email J+0 à ton
+                    adresse de notification.
+                  </p>
+                </div>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={handleSimulatePaymentRecovered}
+                    disabled={simulatingRecovery}
+                  >
+                    {simulatingRecovery ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="size-3.5" />
+                    )}
+                    Simuler un paiement récupéré
+                  </Button>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Marque le dernier paiement échoué comme récupéré et annule
+                    les emails J+3 et J+7.
+                  </p>
+                </div>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={handleSimulateEscalation}
+                    disabled={simulatingEscalation}
+                  >
+                    {simulatingEscalation ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <AlertTriangle className="size-3.5" />
+                    )}
+                    Simuler une escalade
+                  </Button>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Crée une escalade test (compte à forte valeur, 3 emails
+                    envoyés). Visible sur la page Escalations.
+                  </p>
+                </div>
               </div>
             )}
           </CardContent>

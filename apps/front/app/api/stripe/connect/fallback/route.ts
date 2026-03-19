@@ -82,6 +82,7 @@ export const GET = withEvlog(async (req: NextRequest) => {
         .update(stripeConnection)
         .set({
           accessToken: encryptedAccessToken,
+          refreshToken: encryptedRefreshToken,
           isActive: true,
           lastSyncAt: new Date(),
         })
@@ -101,7 +102,7 @@ export const GET = withEvlog(async (req: NextRequest) => {
         .values({
           userId: state as string,
           stripeAccountId: response.stripe_user_id!,
-          accessToken: response.access_token!,
+          accessToken: encryptedAccessToken,
           isActive: true,
         })
         .returning()
@@ -116,7 +117,6 @@ export const GET = withEvlog(async (req: NextRequest) => {
     const webhookResult = await setupWebhooks(
       response.stripe_user_id,
       response.access_token,
-      userId,
     );
 
     if (webhookResult) {

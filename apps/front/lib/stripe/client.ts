@@ -18,9 +18,24 @@ export function getConnectedStripeClient(
   encryptedAccessToken: string,
   options?: { alreadyDecrypted?: boolean },
 ): Stripe {
-  const secretKey = options?.alreadyDecrypted
-    ? encryptedAccessToken
-    : decrypt(encryptedAccessToken);
+  let secretKey: string;
+  if (options?.alreadyDecrypted) {
+    secretKey = encryptedAccessToken;
+  } else {
+    try {
+      secretKey = decrypt(encryptedAccessToken);
+    } catch (err) {
+      // Tokens stored before encryption (e.g. fallback route) may be plain
+      if (
+        err instanceof Error &&
+        err.message.includes("Invalid encrypted text format")
+      ) {
+        secretKey = encryptedAccessToken;
+      } else {
+        throw err;
+      }
+    }
+  }
   return new Stripe(secretKey, {
     apiVersion: "2026-02-25.clover",
     typescript: true,

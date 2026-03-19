@@ -1,7 +1,7 @@
 "use server";
 
 import Stripe from "stripe";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { db } from "@dunlo/db";
 import { stripeConnection, users } from "@dunlo/db/schema";
 import { env } from "@dunlo/env/server";
@@ -11,7 +11,10 @@ import {
   setupWebhooksForDirectAccount,
 } from "@/lib/stripe/webhooks";
 import { getConnectedStripeClient } from "@/lib/stripe/client";
-import { handlePaymentFailed } from "@/lib/stripe/handle-payment-events";
+import {
+  handlePaymentFailed,
+  handlePaymentSucceeded,
+} from "@/lib/stripe/handle-payment-events";
 import { getSession } from "./auth";
 
 export async function getStripeConnectUrl() {
@@ -73,15 +76,23 @@ export async function disconnectStripe() {
   if (connection.webhookEndpointId) {
     const isApiKeyConnection = connection.stripeAccountId === "acct_api_key";
     if (isApiKeyConnection && connection.accessToken) {
-      await deleteWebhooks(connection.webhookEndpointId, {
-        userSecretKey: decrypt(connection.accessToken),
-      });
+      await deleteWebhooks(
+        connection.webhookEndpointId,
+        decrypt(connection.accessToken),
+        connection.stripeAccountId || "",
+      );
     } else if (connection.stripeAccountId) {
-      await deleteWebhooks(connection.webhookEndpointId, {
-        stripeAccountId: connection.stripeAccountId,
-      });
+      await deleteWebhooks(
+        connection.webhookEndpointId,
+        decrypt(connection.accessToken || ""),
+        connection.stripeAccountId || "",
+      );
     } else {
-      await deleteWebhooks(connection.webhookEndpointId);
+      await deleteWebhooks(
+        connection.webhookEndpointId,
+        decrypt(connection.accessToken || ""),
+        connection.stripeAccountId || "",
+      );
     }
   }
 
@@ -229,6 +240,7 @@ export async function getUserSettings() {
 }
 
 const STRIPE_TEST_DECLINING_PAYMENT_METHOD = "pm_card_visa_chargeDeclined";
+const STRIPE_TEST_SUCCESS_PAYMENT_METHOD = "pm_card_visa";
 
 export async function simulatePaymentFailed() {
   const session = await getSession();
@@ -258,7 +270,9 @@ export async function simulatePaymentFailed() {
   const customerEmail =
     settings.notificationEmail || session.user.email || "test@example.com";
 
-  const stripe = getConnectedStripeClient(rawToken, { alreadyDecrypted: true });
+  const stripe = getConnectedStripeClient(connection.accessToken, {
+    alreadyDecrypted: false,
+  });
 
   const customer = await stripe.customers.create({
     email: customerEmail,
@@ -267,7 +281,7 @@ export async function simulatePaymentFailed() {
   });
 
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: 1999,
+    amount: 20000,
     currency: "eur",
     customer: customer.id,
     payment_method_types: ["card"],
@@ -307,5 +321,123 @@ export async function simulatePaymentFailed() {
     paymentIntentId: failedPaymentIntent.id,
     customerEmail,
     message: `Simulation créée sur Stripe. L'email J+0 sera envoyé à ${customerEmail}.`,
+  };
+}
+
+export async function simulatePaymentRecovered() {
+  const session = await getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const connection = await db.query.stripeConnection.findFirst({
+    where: and(
+      eq(stripeConnection.userId, session.user.id),
+      eq(stripeConnection.isActive, true),
+    ),
+  });
+
+  if (!connection?.accessToken) {
+    throw new Error("No Stripe connection");
+  }
+
+  const rawToken = decrypt(connection.accessToken);
+  if (!rawToken.startsWith("sk_test_")) {
+    throw new Error(
+      "La simulation n'est possible qu'en mode test Stripe (sk_test_).",
+    );
+  }
+
+  const { failedPayments } = await import("@dunlo/db/schema");
+  const [recentFailed] = await db.query.failedPayments.findMany({
+    where: and(
+      eq(failedPayments.userId, session.user.id),
+      eq(failedPayments.status, "emailing"),
+    ),
+    orderBy: [desc(failedPayments.detectedAt)],
+    limit: 1,
+  });
+
+  if (!recentFailed) {
+    throw new Error(
+      "Aucun paiement échoué en cours. Simule d'abord un paiement échoué.",
+    );
+  }
+
+  const stripe = getConnectedStripeClient(connection.accessToken);
+  const paymentIntent = await stripe.paymentIntents.retrieve(
+    recentFailed.stripePaymentIntentId,
+  );
+
+  if (
+    paymentIntent.status !== "requires_payment_method" &&
+    paymentIntent.status !== "requires_confirmation"
+  ) {
+    throw new Error(
+      `Ce paiement n'est pas réessayable (statut: ${paymentIntent.status}).`,
+    );
+  }
+
+  await stripe.paymentIntents.confirm(recentFailed.stripePaymentIntentId, {
+    payment_method: STRIPE_TEST_SUCCESS_PAYMENT_METHOD,
+  });
+
+  const succeededPi = await stripe.paymentIntents.retrieve(
+    recentFailed.stripePaymentIntentId,
+  );
+
+  await handlePaymentSucceeded(succeededPi, session.user.id);
+
+  return {
+    success: true,
+    paymentIntentId: recentFailed.stripePaymentIntentId,
+    message: `Paiement ${recentFailed.stripePaymentIntentId} marqué comme récupéré. Les emails J+3 et J+7 sont annulés.`,
+  };
+}
+
+export async function simulateEscalation() {
+  const session = await getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const settings = await getUserSettings();
+  const customerEmail =
+    settings.notificationEmail || session.user.email || "test@example.com";
+
+  const { failedPayments, escalations } = await import("@dunlo/db/schema");
+
+  const piId = `pi_sim_escalation_${crypto.randomUUID()}`;
+  const amount = Math.max((settings.escalationThreshold ?? 200) * 100, 50000);
+
+  const [payment] = await db
+    .insert(failedPayments)
+    .values({
+      userId: session.user.id,
+      stripePaymentIntentId: piId,
+      stripeCustomerId: "cus_sim_escalation",
+      customerEmail,
+      customerName: "Test Customer (simulation)",
+      amount,
+      currency: "eur",
+      failureReason: "card_declined",
+      productName: "Abonnement Premium (simulation)",
+      status: "escalated",
+    })
+    .returning();
+
+  if (!payment) {
+    throw new Error("Failed to create test payment");
+  }
+
+  await db.insert(escalations).values({
+    failedPaymentId: payment.id,
+    userId: session.user.id,
+    reason: `Simulation : montant ${amount / 100}€ > seuil. 3 emails envoyés, pas de réponse.`,
+  });
+
+  return {
+    success: true,
+    message: `Escalade test créée. Va sur la page Escalations pour la voir.`,
   };
 }

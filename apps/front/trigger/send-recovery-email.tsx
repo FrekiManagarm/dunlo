@@ -1,12 +1,8 @@
 import type React from "react";
-import { logger, task } from "@trigger.dev/sdk/v3";
+import { logger, schemaTask } from "@trigger.dev/sdk/v3";
 import { eq, and, isNull } from "drizzle-orm";
 import { db } from "@dunlo/db";
-import {
-  emailSequences,
-  failedPayments,
-  escalations,
-} from "@dunlo/db/schema";
+import { emailSequences, failedPayments, escalations } from "@dunlo/db/schema";
 import { Resend } from "resend";
 import { env } from "@dunlo/env/server";
 import { createCardUpdateToken } from "@/lib/recovery/token";
@@ -14,13 +10,17 @@ import { getJ0Message } from "@/lib/recovery/messages";
 import { RecoveryJ0 } from "@/emails/recovery-j0";
 import { RecoveryJ3 } from "@/emails/recovery-j3";
 import { RecoveryJ7 } from "@/emails/recovery-j7";
+import z from "zod";
 
 const ESCALATION_THRESHOLD_CENTS = 5000; // 50€ / $50
 
-export const sendRecoveryEmailTask = task({
+export const sendRecoveryEmailTask = schemaTask({
   id: "send-recovery-email",
   maxDuration: 60,
-  run: async (payload: { emailSequenceId: string }) => {
+  schema: z.object({
+    emailSequenceId: z.string(),
+  }),
+  run: async (payload) => {
     const { emailSequenceId } = payload;
 
     const seq = await db.query.emailSequences.findFirst({
@@ -34,7 +34,10 @@ export const sendRecoveryEmailTask = task({
     }
 
     // Règle : si payment_intent.succeeded est arrivé → statut recovered → on n'envoie pas
-    if (seq.failedPayment.status === "recovered" || seq.failedPayment.status === "lost") {
+    if (
+      seq.failedPayment.status === "recovered" ||
+      seq.failedPayment.status === "lost"
+    ) {
       await db
         .update(emailSequences)
         .set({ status: "cancelled" })
@@ -52,7 +55,8 @@ export const sendRecoveryEmailTask = task({
     const updateCardUrl = `${appUrl}/api/update-card/${token}`;
 
     const resend = new Resend(env.RESEND_API_KEY);
-    const from = (process.env.RESEND_FROM as string) ?? "Dunlo <onboarding@resend.dev>";
+    const from =
+      (process.env.RESEND_FROM as string) ?? "Dunlo <no-reply@biume.com>";
 
     let subject: string;
     let react: React.ReactElement;

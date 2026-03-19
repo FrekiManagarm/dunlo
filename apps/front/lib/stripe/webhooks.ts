@@ -72,7 +72,6 @@ export async function setupWebhooksForDirectAccount(
 export async function setupWebhooks(
   stripeAccountId: string,
   accessToken: string,
-  userId: string,
 ): Promise<{ webhookEndpointId: string; webhookSecret: string } | null> {
   try {
     const baseUrl = env.APP_URL || "https://dunlo.io";
@@ -184,7 +183,7 @@ export async function updateWebhookEvents(
   accessToken: string,
   webhookEndpointId: string,
   stripeAccountId: string,
-  events: string[],
+  events: Stripe.WebhookEndpointUpdateParams.EnabledEvent[],
 ): Promise<boolean> {
   try {
     // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
@@ -195,7 +194,7 @@ export async function updateWebhookEvents(
     await stripe.webhookEndpoints.update(
       webhookEndpointId,
       {
-        enabled_events: events as any,
+        enabled_events: events,
       },
       {
         stripeAccount: stripeAccountId,

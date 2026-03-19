@@ -3,7 +3,6 @@ import { eq } from "drizzle-orm";
 import { db } from "@dunlo/db";
 import { failedPayments, stripeConnection } from "@dunlo/db/schema";
 import { getStripeClient, getConnectedStripeClient } from "@/lib/stripe/client";
-import { decrypt } from "@/lib/stripe/encryption";
 import { verifyCardUpdateToken } from "@/lib/recovery/token";
 import { env } from "@dunlo/env/server";
 
@@ -37,7 +36,7 @@ export async function GET(
 
   const stripe =
     connection.accessToken != null
-      ? getConnectedStripeClient(decrypt(connection.accessToken))
+      ? getConnectedStripeClient(connection.accessToken)
       : getStripeClient();
 
   const session = await stripe.billingPortal.sessions.create({

@@ -3,7 +3,6 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@dunlo/db";
 import { failedPayments, emailSequences } from "@dunlo/db/schema";
 import { getStripeClient, getConnectedStripeClient } from "./client";
-import { decrypt } from "./encryption";
 import { nextSendWindow } from "@/lib/recovery/schedule";
 import { sendRecoveryEmailTask } from "@/trigger/send-recovery-email";
 
@@ -19,7 +18,7 @@ export async function handlePaymentFailed(
 ) {
   const stripe =
     connection.accessToken != null
-      ? getConnectedStripeClient(decrypt(connection.accessToken))
+      ? getConnectedStripeClient(connection.accessToken)
       : getStripeClient();
 
   const stripeCustomerId =
@@ -203,7 +202,7 @@ export async function handlePaymentActionRequired(
 ) {
   const stripe =
     connection.accessToken != null
-      ? getConnectedStripeClient(decrypt(connection.accessToken))
+      ? getConnectedStripeClient(connection.accessToken)
       : getStripeClient();
 
   const invoiceAny = invoice as unknown as Record<string, unknown>;
