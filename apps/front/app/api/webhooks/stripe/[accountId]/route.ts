@@ -51,7 +51,7 @@ export const POST = withEvlog(
     const rawBody = await req.arrayBuffer();
     const body = Buffer.from(rawBody).toString("utf-8");
 
-    let webhookSecret = decrypt(connection?.webhookSecret as string);
+    let webhookSecret: string = decrypt(connection?.webhookSecret as string);
 
     const stripeCliSecret = env.STRIPE_WEBHOOK_SECRET;
 
@@ -61,7 +61,7 @@ export const POST = withEvlog(
         env.NODE_ENV == "development")
     ) {
       logger.info("Using stripe cli webhook secret from environment");
-      webhookSecret = stripeCliSecret;
+      webhookSecret = stripeCliSecret ?? "";
     }
 
     const stripe = new Stripe(connection.accessToken!, {
