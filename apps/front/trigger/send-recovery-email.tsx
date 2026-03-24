@@ -5,11 +5,11 @@ import { db } from "@dunlo/db";
 import { emailSequences, failedPayments, escalations } from "@dunlo/db/schema";
 import { Resend } from "resend";
 import { env } from "@dunlo/env/server";
-import { createCardUpdateToken } from "@/lib/recovery/token";
-import { getJ0Message } from "@/lib/recovery/messages";
-import { RecoveryJ0 } from "@/emails/recovery-j0";
-import { RecoveryJ3 } from "@/emails/recovery-j3";
-import { RecoveryJ7 } from "@/emails/recovery-j7";
+import { createCardUpdateToken } from "../lib/recovery/token";
+import { getJ0Message } from "../lib/recovery/messages";
+import { RecoveryJ0 } from "../emails/recovery-j0";
+import { RecoveryJ3 } from "../emails/recovery-j3";
+import { RecoveryJ7 } from "../emails/recovery-j7";
 import z from "zod";
 
 const ESCALATION_THRESHOLD_CENTS = 5000; // 50€ / $50

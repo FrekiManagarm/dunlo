@@ -1,8 +1,4 @@
-import {
-  TrendingDown,
-  TrendingUp,
-  AlertTriangle,
-} from "lucide-react";
+import { TrendingDown, TrendingUp, AlertTriangle } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +36,7 @@ function StatCard({
 
   return (
     <Card className="border border-border bg-card">
-      <CardHeader className="flex-row items-center justify-between">
+      <CardHeader className="flex items-center justify-between">
         <CardTitle className="text-xs font-medium text-muted-foreground">
           {title}
         </CardTitle>

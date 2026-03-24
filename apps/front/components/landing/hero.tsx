@@ -55,7 +55,7 @@ export function HeroSection() {
           </Link>
 
           <p className="font-body text-sm text-landing-text-muted">
-            10 minute setup. Cancel anytime. No credit card required.
+            5 minute setup. Cancel anytime. No credit card required.
           </p>
         </div>
       </div>

@@ -41,7 +41,10 @@ export async function GET(
 
   const session = await stripe.billingPortal.sessions.create({
     customer: payment.stripeCustomerId,
-    return_url: `${env.APP_URL}/dashboard`,
+    return_url: `${env.APP_URL}/thanks`,
+    flow_data: {
+      type: "payment_method_update",
+    }
   });
 
   return Response.redirect(session.url);
