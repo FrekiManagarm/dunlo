@@ -1,29 +1,25 @@
 "use server";
 
+import { db } from "@dunlo/db";
+import { betaSignup, NewBetaSignup } from "@dunlo/db/schema/beta-signup";
+import { revalidatePath } from "next/cache";
+
 export type BetaSignupState =
   | { success: false; error?: string }
   | { success: true };
 
 export async function submitBetaSignup(
   _prev: BetaSignupState | null,
-  formData: FormData,
+  formData: NewBetaSignup,
 ): Promise<BetaSignupState> {
-  const email = formData.get("email")?.toString()?.trim();
-  const company = formData.get("company")?.toString()?.trim() ?? null;
-  const message = formData.get("message")?.toString()?.trim() ?? null;
+  const { email, company, message } = formData;
 
-  if (!email) {
-    return { success: false, error: "Email is required." };
+  const [newBetaSignup] = await db.insert(betaSignup).values({ email, company, message }).returning();
+  if (!newBetaSignup) {
+    return { success: false, error: "Failed to sign up." };
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { success: false, error: "Please enter a valid email address." };
-  }
-
-  // TODO: persist to DB (e.g. beta_signups table) or send to Resend/Airtable
-  // Example: await db.insert(betaSignups).values({ email, company, message });
-  console.info("[Beta signup]", { email, company, message });
+  revalidatePath("/beta");
 
   return { success: true };
 }

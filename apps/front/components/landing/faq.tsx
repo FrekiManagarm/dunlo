@@ -13,7 +13,7 @@ const faqs = [
   {
     question: "What happens after the beta?",
     answer:
-      "During beta, the Growth plan is free. When we launch, you'll be able to stay on Growth at €149/mo or switch to Starter (€49/mo) or Scale (€399/mo). We'll give you a heads-up before any billing starts.",
+      "During beta, every plan is free. When we launch, you'll pick the tier that fits (Starter €49/mo, Growth €149/mo, or Scale €399/mo). We'll give you a heads-up before any billing starts.",
   },
   {
     question: "Will my recovery emails go to spam?",
@@ -23,7 +23,7 @@ const faqs = [
   {
     question: "How long does setup take?",
     answer:
-      "About 10 minutes: connect Stripe, add your email provider, review the default sequences. No code, no engineering team needed. You can customize sequences later.",
+      "About 5 minutes: connect Stripe, add your email provider, review the default sequences. No code, no engineering team needed. You can customize sequences later.",
   },
   {
     question: "Can I cancel anytime?",

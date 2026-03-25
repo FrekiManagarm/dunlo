@@ -10,7 +10,27 @@ interface Plan {
   features: readonly string[];
   cta: string;
   highlighted: boolean;
-  badge?: string;
+}
+
+function BetaPricingBanner() {
+  return (
+    <div className="mb-10 flex justify-center px-2">
+      <div className="flex w-full max-w-2xl flex-col items-center gap-3 rounded-2xl border border-landing-accent/25 bg-landing-surface/40 px-6 py-4 backdrop-blur-sm sm:flex-row sm:justify-center sm:gap-5 sm:rounded-full sm:py-3">
+        <span className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-landing-accent">
+          Beta
+        </span>
+        <span
+          className="hidden h-4 w-px shrink-0 bg-landing-border sm:block"
+          aria-hidden
+        />
+        <p className="text-center font-body text-sm leading-snug text-landing-text-secondary">
+          <span className="text-landing-text">Free for now</span>
+          <span className="text-landing-text-muted"> — </span>
+          all plans, during beta
+        </p>
+      </div>
+    </div>
+  );
 }
 
 const plans: Plan[] = [
@@ -19,7 +39,7 @@ const plans: Plan[] = [
     price: 49,
     description: "For early-stage SaaS testing payment recovery",
     features: [
-      "Up to 500 recovered payments/mo",
+      "Up to €20k MRR covered",
       "Stripe integration",
       "2 email sequences",
       "Basic dashboard",
@@ -32,7 +52,7 @@ const plans: Plan[] = [
     price: 149,
     description: "For growing teams with higher volume",
     features: [
-      "Up to 2,000 recovered payments/mo",
+      "Up to €80k MRR covered",
       "All Starter features",
       "Unlimited email sequences",
       "High-value account alerts",
@@ -40,14 +60,13 @@ const plans: Plan[] = [
     ],
     cta: "Join the beta",
     highlighted: true,
-    badge: "Beta — free for now",
   },
   {
     name: "Scale",
     price: 399,
     description: "For established SaaS with high MRR",
     features: [
-      "Unlimited recovered payments",
+      "Unlimited MRR covered",
       "All Growth features",
       "Priority support",
       "Custom integrations",
@@ -78,22 +97,17 @@ export function PricingSection() {
         </Reveal>
 
         <Reveal delay={250}>
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
+          <div className="mt-16">
+            <BetaPricingBanner />
+            <div className="grid gap-8 md:grid-cols-3">
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative flex flex-col border p-8 backdrop-blur-sm transition-all duration-300 ${
-                  plan.highlighted
+                className={`relative flex flex-col border p-8 backdrop-blur-sm transition-all duration-300 ${plan.highlighted
                     ? "border-landing-accent/40 bg-landing-surface/50"
                     : "border-landing-border bg-landing-surface/30"
-                }`}
+                  }`}
               >
-                {plan.badge && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap border border-landing-accent/30 bg-landing-accent/10 px-3 py-1 font-body text-xs font-medium uppercase tracking-wider text-landing-accent">
-                    {plan.badge}
-                  </span>
-                )}
-
                 <h3 className="font-display text-xl text-landing-text">
                   {plan.name}
                 </h3>
@@ -121,24 +135,23 @@ export function PricingSection() {
 
                 <Link
                   href="/beta"
-                  className={`group mt-8 inline-flex items-center justify-center gap-2 px-6 py-3 font-body text-sm font-semibold transition-all duration-300 ${
-                    plan.highlighted
+                  className={`group mt-8 inline-flex items-center justify-center gap-2 px-6 py-3 font-body text-sm font-semibold transition-all duration-300 ${plan.highlighted
                       ? "bg-landing-accent text-landing-bg hover:shadow-[0_0_30px_rgba(0,232,123,0.2)]"
                       : "border border-landing-border text-landing-text hover:border-landing-accent/30 hover:bg-landing-surface/50"
-                  }`}
+                    }`}
                 >
                   {plan.cta}
                   <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </Link>
               </div>
             ))}
+            </div>
           </div>
         </Reveal>
 
         <Reveal delay={350}>
           <p className="mt-10 text-center font-body text-sm text-landing-text-muted">
-            During beta, the Growth plan is free. Prices shown are for after
-            launch.
+            Prices shown are for after launch.
           </p>
         </Reveal>
       </div>

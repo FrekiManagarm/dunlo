@@ -72,7 +72,7 @@ export function SolutionSection() {
 
         <Reveal delay={200}>
           <p className="mt-16 text-center font-body text-lg font-medium text-landing-accent">
-            10 minutes to connect. Zero complexity. No dedicated team needed.
+            5 minutes to connect. Zero complexity. No dedicated team needed.
           </p>
         </Reveal>
       </div>
