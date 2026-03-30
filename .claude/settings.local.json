@@ -22,7 +22,10 @@
       "Bash(ln -sf /opt/homebrew/Cellar/node/25.8.2/bin/ruflo /opt/homebrew/bin/ruflo)",
       "Bash(ruflo --version)",
       "Bash(ruflo doctor:*)",
-      "Bash(claude mcp:*)"
+      "Bash(claude mcp:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   },
   "enabledMcpjsonServers": [
