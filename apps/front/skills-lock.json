@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "review-logging-patterns": {
+      "source": "hugorcd/evlog",
+      "sourceType": "github",
+      "computedHash": "67d7f83af04b6a90fd3f795d921793f330996058986047b59a323c8daa2aaf62"
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { encrypt } from "./encryption";
 import { db } from "@dunlo/db";
 import { stripeConnection } from "@dunlo/db/schema";
 import { env } from "@dunlo/env/server";
+import { useLogger } from "@/lib/evlog";
 
 /**
  * Create webhooks for a Direct (API key) connection.
@@ -13,6 +14,7 @@ export async function setupWebhooksForDirectAccount(
   userStripe: Stripe,
   connectionId: string,
 ): Promise<{ webhookEndpointId: string; webhookSecret: string } | null> {
+  const log = useLogger();
   try {
     const baseUrl = env.APP_URL;
     const webhookUrl = `${baseUrl}/api/webhooks/stripe`;
@@ -22,9 +24,7 @@ export async function setupWebhooksForDirectAccount(
       baseUrl.includes("127.0.0.1") ||
       baseUrl.startsWith("http://")
     ) {
-      console.warn(
-        `⚠️ Skipping webhook creation for local development (${baseUrl})`,
-      );
+      log.set({ stripe: { webhook: { skipped: true, reason: "local_dev", connectionId } } });
       await db
         .update(stripeConnection)
         .set({
@@ -59,12 +59,14 @@ export async function setupWebhooksForDirectAccount(
       })
       .where(eq(stripeConnection.id, connectionId));
 
+    log.set({ stripe: { webhook: { id: webhookEndpoint.id, connectionId, created: true } } });
     return {
       webhookEndpointId: webhookEndpoint.id,
       webhookSecret: webhookEndpoint.secret!,
     };
   } catch (error) {
-    console.error(`❌ Error setting up webhooks for direct account:`, error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    log.set({ stripe: { webhook: { connectionId, error: err.message } } });
     return null;
   }
 }
@@ -73,6 +75,7 @@ export async function setupWebhooks(
   stripeAccountId: string,
   accessToken: string,
 ): Promise<{ webhookEndpointId: string; webhookSecret: string } | null> {
+  const log = useLogger();
   try {
     const baseUrl = env.APP_URL || "https://dunlo.io";
     const webhookUrl = `${baseUrl}/api/webhooks/stripe/${stripeAccountId}`;
@@ -82,13 +85,16 @@ export async function setupWebhooks(
       baseUrl.includes("127.0.0.1") ||
       baseUrl.startsWith("http://")
     ) {
-      console.warn(
-        `⚠️ Skipping webhook creation for local development (${baseUrl})`,
-      );
-      console.warn(`💡 Use Stripe CLI to test webhooks locally:`);
-      console.warn(
-        `   stripe listen --forward-to ${baseUrl}/api/webhooks/stripe`,
-      );
+      log.set({
+        stripe: {
+          webhook: {
+            skipped: true,
+            reason: "local_dev",
+            hint: `stripe listen --forward-to ${baseUrl}/api/webhooks/stripe`,
+            accountId: stripeAccountId,
+          },
+        },
+      });
 
       await db
         .update(stripeConnection)
@@ -104,7 +110,7 @@ export async function setupWebhooks(
       };
     }
 
-    console.log(`🔗 Setting up webhook for account ${stripeAccountId}`);
+    log.set({ stripe: { webhook: { accountId: stripeAccountId, configuring: true } } });
 
     const platformStripe = new Stripe(accessToken, {
       apiVersion: "2026-02-25.clover",
@@ -128,9 +134,7 @@ export async function setupWebhooks(
       { stripeAccount: stripeAccountId },
     );
 
-    console.log(
-      `✅ Webhook created: ${webhookEndpoint.id} for account ${stripeAccountId}`,
-    );
+    log.set({ stripe: { webhook: { id: webhookEndpoint.id, accountId: stripeAccountId, created: true } } });
 
     await db
       .update(stripeConnection)
@@ -146,10 +150,8 @@ export async function setupWebhooks(
       webhookSecret: webhookEndpoint.secret!,
     };
   } catch (error) {
-    console.error(
-      `❌ Error setting up webhooks for account ${stripeAccountId}:`,
-      error,
-    );
+    const err = error instanceof Error ? error : new Error(String(error));
+    log.set({ stripe: { webhook: { accountId: stripeAccountId, error: err.message } } });
     return null;
   }
 }
@@ -159,6 +161,7 @@ export async function deleteWebhooks(
   accessToken: string,
   stripeAccountId: string,
 ): Promise<boolean> {
+  const log = useLogger();
   try {
     const stripe = new Stripe(accessToken, {
       apiVersion: "2026-02-25.clover",
@@ -168,13 +171,11 @@ export async function deleteWebhooks(
       stripeAccountId: stripeAccountId,
     });
 
-    console.log(`✅ Deleted webhook endpoint ${webhookEndpointId}`);
+    log.set({ stripe: { webhook: { id: webhookEndpointId, accountId: stripeAccountId, deleted: true } } });
     return true;
   } catch (error) {
-    console.error(
-      `❌ Error deleting webhook endpoint ${webhookEndpointId}:`,
-      error,
-    );
+    const err = error instanceof Error ? error : new Error(String(error));
+    log.set({ stripe: { webhook: { id: webhookEndpointId, accountId: stripeAccountId, deleteError: err.message } } });
     return false;
   }
 }
@@ -185,6 +186,7 @@ export async function updateWebhookEvents(
   stripeAccountId: string,
   events: Stripe.WebhookEndpointUpdateParams.EnabledEvent[],
 ): Promise<boolean> {
+  const log = useLogger();
   try {
     // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
     const stripe = new Stripe(accessToken, {
@@ -201,15 +203,11 @@ export async function updateWebhookEvents(
       },
     );
 
-    console.log(
-      `✅ Updated Connect webhook endpoint ${webhookEndpointId} events`,
-    );
+    log.set({ stripe: { webhook: { id: webhookEndpointId, accountId: stripeAccountId, updated: true } } });
     return true;
   } catch (error) {
-    console.error(
-      `❌ Error updating webhook endpoint ${webhookEndpointId}:`,
-      error,
-    );
+    const err = error instanceof Error ? error : new Error(String(error));
+    log.set({ stripe: { webhook: { id: webhookEndpointId, accountId: stripeAccountId, updateError: err.message } } });
     return false;
   }
 }
@@ -221,6 +219,7 @@ export async function listWebhooks(
   accessToken: string,
   stripeAccountId: string,
 ): Promise<Stripe.WebhookEndpoint[]> {
+  const log = useLogger();
   try {
     // Les webhooks Connect sont gérés au niveau plateforme (pas de stripeAccount)
     const stripe = new Stripe(accessToken, {
@@ -238,7 +237,8 @@ export async function listWebhooks(
       endpoint.url?.includes(stripeAccountId),
     );
   } catch (error) {
-    console.error("❌ Error listing webhook endpoints:", error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    log.set({ stripe: { webhook: { accountId: stripeAccountId, listError: err.message } } });
     return [];
   }
 }

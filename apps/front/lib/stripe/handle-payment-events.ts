@@ -1,10 +1,15 @@
 import type Stripe from "stripe";
 import { and, eq } from "drizzle-orm";
 import { db } from "@dunlo/db";
-import { failedPayments, emailSequences } from "@dunlo/db/schema";
+import {
+  failedPayments,
+  emailSequences,
+  subscriptionEvents,
+} from "@dunlo/db/schema";
 import { getStripeClient, getConnectedStripeClient } from "./client";
 import { nextSendWindow } from "@/lib/recovery/schedule";
 import { sendRecoveryEmailTask } from "@/trigger/send-recovery-email";
+import { useLogger } from "@/lib/evlog";
 
 export type StripeConnectionForPaymentFailed = {
   accessToken: string | null;
@@ -51,8 +56,10 @@ export async function handlePaymentFailed(
     where: eq(failedPayments.stripePaymentIntentId, paymentIntent.id),
   });
 
+  const log = useLogger();
+
   if (existing) {
-    console.log(`ℹ️ Payment ${paymentIntent.id} already tracked, skipping`);
+    log.set({ stripe: { payment: { id: paymentIntent.id, idempotent: true } } });
     return;
   }
 
@@ -75,9 +82,11 @@ export async function handlePaymentFailed(
 
   if (!newPayment) return;
 
-  console.log(
-    `🚨 New failed payment detected: ${newPayment.id} (${failureReason})`,
-  );
+  log.set({
+    stripe: {
+      payment: { id: newPayment.id, status: "detected", failureReason, customerEmail },
+    },
+  });
 
   const steps = [
     { step: 1, delayDays: 0 },
@@ -110,9 +119,7 @@ export async function handlePaymentFailed(
     });
   }
 
-  console.log(
-    `📧 Scheduled 3 recovery emails for payment ${newPayment.id}, J+0 triggered`,
-  );
+  log.set({ stripe: { payment: { id: newPayment.id, emailsScheduled: 3, j0Triggered: true } } });
 }
 
 export async function handlePaymentSucceeded(
@@ -144,7 +151,8 @@ export async function handlePaymentSucceeded(
       ),
     );
 
-  console.log(`✅ Payment ${paymentIntent.id} recovered!`);
+  const log = useLogger();
+  log.set({ stripe: { payment: { id: paymentIntent.id, status: "recovered" } } });
 }
 
 export async function handleSubscriptionDeleted(
@@ -192,7 +200,71 @@ export async function handleSubscriptionDeleted(
       );
   }
 
-  console.log(`💀 Subscription deleted for ${customerEmail}, marked as lost`);
+  const log = useLogger();
+  log.set({
+    stripe: {
+      subscription: {
+        event: "deleted",
+        customerEmail,
+        paymentsLost: activePayments.filter(
+          (p) => p.status !== "recovered" && p.status !== "lost",
+        ).length,
+      },
+    },
+  });
+}
+
+function getSubscriptionAmount(subscription: Stripe.Subscription): number {
+  return subscription.items.data.reduce((sum, item) => {
+    const unitAmount = item.price?.unit_amount ?? 0;
+    const quantity = item.quantity ?? 1;
+    return sum + unitAmount * quantity;
+  }, 0);
+}
+
+export async function handleSubscriptionUpdated(
+  subscription: Stripe.Subscription,
+  previousAttributes: Partial<Stripe.Subscription>,
+  userId: string,
+) {
+  if (!previousAttributes.items) return;
+
+  const stripe = getStripeClient();
+  const customerId = subscription.customer as string;
+  let customerEmail = "unknown@unknown.com";
+
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (!customer.deleted) {
+      customerEmail = customer.email ?? customerEmail;
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  const prevAmount = getSubscriptionAmount(
+    previousAttributes as Stripe.Subscription,
+  );
+  const newAmount = getSubscriptionAmount(subscription);
+
+  if (newAmount >= prevAmount) return;
+
+  await db.insert(subscriptionEvents).values({
+    userId,
+    customerEmail,
+    stripeSubscriptionId: subscription.id,
+    type: "downgrade",
+    previousAmount: prevAmount,
+    newAmount,
+    occurredAt: new Date(),
+  });
+
+  const log = useLogger();
+  log.set({
+    stripe: {
+      subscription: { event: "downgrade", customerEmail, prevAmount, newAmount },
+    },
+  });
 }
 
 export async function handlePaymentActionRequired(
@@ -293,5 +365,15 @@ export async function handlePaymentActionRequired(
     });
   }
 
-  console.log(`🔐 3DS required for ${paymentIntentId}, emails scheduled`);
+  const log = useLogger();
+  log.set({
+    stripe: {
+      payment: {
+        id: paymentIntentId,
+        failureReason: "authentication_required",
+        emailsScheduled: 3,
+        j0Triggered: true,
+      },
+    },
+  });
 }

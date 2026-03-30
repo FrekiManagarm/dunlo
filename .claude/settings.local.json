@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude doctor:*)",
+      "Bash(ls:*)",
+      "Bash(bun run:*)",
+      "Bash(find /Users/mathieuchambaud/Documents/Perso-Projects/dunlo/apps/front -name *evlog* -o -name *logging*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
+      "Bash(find /Users/mathieuchambaud/Documents/Perso-Projects/dunlo/apps -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\) ! -path */node_modules/* ! -path */.next/*)",
+      "Bash(npx tsc:*)",
+      "Bash(bun tsc:*)",
+      "Bash(gh repo:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npm --version)",
+      "Bash(curl -fsSL https://cdn.jsdelivr.net/gh/ruvnet/ruflo@main/scripts/install.sh)",
+      "Bash(bash -s -- --full)",
+      "Bash(npm root:*)",
+      "Bash(npm bin:*)",
+      "Bash(npm prefix:*)",
+      "Bash(echo $PATH)",
+      "Bash(ln -sf /opt/homebrew/Cellar/node/25.8.2/bin/ruflo /opt/homebrew/bin/ruflo)",
+      "Bash(ruflo --version)",
+      "Bash(ruflo doctor:*)",
+      "Bash(claude mcp:*)"
+    ]
+  }
+}

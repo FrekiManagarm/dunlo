@@ -16,6 +16,11 @@
       "sourceType": "github",
       "computedHash": "13624b09c8dde98402647ffa13158f0e66a3fe6c440e74b2110e8b455a11153a"
     },
+    "review-logging-patterns": {
+      "source": "hugorcd/evlog",
+      "sourceType": "github",
+      "computedHash": "67d7f83af04b6a90fd3f795d921793f330996058986047b59a323c8daa2aaf62"
+    },
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",

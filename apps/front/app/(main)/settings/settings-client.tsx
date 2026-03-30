@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import {
   disconnectStripe,
   updateUserSettings,
@@ -29,6 +30,9 @@ type Settings = {
   escalationThreshold: number;
   notificationEmail: string;
   timezone: string;
+  morningBriefEnabled: boolean;
+  morningBriefTime: string;
+  slackWebhookUrl: string;
 };
 
 export function SettingsClient({
@@ -46,6 +50,9 @@ export function SettingsClient({
     settings.notificationEmail,
   );
   const [timezone, setTimezone] = useState(settings.timezone);
+  const [morningBriefEnabled, setMorningBriefEnabled] = useState(settings.morningBriefEnabled);
+  const [morningBriefTime, setMorningBriefTime] = useState(settings.morningBriefTime);
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState(settings.slackWebhookUrl);
   const [saving, setSaving] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [simulating, setSimulating] = useState(false);
@@ -59,6 +66,9 @@ export function SettingsClient({
         escalationThreshold: Number(escalationThreshold) || 200,
         notificationEmail,
         timezone,
+        morningBriefEnabled,
+        morningBriefTime,
+        slackWebhookUrl,
       });
       toast.success("Settings saved");
     } catch {
@@ -349,6 +359,72 @@ export function SettingsClient({
                   </p>
                 </div>
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border">
+          <CardHeader>
+            <CardTitle className="text-sm text-foreground">
+              Morning Brief
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              Reçois chaque matin un résumé des comptes à risque — par email et sur Slack.
+            </p>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="morning-brief-enabled" className="text-xs text-foreground">
+                Activer le Morning Brief
+              </Label>
+              <Switch
+                id="morning-brief-enabled"
+                checked={morningBriefEnabled}
+                onCheckedChange={setMorningBriefEnabled}
+              />
+            </div>
+
+            {morningBriefEnabled && (
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor="morning-brief-time" className="text-xs text-muted-foreground">
+                    Heure d'envoi (UTC)
+                  </Label>
+                  <Input
+                    id="morning-brief-time"
+                    type="time"
+                    value={morningBriefTime}
+                    onChange={(e) => setMorningBriefTime(e.target.value)}
+                    className="max-w-[120px]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="slack-webhook" className="text-xs text-muted-foreground">
+                    Slack Incoming Webhook URL{" "}
+                    <span className="text-muted-foreground/50">(optionnel)</span>
+                  </Label>
+                  <Input
+                    id="slack-webhook"
+                    type="url"
+                    value={slackWebhookUrl}
+                    onChange={(e) => setSlackWebhookUrl(e.target.value)}
+                    placeholder="https://hooks.slack.com/services/..."
+                    className="max-w-sm font-mono text-xs"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    <a
+                      href="https://api.slack.com/messaging/webhooks"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      Comment créer un webhook Slack ?
+                    </a>
+                  </p>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

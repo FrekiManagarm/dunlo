@@ -16,6 +16,7 @@ import {
   handlePaymentSucceeded,
 } from "@/lib/stripe/handle-payment-events";
 import { getSession } from "./auth";
+import { withEvlog } from "@/lib/evlog";
 
 export async function getStripeConnectUrl() {
   const session = await getSession();
@@ -56,7 +57,7 @@ export async function getStripeConnectionStatus() {
   };
 }
 
-export async function disconnectStripe() {
+export const disconnectStripe = withEvlog(async function disconnectStripe() {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -102,12 +103,15 @@ export async function disconnectStripe() {
     .where(eq(stripeConnection.id, connection.id));
 
   return { success: true };
-}
+});
 
 export async function updateUserSettings(data: {
   escalationThreshold: number;
   notificationEmail: string;
   timezone?: string;
+  morningBriefEnabled?: boolean;
+  morningBriefTime?: string;
+  slackWebhookUrl?: string;
 }) {
   const session = await getSession();
   if (!session?.user) {
@@ -120,13 +124,16 @@ export async function updateUserSettings(data: {
       escalationThreshold: data.escalationThreshold,
       notificationEmail: data.notificationEmail,
       ...(data.timezone != null && { timezone: data.timezone }),
+      ...(data.morningBriefEnabled != null && { morningBriefEnabled: data.morningBriefEnabled }),
+      ...(data.morningBriefTime != null && { morningBriefTime: data.morningBriefTime }),
+      ...(data.slackWebhookUrl !== undefined && { slackWebhookUrl: data.slackWebhookUrl || null }),
     })
     .where(eq(users.id, session.user.id));
 
   return { success: true };
 }
 
-export async function connectStripeWithApiKey(secretKey: string) {
+export const connectStripeWithApiKey = withEvlog(async function connectStripeWithApiKey(secretKey: string) {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -183,9 +190,9 @@ export async function connectStripeWithApiKey(secretKey: string) {
   }
 
   return { success: true };
-}
+});
 
-export async function runOnboardingVerification(timezone: string) {
+export const runOnboardingVerification = withEvlog(async function runOnboardingVerification(timezone: string) {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -216,7 +223,7 @@ export async function runOnboardingVerification(timezone: string) {
     webhookRegistered: !!connection.webhookEndpointId,
     failedPaymentsImported: imported,
   };
-}
+});
 
 export async function getUserSettings() {
   const session = await getSession();
@@ -236,13 +243,16 @@ export async function getUserSettings() {
     escalationThreshold: user.escalationThreshold ?? 200,
     notificationEmail: user.notificationEmail ?? user.email ?? "",
     timezone: user.timezone ?? "UTC",
+    morningBriefEnabled: user.morningBriefEnabled ?? true,
+    morningBriefTime: user.morningBriefTime ?? "07:00",
+    slackWebhookUrl: user.slackWebhookUrl ?? "",
   };
 }
 
 const STRIPE_TEST_DECLINING_PAYMENT_METHOD = "pm_card_visa_chargeDeclined";
 const STRIPE_TEST_SUCCESS_PAYMENT_METHOD = "pm_card_visa";
 
-export async function simulatePaymentFailed() {
+export const simulatePaymentFailed = withEvlog(async function simulatePaymentFailed() {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -322,9 +332,9 @@ export async function simulatePaymentFailed() {
     customerEmail,
     message: `Simulation créée sur Stripe. L'email J+0 sera envoyé à ${customerEmail}.`,
   };
-}
+});
 
-export async function simulatePaymentRecovered() {
+export const simulatePaymentRecovered = withEvlog(async function simulatePaymentRecovered() {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -393,7 +403,7 @@ export async function simulatePaymentRecovered() {
     paymentIntentId: recentFailed.stripePaymentIntentId,
     message: `Paiement ${recentFailed.stripePaymentIntentId} marqué comme récupéré. Les emails J+3 et J+7 sont annulés.`,
   };
-}
+});
 
 export async function simulateEscalation() {
   const session = await getSession();

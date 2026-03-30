@@ -93,9 +93,11 @@ export const GET = withEvlog(async (req: NextRequest) => {
       revalidatePath(`/dashboard`);
       revalidatePath("/onboarding");
 
-      console.log(
-        `✅ Updated existing Stripe connection ${connectionId} for account ${response.stripe_user_id}`,
-      );
+      logger.set({
+        stripe: {
+          connection: { id: connectionId, accountId: response.stripe_user_id, action: "updated" },
+        },
+      });
     } else {
       const [newConnection] = await db
         .insert(stripeConnection)
@@ -109,9 +111,11 @@ export const GET = withEvlog(async (req: NextRequest) => {
         .execute();
 
       connectionId = newConnection.id;
-      console.log(
-        `✅ Created new Stripe connection ${connectionId} for user ${state}`,
-      );
+      logger.set({
+        stripe: {
+          connection: { id: connectionId, accountId: response.stripe_user_id, userId: state, action: "created" },
+        },
+      });
     }
 
     const webhookResult = await setupWebhooks(
@@ -119,15 +123,11 @@ export const GET = withEvlog(async (req: NextRequest) => {
       response.access_token,
     );
 
-    if (webhookResult) {
-      console.log(
-        `✅ Webhooks configured for account ${response.stripe_user_id}`,
-      );
-    } else {
-      console.warn(
-        `⚠️ Failed to setup webhooks for account ${response.stripe_user_id}`,
-      );
-    }
+    logger.set({
+      stripe: {
+        webhook: { accountId: response.stripe_user_id, configured: !!webhookResult },
+      },
+    });
 
     return Response.redirect(`${baseUrl}/onboarding`);
   } catch (err) {

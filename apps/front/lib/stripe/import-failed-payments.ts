@@ -9,6 +9,7 @@ import { decrypt } from "./encryption";
 import { getConnectedStripeClient } from "./client";
 import { nextSendWindow } from "@/lib/recovery/schedule";
 import { tasks } from "@trigger.dev/sdk/v3";
+import { useLogger } from "@/lib/evlog";
 
 const FAILED_STATUSES = ["requires_payment_method", "requires_action"] as const;
 
@@ -24,14 +25,13 @@ export async function importRecentFailedPayments(
 
   if (!connection.accessToken) return { imported: 0, total: 0 };
 
+  const log = useLogger();
   let rawToken: string;
   try {
     rawToken = decrypt(connection.accessToken);
   } catch (err) {
-    console.warn(
-      "Could not decrypt access token for import (legacy or invalid format), skipping:",
-      err instanceof Error ? err.message : err,
-    );
+    const error = err instanceof Error ? err : new Error(String(err));
+    log.set({ stripe: { import: { connectionId: connection.id, decryptError: error.message } } });
     return { imported: 0, total: 0 };
   }
 
@@ -52,7 +52,8 @@ export async function importRecentFailedPayments(
         (pi.last_payment_error != null || pi.status === "requires_payment_method"),
     );
   } catch (err) {
-    console.error("Failed to list payment intents:", err);
+    const error = err instanceof Error ? err : new Error(String(err));
+    log.set({ stripe: { import: { connectionId: connection.id, listError: error.message } } });
     return { imported: 0, total: 0 };
   }
 

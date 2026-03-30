@@ -6,3 +6,4 @@ export * from "./failed_payments";
 export * from "./escalations";
 export * from "./email_sequences";
 export * from "./stripe_connection";
+export * from "./subscription_events";

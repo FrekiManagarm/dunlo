@@ -10,6 +10,7 @@ import {
   handlePaymentFailed,
   handlePaymentSucceeded,
   handleSubscriptionDeleted,
+  handleSubscriptionUpdated,
 } from "@/lib/stripe/handle-payment-events";
 import { createError, useLogger, withEvlog } from "@/lib/evlog";
 
@@ -86,6 +87,13 @@ export const POST = withEvlog(async (request: NextRequest) => {
           userId,
         );
         break;
+      case "customer.subscription.updated":
+        await handleSubscriptionUpdated(
+          event.data.object as Stripe.Subscription,
+          event.data.previous_attributes as Partial<Stripe.Subscription>,
+          userId,
+        );
+        break;
       case "invoice.payment_action_required":
         await handlePaymentActionRequired(
           event.data.object as Stripe.Invoice,
@@ -94,7 +102,7 @@ export const POST = withEvlog(async (request: NextRequest) => {
         );
         break;
       default:
-        console.log(`⚠️ Unhandled event type: ${event.type}`);
+        logger.set({ stripe: { webhook: { unhandledEventType: event.type } } });
     }
 
     return new Response(JSON.stringify({ received: true }), {
