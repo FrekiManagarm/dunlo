@@ -24,5 +24,8 @@
       "Bash(ruflo doctor:*)",
       "Bash(claude mcp:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "claude-flow"
+  ]
 }
