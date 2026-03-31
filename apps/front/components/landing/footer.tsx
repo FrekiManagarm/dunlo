@@ -34,9 +34,17 @@ export function FooterSection() {
 
         <div className="mt-32 flex flex-col items-center gap-6 border-t border-landing-border pt-10 md:flex-row md:justify-between">
           <span className="font-display text-xl text-landing-text">dunlo</span>
-          <span className="font-body text-xs text-landing-text-muted">
-            © {new Date().getFullYear()} Dunlo. All rights reserved.
-          </span>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/cgu"
+              className="font-body text-xs text-landing-text-muted transition-colors hover:text-landing-text-secondary"
+            >
+              CGU
+            </Link>
+            <span className="font-body text-xs text-landing-text-muted">
+              © {new Date().getFullYear()} Dunlo. All rights reserved.
+            </span>
+          </div>
         </div>
       </div>
     </footer>
