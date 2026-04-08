@@ -39,7 +39,8 @@ export function HeroSection() {
           className="l-stagger mt-4 font-body text-sm text-landing-text-muted"
           style={{ animationDelay: "450ms" }}
         >
-          Built for founders at €5k–€80k MRR. 8 founders already in beta.
+          Built for founders at €5k–€80k MRR. Beta spots open — free until
+          launch.
         </p>
 
         <div

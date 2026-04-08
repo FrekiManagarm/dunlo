@@ -2,7 +2,7 @@ import type React from "react";
 import { logger, schemaTask } from "@trigger.dev/sdk/v3";
 import { eq, and, isNull } from "drizzle-orm";
 import { db } from "@dunlo/db";
-import { emailSequences, failedPayments, escalations } from "@dunlo/db/schema";
+import { emailSequences, failedPayments, escalations, users } from "@dunlo/db/schema";
 import { Resend } from "resend";
 import { env } from "@dunlo/env/server";
 import { createCardUpdateToken } from "../lib/recovery/token";
@@ -10,6 +10,7 @@ import { getJ0Message } from "../lib/recovery/messages";
 import { RecoveryJ0 } from "../emails/recovery-j0";
 import { RecoveryJ3 } from "../emails/recovery-j3";
 import { RecoveryJ7 } from "../emails/recovery-j7";
+import { EscalationAlert } from "../emails/escalation-alert";
 import z from "zod";
 
 const ESCALATION_THRESHOLD_CENTS = 5000; // 50€ / $50
@@ -152,7 +153,35 @@ export const sendRecoveryEmailTask = schemaTask({
             .set({ status: "escalated" })
             .where(eq(failedPayments.id, payment.id));
           logger.info("Escalation created", { paymentId: payment.id });
-          // TODO: envoyer email au founder avec le contexte
+
+          // Envoyer email d'alerte au founder
+          const user = await db.query.users.findFirst({
+            where: eq(users.id, payment.userId!),
+          });
+          if (user) {
+            const founderEmail = user.notificationEmail ?? user.email;
+            const formattedAmount = new Intl.NumberFormat("fr-FR", {
+              style: "currency",
+              currency: payment.currency.toUpperCase(),
+              minimumFractionDigits: 0,
+            }).format(payment.amount / 100);
+            const paymentUrl = `${env.APP_URL}/payment/${payment.id}`;
+            await resend.emails.send({
+              from,
+              to: [founderEmail],
+              subject: `Escalade — ${payment.customerName} · ${formattedAmount} non récupéré`,
+              react: (
+                <EscalationAlert
+                  customerName={payment.customerName}
+                  customerEmail={payment.customerEmail}
+                  formattedAmount={formattedAmount}
+                  failureReason={payment.failureReason}
+                  paymentUrl={paymentUrl}
+                />
+              ),
+            });
+            logger.info("Escalation alert sent to founder", { founderEmail, paymentId: payment.id });
+          }
         }
       } else {
         await db

@@ -10,6 +10,7 @@ import { HeroSection } from "@/components/landing/hero";
 import { PricingSection } from "@/components/landing/pricing";
 import { ProblemSection } from "@/components/landing/problem";
 import { SolutionSection } from "@/components/landing/solution";
+import { DunloLogo } from "@/components/dunlo-logo";
 import { cn } from "@/lib/utils";
 
 function LandingNav() {
@@ -30,8 +31,8 @@ function LandingNav() {
         scrolled && "py-3",
       )}
     >
-      <Link href="/" className="font-display text-2xl text-landing-text">
-        dunlo
+      <Link href="/">
+        <DunloLogo sizeClassName="text-2xl" wordmarkClassName="text-landing-text" />
       </Link>
 
       <div className="flex items-center gap-8">

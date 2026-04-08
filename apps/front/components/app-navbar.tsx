@@ -12,6 +12,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DunloLogo } from "@/components/dunlo-logo";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -26,8 +27,8 @@ export function AppNavbar() {
   return (
     <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
       <div className="flex items-center gap-8">
-        <Link href="/dashboard" className="font-display text-xl text-foreground">
-          dunlo
+        <Link href="/dashboard">
+          <DunloLogo sizeClassName="text-xl" wordmarkClassName="text-foreground" />
         </Link>
 
         <div className="flex items-center gap-1">

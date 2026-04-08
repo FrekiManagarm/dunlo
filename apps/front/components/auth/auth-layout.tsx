@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GoogleSignInButton } from "./google-sign-in-button";
+import { DunloLogo } from "@/components/dunlo-logo";
 
 export function AuthLayout({
   children,
@@ -14,9 +15,9 @@ export function AuthLayout({
 
       <Link
         href="/"
-        className="auth-stagger absolute left-6 top-6 z-20 font-display text-xl text-landing-text transition-colors hover:text-landing-accent md:left-10"
+        className="auth-stagger absolute left-6 top-6 z-20 transition-opacity hover:opacity-80 md:left-10"
       >
-        dunlo
+        <DunloLogo sizeClassName="text-xl" wordmarkClassName="text-landing-text" />
       </Link>
 
       <div className="auth-stagger relative z-10 w-full max-w-[500px] px-6">

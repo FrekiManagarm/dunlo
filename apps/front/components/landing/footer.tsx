@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { Reveal } from "./reveal";
+import { DunloLogo } from "@/components/dunlo-logo";
 
 export function FooterSection() {
   return (
@@ -33,7 +34,7 @@ export function FooterSection() {
         </Reveal>
 
         <div className="mt-32 flex flex-col items-center gap-6 border-t border-landing-border pt-10 md:flex-row md:justify-between">
-          <span className="font-display text-xl text-landing-text">dunlo</span>
+          <DunloLogo sizeClassName="text-xl" wordmarkClassName="text-landing-text" />
           <div className="flex items-center gap-6">
             <Link
               href="/cgu"
