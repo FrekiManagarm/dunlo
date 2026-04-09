@@ -27,7 +27,13 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "mcp__plugin_context7_context7__resolve-library-id",
-      "mcp__plugin_context7_context7__query-docs"
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(bun --filter front exec tsc --noEmit)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(node_modules/.bin/tsc --version)",
+      "Bash(/Users/mathieuchambaud/Documents/Perso-Projects/dunlo/node_modules/.bin/tsc --noEmit)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(python3:*)"
     ]
   },
   "enabledMcpjsonServers": [

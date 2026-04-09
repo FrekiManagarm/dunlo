@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, and, sql, desc } from "drizzle-orm";
+import { eq, and, sql, desc, min } from "drizzle-orm";
 import { db } from "@dunlo/db";
 import {
   failedPayments,
@@ -8,6 +8,121 @@ import {
   escalations,
 } from "@dunlo/db/schema";
 import { getSession } from "./auth";
+import {
+  categorizeFailure,
+  computePriority,
+  type EscalationPriority,
+  type FailureCategory,
+} from "@/lib/escalations/draft-generator";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export type FailureBreakdown = {
+  category: FailureCategory;
+  count: number;
+  recoveryRate: number;
+};
+
+export type TablePayment = {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  currency: string;
+  status: string;
+  currentStep: number;
+  totalSteps: number;
+  failureReason: string;
+  detectedAt: string;
+  recoveryScore: number;
+};
+
+export type EnrichedEscalation = {
+  id: string;
+  paymentId: string;
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  currency: string;
+  emailsSent: number;
+  daysSince: number;
+  reason: string;
+  sequenceComplete: boolean;
+  failureCode: string;
+  tenureMonths: number;
+  priority: EscalationPriority;
+  annualValue: number;
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function computeRecoveryScore(
+  payment: {
+    status: string;
+    detectedAt: Date;
+    emailSequences: Array<{ status: string }>;
+  },
+): number {
+  if (payment.status === "recovered") return 100;
+  if (payment.status === "lost") return 0;
+
+  const emailsOpened = payment.emailSequences.filter(
+    (e) => e.status === "opened" || e.status === "clicked",
+  ).length;
+  const emailsSent = payment.emailSequences.filter(
+    (e) =>
+      e.status === "sent" ||
+      e.status === "opened" ||
+      e.status === "clicked",
+  ).length;
+  const daysSince = Math.floor(
+    (Date.now() - payment.detectedAt.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  let score = 0;
+  if (emailsOpened > 0) score += 40;
+  if (emailsSent >= 2) score += 20;
+  if (daysSince < 3) score += 20;
+  else if (daysSince < 7) score += 10;
+  if (payment.status === "emailing") score += 10;
+
+  return Math.min(100, Math.max(0, score));
+}
+
+function computeBreakdown(
+  payments: Array<{
+    status: string;
+    failureReason: string;
+  }>,
+): FailureBreakdown[] {
+  const map = new Map<
+    FailureCategory,
+    { count: number; recoveredCount: number }
+  >();
+
+  for (const p of payments) {
+    const category = categorizeFailure(p.failureReason);
+    const existing = map.get(category) ?? { count: 0, recoveredCount: 0 };
+    map.set(category, {
+      count: existing.count + 1,
+      recoveredCount:
+        existing.recoveredCount + (p.status === "recovered" ? 1 : 0),
+    });
+  }
+
+  return Array.from(map.entries())
+    .map(([category, data]) => ({
+      category,
+      count: data.count,
+      recoveryRate:
+        data.count > 0
+          ? Math.round((data.recoveredCount / data.count) * 100)
+          : 0,
+    }))
+    .sort((a, b) => b.count - a.count);
+}
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
 
 export async function getDashboardData() {
   const session = await getSession();
@@ -41,7 +156,7 @@ export async function getDashboardData() {
   const needsAttention = payments.filter((p) => p.status === "escalated")
     .length;
 
-  const tablePayments = payments.map((p) => {
+  const tablePayments: TablePayment[] = payments.map((p) => {
     const sentEmails = p.emailSequences.filter(
       (e) =>
         e.status === "sent" ||
@@ -60,6 +175,7 @@ export async function getDashboardData() {
       totalSteps: 3,
       failureReason: p.failureReason,
       detectedAt: p.detectedAt.toISOString(),
+      recoveryScore: computeRecoveryScore(p),
     };
   });
 
@@ -68,8 +184,10 @@ export async function getDashboardData() {
   );
   const activeTotal = activePayments.reduce((sum, p) => sum + p.amount, 0);
 
+  const breakdown = computeBreakdown(payments);
+
   return {
-    stats: { atRisk, recoveredThisMonth, needsAttention },
+    stats: { atRisk, recoveredThisMonth, needsAttention, breakdown },
     payments: tablePayments,
     hasActiveFailedPayments: activePayments.length > 0,
     activeFailedCount: activePayments.length,
@@ -77,7 +195,7 @@ export async function getDashboardData() {
   };
 }
 
-export async function getEscalations() {
+export async function getEscalations(): Promise<EnrichedEscalation[]> {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -98,33 +216,69 @@ export async function getEscalations() {
     orderBy: [desc(escalations.triggeredAt)],
   });
 
-  return activeEscalations
-    .filter((esc) => esc.failedPayment != null)
-    .map((esc) => {
-      const payment = esc.failedPayment!;
-      const emailsSent = payment.emailSequences.filter(
-        (e) =>
-          e.status === "sent" ||
-          e.status === "opened" ||
-          e.status === "clicked",
-      ).length;
-      const daysSince = Math.floor(
-        (Date.now() - esc.triggeredAt.getTime()) / (1000 * 60 * 60 * 24),
-      );
+  const enriched = await Promise.all(
+    activeEscalations
+      .filter((esc) => esc.failedPayment != null)
+      .map(async (esc) => {
+        const payment = esc.failedPayment!;
+        const emailsSent = payment.emailSequences.filter(
+          (e) =>
+            e.status === "sent" ||
+            e.status === "opened" ||
+            e.status === "clicked",
+        ).length;
+        const daysSince = Math.floor(
+          (Date.now() - esc.triggeredAt.getTime()) / (1000 * 60 * 60 * 24),
+        );
 
-      return {
-        id: esc.id,
-        paymentId: payment.id,
-        customerName: payment.customerName,
-        customerEmail: payment.customerEmail,
-        amount: payment.amount,
-        currency: payment.currency,
-        emailsSent,
-        daysSince,
-        reason: esc.reason,
-        sequenceComplete: emailsSent >= 3,
-      };
-    });
+        // Calculer la tenure : date du premier failedPayment pour ce customer
+        const [oldest] = await db
+          .select({ minDate: min(failedPayments.detectedAt) })
+          .from(failedPayments)
+          .where(
+            and(
+              eq(failedPayments.userId, userId),
+              eq(failedPayments.customerEmail, payment.customerEmail),
+            ),
+          );
+
+        const tenureMonths = oldest?.minDate
+          ? Math.floor(
+              (Date.now() - oldest.minDate.getTime()) /
+                (1000 * 60 * 60 * 24 * 30),
+            )
+          : 0;
+
+        const priority = computePriority(payment.amount, tenureMonths);
+
+        return {
+          id: esc.id,
+          paymentId: payment.id,
+          customerName: payment.customerName,
+          customerEmail: payment.customerEmail,
+          amount: payment.amount,
+          currency: payment.currency,
+          emailsSent,
+          daysSince,
+          reason: esc.reason,
+          sequenceComplete: emailsSent >= 3,
+          failureCode: payment.failureReason,
+          tenureMonths,
+          priority,
+          annualValue: payment.amount * 12,
+        };
+      }),
+  );
+
+  // Trier : critical → high → normal
+  const priorityOrder: Record<EscalationPriority, number> = {
+    critical: 0,
+    high: 1,
+    normal: 2,
+  };
+  return enriched.sort(
+    (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
+  );
 }
 
 export async function getPaymentDetail(id: string) {
@@ -172,6 +326,7 @@ export async function getPaymentDetail(id: string) {
     detectedAt: payment.detectedAt.toISOString(),
     recoveredAt: payment.recoveredAt?.toISOString() ?? null,
     daysSinceDetection,
+    recoveryScore: computeRecoveryScore(payment),
     timeline: payment.emailSequences.map((e) => ({
       step: e.step,
       label:

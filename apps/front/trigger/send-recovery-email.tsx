@@ -6,7 +6,9 @@ import { emailSequences, failedPayments, escalations, users } from "@dunlo/db/sc
 import { Resend } from "resend";
 import { env } from "@dunlo/env/server";
 import { createCardUpdateToken } from "../lib/recovery/token";
-import { getJ0Message } from "../lib/recovery/messages";
+import { getJ0Message, normalizeFailureCategory } from "../lib/recovery/messages";
+import { generateDraft, computePriority } from "../lib/escalations/draft-generator";
+import { sendEscalationSlackBlock } from "../lib/escalations/slack";
 import { RecoveryJ0 } from "../emails/recovery-j0";
 import { RecoveryJ3 } from "../emails/recovery-j3";
 import { RecoveryJ7 } from "../emails/recovery-j7";
@@ -59,6 +61,8 @@ export const sendRecoveryEmailTask = schemaTask({
     const from =
       (process.env.RESEND_FROM as string) ?? "Dunlo <no-reply@biume.com>";
 
+    const failureCategory = normalizeFailureCategory(payment.failureReason);
+
     let subject: string;
     let react: React.ReactElement;
 
@@ -71,6 +75,7 @@ export const sendRecoveryEmailTask = schemaTask({
             customerName={payment.customerName}
             headline={msg.headline}
             updateCardUrl={updateCardUrl}
+            failureCategory={failureCategory}
           />
         );
         break;
@@ -165,11 +170,28 @@ export const sendRecoveryEmailTask = schemaTask({
               currency: payment.currency.toUpperCase(),
               minimumFractionDigits: 0,
             }).format(payment.amount / 100);
-            const paymentUrl = `${env.APP_URL}/payment/${payment.id}`;
+            const paymentUrl = `${appUrl}/payment/${payment.id}`;
+
+            // Calculer tenure (heuristique : 0 mois si inconnu)
+            const tenureMonths = 0;
+            const priority = computePriority(payment.amount, tenureMonths);
+
+            // Générer le draft
+            const draft = generateDraft({
+              customerName: payment.customerName,
+              customerEmail: payment.customerEmail,
+              amountCents: payment.amount,
+              currency: payment.currency,
+              failureCode: payment.failureReason,
+              tenureMonths,
+              emailsSent: 3,
+              daysSince: 7,
+            });
+
             await resend.emails.send({
               from,
               to: [founderEmail],
-              subject: `Escalade — ${payment.customerName} · ${formattedAmount} non récupéré`,
+              subject: `[${priority.toUpperCase()}] Escalade — ${payment.customerName} · ${formattedAmount} non récupéré`,
               react: (
                 <EscalationAlert
                   customerName={payment.customerName}
@@ -177,10 +199,42 @@ export const sendRecoveryEmailTask = schemaTask({
                   formattedAmount={formattedAmount}
                   failureReason={payment.failureReason}
                   paymentUrl={paymentUrl}
+                  draftSubject={draft.subject}
+                  draftBody={draft.body}
+                  draftMailtoLink={draft.mailtoLink}
+                  priority={priority}
                 />
               ),
             });
-            logger.info("Escalation alert sent to founder", { founderEmail, paymentId: payment.id });
+            logger.info("Escalation alert sent to founder", {
+              founderEmail,
+              paymentId: payment.id,
+            });
+
+            // Envoyer Slack Block Kit si webhook configuré
+            if (user.slackWebhookUrl) {
+              try {
+                await sendEscalationSlackBlock(user.slackWebhookUrl, {
+                  customerName: payment.customerName,
+                  customerEmail: payment.customerEmail,
+                  formattedAmount,
+                  tenureMonths,
+                  failureCode: payment.failureReason,
+                  priority,
+                  draftSubject: draft.subject,
+                  draftBody: draft.body,
+                  mailtoLink: draft.mailtoLink,
+                  paymentUrl,
+                });
+                logger.info("Slack escalation block sent", {
+                  paymentId: payment.id,
+                });
+              } catch (slackErr) {
+                logger.warn("Failed to send Slack notification", {
+                  error: slackErr,
+                });
+              }
+            }
           }
         }
       } else {

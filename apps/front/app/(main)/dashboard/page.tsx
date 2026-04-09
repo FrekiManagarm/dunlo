@@ -116,7 +116,10 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <DashboardClient payments={data.payments} />
+      <DashboardClient
+        payments={data.payments}
+        breakdown={data.stats.breakdown}
+      />
     </div>
   );
 }

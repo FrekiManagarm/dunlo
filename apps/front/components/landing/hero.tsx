@@ -1,5 +1,43 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check, Minus, X } from "lucide-react";
+import { Reveal } from "./reveal";
+
+const COMPARISON_ROWS = [
+  {
+    feature: "Failure-specific sequences",
+    dunlo: true,
+    churnBuster: "partial",
+    stripeRetries: false,
+  },
+  {
+    feature: "Personal draft — one-click Gmail",
+    dunlo: true,
+    churnBuster: false,
+    stripeRetries: false,
+  },
+  {
+    feature: "Priority scoring",
+    dunlo: true,
+    churnBuster: false,
+    stripeRetries: false,
+  },
+  {
+    feature: "Recovery insights",
+    dunlo: true,
+    churnBuster: false,
+    stripeRetries: false,
+  },
+] as const;
+
+type CellValue = boolean | "partial";
+
+function ComparisonCell({ value }: { value: CellValue }) {
+  if (value === true)
+    return <Check className="mx-auto size-3.5 text-landing-accent" />;
+  if (value === "partial")
+    return <Minus className="mx-auto size-3.5 text-landing-text-muted" />;
+  return <X className="mx-auto size-3.5 text-landing-text-muted/50" />;
+}
 
 export function HeroSection() {
   return (
@@ -12,27 +50,27 @@ export function HeroSection() {
           style={{ animationDelay: "100ms" }}
         >
           <span className="inline-block size-1.5 rounded-full bg-landing-accent" />
-          Beta access
+          Beta access — free to start
         </div>
 
         <h1
           className="l-stagger landing-headline font-display text-landing-text"
           style={{ animationDelay: "250ms" }}
         >
-          Stop losing revenue
+          Dunlo recovers the payments.
           <br />
-          to failed{" "}
           <span className="font-display italic text-landing-accent">
-            payments.
-          </span>
+            You recover
+          </span>{" "}
+          the customers that matter.
         </h1>
 
         <p
           className="l-stagger mt-8 max-w-2xl font-body text-lg leading-relaxed text-landing-text-secondary md:text-xl"
           style={{ animationDelay: "400ms" }}
         >
-          Dunlo connects to Stripe and automatically recovers failed payments,
-          then escalates high-value accounts to you — in 10 minutes setup.
+          Automatic recovery by failure type. Personal drafts ready to send when
+          a high-value account goes dark. 5-minute setup on Stripe.
         </p>
 
         <p
@@ -59,6 +97,55 @@ export function HeroSection() {
             5 minute setup. Cancel anytime. No credit card required.
           </p>
         </div>
+
+        {/* Mini comparison table */}
+        <Reveal delay={700}>
+          <div className="mt-14 overflow-hidden border border-landing-border/50 bg-landing-surface/20 backdrop-blur-sm">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-landing-border/50">
+                  <th className="py-2.5 pl-4 pr-3 text-left font-medium text-landing-text-muted">
+                    &nbsp;
+                  </th>
+                  <th className="w-20 px-3 py-2.5 text-center font-semibold text-landing-accent">
+                    Dunlo
+                  </th>
+                  <th className="w-28 px-3 py-2.5 text-center font-medium text-landing-text-muted">
+                    Churn Buster
+                  </th>
+                  <th className="w-28 px-3 py-2.5 text-center font-medium text-landing-text-muted">
+                    Stripe Retries
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON_ROWS.map((row, i) => (
+                  <tr
+                    key={row.feature}
+                    className={
+                      i < COMPARISON_ROWS.length - 1
+                        ? "border-b border-landing-border/30"
+                        : ""
+                    }
+                  >
+                    <td className="py-2 pl-4 pr-3 text-landing-text-secondary">
+                      {row.feature}
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <ComparisonCell value={row.dunlo} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <ComparisonCell value={row.churnBuster} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <ComparisonCell value={row.stripeRetries} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
       </div>
 
       <div

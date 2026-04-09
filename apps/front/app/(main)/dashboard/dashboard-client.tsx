@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { cn, formatAmount } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
+import type { FailureBreakdown, TablePayment } from "@/actions/payments";
 
 const FILTER_OPTIONS = [
   { value: "all", label: "All" },
@@ -23,18 +24,6 @@ const FILTER_OPTIONS = [
   { value: "lost", label: "Lost" },
   { value: "detected", label: "Detected" },
 ] as const;
-
-type Payment = {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  amount: number;
-  currency: string;
-  status: string;
-  currentStep: number;
-  totalSteps: number;
-  failureReason: string;
-};
 
 const statusConfig = {
   recovered: {
@@ -64,6 +53,39 @@ const statusConfig = {
   },
 } as const;
 
+const CATEGORY_COLORS: Record<
+  string,
+  { bar: string; text: string; bg: string }
+> = {
+  expired_card: {
+    bar: "bg-amber-500",
+    text: "text-amber-400",
+    bg: "bg-amber-500/10",
+  },
+  insufficient_funds: {
+    bar: "bg-red-500",
+    text: "text-red-400",
+    bg: "bg-red-500/10",
+  },
+  compromised_card: {
+    bar: "bg-rose-500",
+    text: "text-rose-400",
+    bg: "bg-rose-500/10",
+  },
+  generic: {
+    bar: "bg-muted-foreground/50",
+    text: "text-muted-foreground",
+    bg: "bg-muted/40",
+  },
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  expired_card: "Expired card",
+  insufficient_funds: "Insufficient funds",
+  compromised_card: "Compromised",
+  generic: "Other",
+};
+
 function StatusBadge({ status }: { status: keyof typeof statusConfig }) {
   const config = statusConfig[status] ?? statusConfig.detected;
   return (
@@ -79,7 +101,90 @@ function StatusBadge({ status }: { status: keyof typeof statusConfig }) {
   );
 }
 
-export function DashboardClient({ payments }: { payments: Payment[] }) {
+function RecoveryScoreBar({ score }: { score: number }) {
+  const color =
+    score >= 60
+      ? "bg-emerald-500"
+      : score >= 30
+        ? "bg-amber-500"
+        : "bg-red-500/70";
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="h-1 w-16 overflow-hidden rounded-full bg-muted/40">
+        <div
+          className={cn("h-full transition-all duration-500", color)}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+      <span className="font-mono text-[10px] text-muted-foreground">
+        {score}%
+      </span>
+    </div>
+  );
+}
+
+function BreakdownSection({ breakdown }: { breakdown: FailureBreakdown[] }) {
+  if (breakdown.length === 0) return null;
+  const totalCount = breakdown.reduce((sum, b) => sum + b.count, 0);
+
+  return (
+    <div className="mb-6 border border-border p-4">
+      <p className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        Failure breakdown
+      </p>
+      <div className="space-y-2.5">
+        {breakdown.map((item) => {
+          const colors = CATEGORY_COLORS[item.category] ?? CATEGORY_COLORS.generic;
+          const label = CATEGORY_LABELS[item.category] ?? item.category;
+          const widthPct =
+            totalCount > 0 ? (item.count / totalCount) * 100 : 0;
+
+          return (
+            <div key={item.category} className="flex items-center gap-3">
+              <span
+                className={cn(
+                  "w-28 shrink-0 text-[11px] font-medium",
+                  colors.text,
+                )}
+              >
+                {label}
+              </span>
+              <div className="flex-1 overflow-hidden rounded-none bg-muted/20 h-1.5">
+                <div
+                  className={cn("h-full", colors.bar)}
+                  style={{ width: `${widthPct.toFixed(1)}%` }}
+                />
+              </div>
+              <span className="w-8 text-right font-mono text-[10px] text-muted-foreground">
+                {item.count}
+              </span>
+              <span
+                className={cn(
+                  "w-16 text-right text-[10px] font-medium",
+                  item.recoveryRate >= 60
+                    ? "text-emerald-400"
+                    : item.recoveryRate >= 30
+                      ? "text-amber-400"
+                      : "text-red-400",
+                )}
+              >
+                {item.recoveryRate}% rec.
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function DashboardClient({
+  payments,
+  breakdown,
+}: {
+  payments: TablePayment[];
+  breakdown: FailureBreakdown[];
+}) {
   const [filter, setFilter] = useState<string>("all");
 
   const filteredPayments =
@@ -89,6 +194,8 @@ export function DashboardClient({ payments }: { payments: Payment[] }) {
 
   return (
     <div>
+      <BreakdownSection breakdown={breakdown} />
+
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-medium text-foreground">
           Failed payments
@@ -131,6 +238,7 @@ export function DashboardClient({ payments }: { payments: Payment[] }) {
                 <TableHead className="text-muted-foreground">Amount</TableHead>
                 <TableHead className="text-muted-foreground">Reason</TableHead>
                 <TableHead className="text-muted-foreground">Step</TableHead>
+                <TableHead className="text-muted-foreground">Score</TableHead>
                 <TableHead className="text-muted-foreground">Status</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
@@ -163,7 +271,12 @@ export function DashboardClient({ payments }: { payments: Payment[] }) {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={payment.status as keyof typeof statusConfig} />
+                    <RecoveryScoreBar score={payment.recoveryScore} />
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge
+                      status={payment.status as keyof typeof statusConfig}
+                    />
                   </TableCell>
                   <TableCell>
                     <Link
