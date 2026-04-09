@@ -49,9 +49,11 @@ type Settings = {
 export function SettingsClient({
   connection,
   settings,
+  isDev,
 }: {
   connection: Connection;
   settings: Settings;
+  isDev: boolean;
 }) {
   const router = useRouter();
   const [escalationThreshold, setEscalationThreshold] = useState(
@@ -219,7 +221,7 @@ export function SettingsClient({
           <h1 className="font-display text-3xl text-foreground">Settings</h1>
         </div>
 
-        <div className="max-w-2xl">
+        <div className="max-w-3xl">
           {/* Section 01 — Stripe */}
           <Section
             index="01"
@@ -296,7 +298,7 @@ export function SettingsClient({
                   type="number"
                   value={escalationThreshold}
                   onChange={(e) => setEscalationThreshold(e.target.value)}
-                  className="w-28 rounded-none border border-border bg-transparent py-1.5 pl-7 pr-3 font-mono text-sm text-foreground outline-none ring-0 transition-colors focus:border-primary/60 focus:bg-primary/5"
+                  className="w-28 rounded-none border border-border/60 bg-white/5 py-1.5 pl-7 pr-3 font-mono text-sm text-foreground outline-none ring-0 transition-colors focus:border-primary focus:bg-primary/10"
                 />
               </div>
               <span className="text-xs text-muted-foreground">per month</span>
@@ -316,7 +318,7 @@ export function SettingsClient({
               value={notificationEmail}
               onChange={(e) => setNotificationEmail(e.target.value)}
               placeholder="you@company.com"
-              className="w-full max-w-sm rounded-none border border-border bg-transparent py-1.5 px-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none transition-colors focus:border-primary/60 focus:bg-primary/5"
+              className="w-full max-w-sm rounded-none border border-border/60 bg-white/5 py-1.5 px-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none transition-colors focus:border-primary focus:bg-primary/10"
             />
           </Section>
 
@@ -333,7 +335,7 @@ export function SettingsClient({
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
               placeholder="Europe/Paris"
-              className="w-full max-w-xs rounded-none border border-border bg-transparent py-1.5 px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground/40 outline-none transition-colors focus:border-primary/60 focus:bg-primary/5"
+              className="w-full max-w-xs rounded-none border border-border/60 bg-white/5 py-1.5 px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground/40 outline-none transition-colors focus:border-primary focus:bg-primary/10"
             />
           </Section>
 
@@ -373,7 +375,7 @@ export function SettingsClient({
                 ))}
               </div>
 
-              {connection.isConnected && (
+              {isDev && connection.isConnected && (
                 <div className="space-y-1 pt-1">
                   <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                     Simulate
@@ -441,7 +443,7 @@ export function SettingsClient({
                       type="time"
                       value={morningBriefTime}
                       onChange={(e) => setMorningBriefTime(e.target.value)}
-                      className="rounded-none border border-border bg-transparent px-2 py-1 font-mono text-sm text-foreground outline-none transition-colors focus:border-primary/60 focus:bg-primary/5"
+                      className="rounded-none border border-border/60 bg-white/5 px-2 py-1 font-mono text-sm text-foreground outline-none transition-colors focus:border-primary focus:bg-primary/10"
                     />
                   </div>
                   <div className="flex items-start gap-3">
@@ -455,7 +457,7 @@ export function SettingsClient({
                         value={slackWebhookUrl}
                         onChange={(e) => setSlackWebhookUrl(e.target.value)}
                         placeholder="https://hooks.slack.com/services/..."
-                        className="w-full rounded-none border border-border bg-transparent px-2 py-1 font-mono text-xs text-foreground placeholder:text-muted-foreground/30 outline-none transition-colors focus:border-primary/60 focus:bg-primary/5"
+                        className="w-full rounded-none border border-border/60 bg-white/5 px-2 py-1 font-mono text-xs text-foreground placeholder:text-muted-foreground/40 outline-none transition-colors focus:border-primary focus:bg-primary/10"
                       />
                       <a
                         href="https://api.slack.com/messaging/webhooks"

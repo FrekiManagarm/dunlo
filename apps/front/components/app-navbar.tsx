@@ -11,7 +11,6 @@ import {
 
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
 import { DunloLogo } from "@/components/dunlo-logo";
 
 const navItems = [
@@ -22,48 +21,57 @@ const navItems = [
 
 export function AppNavbar() {
   const pathname = usePathname();
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session } = authClient.useSession();
 
   return (
-    <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-      <div className="flex items-center gap-8">
+    <aside className="flex w-52 shrink-0 flex-col border-r border-border bg-background">
+      {/* Logo */}
+      <div className="flex h-14 items-center border-b border-border px-5">
         <Link href="/dashboard">
-          <DunloLogo sizeClassName="text-xl" wordmarkClassName="text-foreground" />
+          <DunloLogo sizeClassName="text-lg" wordmarkClassName="text-foreground" />
         </Link>
-
-        <div className="flex items-center gap-1">
-          {navItems.map(({ to, label, icon: Icon }) => {
-            const isActive =
-              pathname === to ||
-              (to === "/dashboard" && pathname.startsWith("/payment/"));
-
-            return (
-              <Link
-                key={to}
-                href={to}
-                className={cn(
-                  "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium transition-colors",
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                <Icon className="size-3.5" />
-                {label}
-              </Link>
-            );
-          })}
-        </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        {isPending ? (
-          <Skeleton className="h-5 w-24" />
-        ) : session ? (
-          <>
-            <span className="text-xs text-muted-foreground">
+      {/* Nav items */}
+      <nav className="flex flex-1 flex-col gap-0.5 p-3 pt-4">
+        {navItems.map(({ to, label, icon: Icon }) => {
+          const isActive =
+            pathname === to ||
+            (to === "/dashboard" && pathname.startsWith("/payment/"));
+
+          return (
+            <Link
+              key={to}
+              href={to}
+              className={cn(
+                "group flex items-center gap-3 rounded-none px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <Icon
+                className={cn(
+                  "size-4 transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground/60 group-hover:text-foreground",
+                )}
+              />
+              {label}
+              {isActive && (
+                <span className="ml-auto size-1.5 rounded-full bg-primary" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* User section */}
+      <div className="border-t border-border p-3">
+        {session ? (
+          <div className="flex flex-col gap-2 px-3 py-2">
+            <p className="truncate text-[11px] text-muted-foreground">
               {session.user.email}
-            </span>
+            </p>
             <button
               type="button"
               onClick={() => {
@@ -75,14 +83,14 @@ export function AppNavbar() {
                   },
                 });
               }}
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-destructive"
+              className="flex items-center gap-2 text-xs text-muted-foreground/60 transition-colors hover:text-destructive"
             >
-              <LogOut className="size-3" />
-              Logout
+              <LogOut className="size-3.5" />
+              Sign out
             </button>
-          </>
+          </div>
         ) : null}
       </div>
-    </nav>
+    </aside>
   );
 }

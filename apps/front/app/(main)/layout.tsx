@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-svh grid-rows-[auto_1fr] bg-background dark">
+    <div className="flex h-svh overflow-hidden bg-background dark">
       <AppNavbar />
-      <main className="mx-auto w-full px-6 py-8">{children}</main>
+      <main className="flex-1 overflow-y-auto px-8 py-10">{children}</main>
     </div>
   );
 }

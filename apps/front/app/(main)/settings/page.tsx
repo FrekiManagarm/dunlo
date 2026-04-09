@@ -21,6 +21,7 @@ export default async function SettingsPage() {
     <SettingsClient
       connection={connection}
       settings={settings}
+      isDev={process.env.NODE_ENV === "development"}
     />
   );
 }
