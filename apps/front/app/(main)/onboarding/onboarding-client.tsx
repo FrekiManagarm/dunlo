@@ -96,7 +96,7 @@ export function OnboardingClient({
         );
       }
 
-      router.push("/dashboard");
+      router.push("/dashboard?guide=1");
       router.refresh();
     } catch {
       toast.error("Something went wrong");

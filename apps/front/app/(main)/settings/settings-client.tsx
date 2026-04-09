@@ -330,13 +330,7 @@ export function SettingsClient({
             description="Recovery emails are sent between 09:00 and 18:00 in this timezone."
             delay={260}
           >
-            <input
-              type="text"
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              placeholder="Europe/Paris"
-              className="w-full max-w-xs rounded-none border border-border/60 bg-white/5 py-1.5 px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground/40 outline-none transition-colors focus:border-primary focus:bg-primary/10"
-            />
+            <TimezoneSelect value={timezone} onChange={setTimezone} />
           </Section>
 
           {/* Section 05 — Email sequences */}
@@ -502,6 +496,137 @@ export function SettingsClient({
         </div>
       )}
     </>
+  );
+}
+
+const TIMEZONE_GROUPS = [
+  {
+    label: "Europe",
+    zones: [
+      "Europe/Paris",
+      "Europe/London",
+      "Europe/Berlin",
+      "Europe/Madrid",
+      "Europe/Rome",
+      "Europe/Amsterdam",
+      "Europe/Brussels",
+      "Europe/Zurich",
+      "Europe/Stockholm",
+      "Europe/Oslo",
+      "Europe/Copenhagen",
+      "Europe/Helsinki",
+      "Europe/Warsaw",
+      "Europe/Prague",
+      "Europe/Vienna",
+      "Europe/Budapest",
+      "Europe/Bucharest",
+      "Europe/Athens",
+      "Europe/Istanbul",
+      "Europe/Lisbon",
+      "Europe/Dublin",
+      "Europe/Kiev",
+      "Europe/Moscow",
+    ],
+  },
+  {
+    label: "Americas",
+    zones: [
+      "America/New_York",
+      "America/Chicago",
+      "America/Denver",
+      "America/Los_Angeles",
+      "America/Phoenix",
+      "America/Anchorage",
+      "Pacific/Honolulu",
+      "America/Toronto",
+      "America/Vancouver",
+      "America/Montreal",
+      "America/Mexico_City",
+      "America/Bogota",
+      "America/Lima",
+      "America/Santiago",
+      "America/Sao_Paulo",
+      "America/Buenos_Aires",
+    ],
+  },
+  {
+    label: "Asia / Pacific",
+    zones: [
+      "Asia/Dubai",
+      "Asia/Karachi",
+      "Asia/Kolkata",
+      "Asia/Dhaka",
+      "Asia/Bangkok",
+      "Asia/Singapore",
+      "Asia/Shanghai",
+      "Asia/Tokyo",
+      "Asia/Seoul",
+      "Asia/Hong_Kong",
+      "Asia/Jakarta",
+      "Asia/Taipei",
+      "Asia/Kuala_Lumpur",
+      "Asia/Riyadh",
+      "Asia/Jerusalem",
+      "Australia/Sydney",
+      "Australia/Melbourne",
+      "Australia/Brisbane",
+      "Australia/Perth",
+      "Pacific/Auckland",
+      "Pacific/Fiji",
+    ],
+  },
+  {
+    label: "Africa",
+    zones: [
+      "Africa/Johannesburg",
+      "Africa/Cairo",
+      "Africa/Lagos",
+      "Africa/Nairobi",
+      "Africa/Casablanca",
+    ],
+  },
+  {
+    label: "UTC",
+    zones: ["UTC"],
+  },
+];
+
+function TimezoneSelect({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="relative w-full max-w-xs">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-none border border-border/60 bg-white/5 py-1.5 pl-3 pr-8 font-mono text-sm text-foreground outline-none transition-colors focus:border-primary focus:bg-primary/10"
+      >
+        {TIMEZONE_GROUPS.map((group) => (
+          <optgroup key={group.label} label={group.label}>
+            {group.zones.map((tz) => (
+              <option key={tz} value={tz}>
+                {tz.replace(/_/g, " ")}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+      <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground">
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          fill="none"
+          className="opacity-50"
+        >
+          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" />
+        </svg>
+      </span>
+    </div>
   );
 }
 
