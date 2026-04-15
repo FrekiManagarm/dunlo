@@ -1,5 +1,27 @@
 # Dunlo — CLAUDE.md
 
+## Workflow — Ruflo (OBLIGATOIRE pour tâches complexes)
+
+Pour toute tâche complexe (multi-fichiers, nouvelles features, refactors, debug non-trivial, intégrations Stripe/webhooks, jobs Trigger.dev, schéma DB), **utiliser ruflo systématiquement** afin de :
+
+- **Optimiser les coûts API et de session** via le routing intelligent (haiku/sonnet/opus selon complexité) et le caching des patterns.
+- **Réutiliser le travail déjà vérifié** par les agents (reviewer, tester, security-auditor) au lieu de le refaire.
+- **Persister la mémoire** entre sessions pour éviter de réexplorer le codebase.
+
+### Règles d'utilisation
+
+1. **Avant de commencer** — appeler `mcp__claude-flow__hooks_pre-task` avec la description de la tâche pour récupérer les suggestions d'agents, le routing de modèle, et les patterns existants.
+2. **Rechercher la mémoire** — `mcp__claude-flow__memory_search` avec la query de la tâche pour réutiliser les décisions et patterns déjà validés.
+3. **Orchestrer via swarm** si la tâche touche ≥3 domaines (UI + API + DB + webhooks par ex.) — `mcp__claude-flow__swarm_init` + `agent_spawn` (coder, reviewer, tester en parallèle).
+4. **Code review automatique** — après implémentation non-triviale, dispatcher l'agent `reviewer` ou `superpowers:code-reviewer` avant de déclarer terminé.
+5. **Persister le résultat** — `mcp__claude-flow__hooks_post-task` avec `storeDecisions: true` pour que les prochaines sessions héritent du contexte.
+6. **Vérifier les system-reminder** `[INTELLIGENCE]` qui suggèrent des patterns avant d'écrire du code.
+
+### Ne pas utiliser ruflo pour
+
+- Questions triviales, typos, édits d'une ligne, commandes shell isolées.
+- Tâches purement conversationnelles / explicatives.
+
 ## Vue d'ensemble du projet
 
 Dunlo (dunlo.io) est un SaaS B2B de **failed payment recovery** pour les fondateurs SaaS bootstrappés.
