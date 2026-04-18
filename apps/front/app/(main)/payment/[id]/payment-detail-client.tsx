@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import posthog from "posthog-js";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,11 +21,13 @@ export function PaymentDetailClient({
 
   async function handleResolve() {
     await markPaymentResolved(paymentId);
+    posthog.capture("payment_marked_resolved", { payment_id: paymentId });
     router.refresh();
   }
 
   async function handleEscalate() {
     await escalatePayment(paymentId);
+    posthog.capture("payment_escalated_manually", { payment_id: paymentId });
     router.refresh();
   }
 

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod";
 
+import posthog from "posthog-js";
+
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,11 +29,22 @@ export default function SignUpForm() {
           name: value.name,
         },
         {
-          onSuccess: () => {
+          onSuccess: (ctx) => {
+            posthog.identify(ctx.data.user.id, {
+              email: value.email,
+              name: value.name,
+            });
+            posthog.capture("user_signed_up", {
+              email: value.email,
+              name: value.name,
+            });
             router.push("/onboarding");
             toast.success("Account created. Connect Stripe to get started.");
           },
           onError: (error) => {
+            posthog.captureException(new Error(error.error.message ?? error.error.statusText), {
+              context: "sign_up",
+            });
             toast.error(error.error.message ?? error.error.statusText);
           },
         },

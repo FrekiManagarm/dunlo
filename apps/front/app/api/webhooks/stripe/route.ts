@@ -13,6 +13,7 @@ import {
   handleSubscriptionUpdated,
 } from "@/lib/stripe/handle-payment-events";
 import { createError, useLogger, withEvlog } from "@/lib/evlog";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export const POST = withEvlog(async (request: NextRequest) => {
   const body = await request.text();
@@ -66,21 +67,39 @@ export const POST = withEvlog(async (request: NextRequest) => {
 
   const userId = matchedConnection.userId!;
 
+  const posthog = getPostHogClient();
+
   try {
     switch (event.type) {
-      case "payment_intent.payment_failed":
-        await handlePaymentFailed(
-          event.data.object as Stripe.PaymentIntent,
-          userId,
-          { accessToken: matchedConnection.accessToken },
-        );
+      case "payment_intent.payment_failed": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        await handlePaymentFailed(pi, userId, { accessToken: matchedConnection.accessToken });
+        posthog.capture({
+          distinctId: userId,
+          event: "payment_failed_received",
+          properties: {
+            payment_intent_id: pi.id,
+            amount: pi.amount,
+            currency: pi.currency,
+            failure_code: pi.last_payment_error?.code ?? null,
+          },
+        });
         break;
-      case "payment_intent.succeeded":
-        await handlePaymentSucceeded(
-          event.data.object as Stripe.PaymentIntent,
-          userId,
-        );
+      }
+      case "payment_intent.succeeded": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        await handlePaymentSucceeded(pi, userId);
+        posthog.capture({
+          distinctId: userId,
+          event: "payment_recovered_received",
+          properties: {
+            payment_intent_id: pi.id,
+            amount: pi.amount,
+            currency: pi.currency,
+          },
+        });
         break;
+      }
       case "customer.subscription.deleted":
         await handleSubscriptionDeleted(
           event.data.object as Stripe.Subscription,

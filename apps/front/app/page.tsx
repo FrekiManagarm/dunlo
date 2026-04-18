@@ -7,7 +7,7 @@ import { LandingNav } from "@/components/landing/landing-nav";
 import { PricingSection } from "@/components/landing/pricing";
 import { ProblemSection } from "@/components/landing/problem";
 import { SolutionSection } from "@/components/landing/solution";
-import { TestimonialsSection } from "@/components/landing/testimonials";
+// import { TestimonialsSection } from "@/components/landing/testimonials";
 
 export default function LandingPage() {
   return (
@@ -28,11 +28,11 @@ export default function LandingPage() {
 
       <SolutionSection />
 
-      <div className="mx-auto max-w-5xl px-6">
+      {/*<div className="mx-auto max-w-5xl px-6">
         <div className="h-px bg-linear-to-r from-transparent via-landing-border to-transparent" />
       </div>
 
-      <TestimonialsSection />
+      <TestimonialsSection />*/}
 
       <div className="mx-auto max-w-5xl px-6">
         <div className="h-px bg-linear-to-r from-transparent via-landing-accent/20 to-transparent" />

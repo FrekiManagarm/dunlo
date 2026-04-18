@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import posthog from "posthog-js";
 
 const inputClassName =
   "h-11 border-landing-border bg-landing-surface/50 text-landing-text placeholder:text-landing-text-muted focus-visible:border-landing-accent focus-visible:ring-landing-accent/20 font-body";
@@ -49,6 +50,13 @@ export function BetaSignupForm() {
         message: value.message.trim() || undefined,
       });
       setServerState(result);
+      if (result.success) {
+        posthog.capture("beta_signup_submitted", {
+          email: value.email.trim(),
+          has_company: !!value.company.trim(),
+          has_message: !!value.message.trim(),
+        });
+      }
     },
   });
 

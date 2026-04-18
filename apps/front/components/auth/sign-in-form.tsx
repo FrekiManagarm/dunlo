@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod";
 
+import posthog from "posthog-js";
+
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,11 +27,21 @@ export default function SignInForm() {
           password: value.password,
         },
         {
-          onSuccess: () => {
+          onSuccess: (ctx) => {
+            posthog.identify(ctx.data.user.id, {
+              email: ctx.data.user.email,
+              name: ctx.data.user.name,
+            });
+            posthog.capture("user_signed_in", {
+              email: value.email,
+            });
             router.push("/dashboard");
             toast.success("Sign in successful");
           },
           onError: (error) => {
+            posthog.captureException(new Error(error.error.message ?? error.error.statusText), {
+              context: "sign_in",
+            });
             toast.error(error.error.message ?? error.error.statusText);
           },
         },

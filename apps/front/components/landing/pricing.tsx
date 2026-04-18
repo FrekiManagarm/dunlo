@@ -35,12 +35,25 @@ function BetaPricingBanner() {
 
 const plans: Plan[] = [
   {
+    name: "Solo",
+    price: 19,
+    description: "Fondateurs < €5k MRR",
+    features: [
+      "Up to €5k MRR covered",
+      "Stripe integration",
+      "1 email sequence",
+      "Basic dashboard",
+    ],
+    cta: "Join the beta",
+    highlighted: false,
+  },
+  {
     name: "Starter",
     price: 49,
-    description: "For early-stage SaaS testing payment recovery",
+    description: "Fondateurs €5k–€20k MRR",
     features: [
       "Up to €20k MRR covered",
-      "Stripe integration",
+      "All Solo features",
       "2 email sequences",
       "Basic dashboard",
     ],
@@ -50,7 +63,7 @@ const plans: Plan[] = [
   {
     name: "Growth",
     price: 149,
-    description: "For growing teams with higher volume",
+    description: "Fondateurs €20k–€80k MRR",
     features: [
       "Up to €80k MRR covered",
       "All Starter features",
@@ -64,7 +77,7 @@ const plans: Plan[] = [
   {
     name: "Scale",
     price: 399,
-    description: "For established SaaS with high MRR",
+    description: "€80k+ MRR",
     features: [
       "Unlimited MRR covered",
       "All Growth features",
@@ -99,52 +112,56 @@ export function PricingSection() {
         <Reveal delay={250}>
           <div className="mt-16">
             <BetaPricingBanner />
-            <div className="grid gap-8 md:grid-cols-3">
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`relative flex flex-col border p-8 backdrop-blur-sm transition-all duration-300 ${plan.highlighted
-                    ? "border-landing-accent/40 bg-landing-surface/50"
-                    : "border-landing-border bg-landing-surface/30"
+            <div className="grid gap-8 md:grid-cols-4">
+              {plans.map((plan) => (
+                <div
+                  key={plan.name}
+                  className={`relative flex flex-col border p-8 backdrop-blur-sm transition-all duration-300 ${
+                    plan.highlighted
+                      ? "border-landing-accent/40 bg-landing-surface/50"
+                      : "border-landing-border bg-landing-surface/30"
                   }`}
-              >
-                <h3 className="font-display text-xl text-landing-text">
-                  {plan.name}
-                </h3>
-                <p className="mt-2 font-body text-sm text-landing-text-secondary">
-                  {plan.description}
-                </p>
-
-                <div className="mt-6 flex items-baseline gap-1">
-                  <span className="font-display text-4xl text-landing-text">
-                    €{plan.price}
-                  </span>
-                  <span className="font-body text-landing-text-muted">/mo</span>
-                </div>
-
-                <ul className="mt-8 flex-1 space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check className="mt-0.5 size-4 shrink-0 text-landing-accent" />
-                      <span className="font-body text-sm text-landing-text-secondary">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/beta"
-                  className={`group mt-8 inline-flex items-center justify-center gap-2 px-6 py-3 font-body text-sm font-semibold transition-all duration-300 ${plan.highlighted
-                      ? "bg-landing-accent text-landing-bg hover:shadow-[0_0_30px_rgba(0,232,123,0.2)]"
-                      : "border border-landing-border text-landing-text hover:border-landing-accent/30 hover:bg-landing-surface/50"
-                    }`}
                 >
-                  {plan.cta}
-                  <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
-                </Link>
-              </div>
-            ))}
+                  <h3 className="font-display text-xl text-landing-text">
+                    {plan.name}
+                  </h3>
+                  <p className="mt-2 font-body text-sm text-landing-text-secondary">
+                    {plan.description}
+                  </p>
+
+                  <div className="mt-6 flex items-baseline gap-1">
+                    <span className="font-display text-4xl text-landing-text">
+                      €{plan.price}
+                    </span>
+                    <span className="font-body text-landing-text-muted">
+                      /mo
+                    </span>
+                  </div>
+
+                  <ul className="mt-8 flex-1 space-y-3">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-3">
+                        <Check className="mt-0.5 size-4 shrink-0 text-landing-accent" />
+                        <span className="font-body text-sm text-landing-text-secondary">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    href="/beta"
+                    className={`group mt-8 inline-flex items-center justify-center gap-2 px-6 py-3 font-body text-sm font-semibold transition-all duration-300 ${
+                      plan.highlighted
+                        ? "bg-landing-accent text-landing-bg hover:shadow-[0_0_30px_rgba(0,232,123,0.2)]"
+                        : "border border-landing-border text-landing-text hover:border-landing-accent/30 hover:bg-landing-surface/50"
+                    }`}
+                  >
+                    {plan.cta}
+                    <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
         </Reveal>

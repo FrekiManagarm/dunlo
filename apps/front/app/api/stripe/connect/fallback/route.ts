@@ -8,6 +8,7 @@ import { encrypt } from "@/lib/stripe/encryption";
 import { setupWebhooks } from "@/lib/stripe/webhooks";
 import { revalidatePath } from "next/cache";
 import { useLogger, withEvlog } from "@/lib/evlog";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export const GET = withEvlog(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -126,6 +127,16 @@ export const GET = withEvlog(async (req: NextRequest) => {
     logger.set({
       stripe: {
         webhook: { accountId: response.stripe_user_id, configured: !!webhookResult },
+      },
+    });
+
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: userId,
+      event: "stripe_oauth_connected",
+      properties: {
+        stripe_account_id: response.stripe_user_id,
+        action: existingConnection ? "updated" : "created",
       },
     });
 

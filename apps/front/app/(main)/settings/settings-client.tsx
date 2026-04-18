@@ -18,6 +18,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import posthog from "posthog-js";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,12 @@ export function SettingsClient({
         morningBriefTime,
         slackWebhookUrl,
       });
+      posthog.capture("settings_saved", {
+        escalation_threshold: Number(escalationThreshold) || 200,
+        morning_brief_enabled: morningBriefEnabled,
+        slack_webhook_set: !!slackWebhookUrl,
+        timezone,
+      });
       setSaved(true);
       setIsDirty(false);
       initialSettings.current = {
@@ -141,6 +148,7 @@ export function SettingsClient({
     setDisconnecting(true);
     try {
       await disconnectStripe();
+      posthog.capture("stripe_disconnected");
       toast.success("Stripe disconnected");
       router.refresh();
     } catch {

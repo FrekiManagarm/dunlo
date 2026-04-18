@@ -10,6 +10,8 @@ import {
   updateUserSettings,
   runOnboardingVerification,
 } from "@/actions/stripe";
+import posthog from "posthog-js";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +52,7 @@ export function OnboardingClient({
 
   async function handleOAuthConnect() {
     setOauthLoading(true);
+    posthog.capture("stripe_oauth_connect_initiated");
     try {
       const { url } = await getStripeConnectUrl();
       window.location.href = url;
@@ -68,6 +71,7 @@ export function OnboardingClient({
     setApiKeyLoading(true);
     try {
       await connectStripeWithApiKey(apiKey.trim());
+      posthog.capture("stripe_api_key_connected");
       toast.success("Stripe connected");
       router.refresh();
       setStep("config");
@@ -89,6 +93,13 @@ export function OnboardingClient({
       });
 
       const verification = await runOnboardingVerification(timezone);
+
+      posthog.capture("onboarding_completed", {
+        notification_email_set: !!notificationEmail,
+        escalation_threshold: Number(escalationThreshold) || 200,
+        timezone,
+        failed_payments_imported: verification.failedPaymentsImported,
+      });
 
       if (verification.failedPaymentsImported > 0) {
         toast.success(

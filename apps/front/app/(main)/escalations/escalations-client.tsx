@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, Clock, ExternalLink } from "lucide-react";
 
+import posthog from "posthog-js";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DraftEditor } from "@/components/escalations/draft-editor";
@@ -81,6 +83,7 @@ export function EscalationsClient({
 
   async function handleResolve(escalationId: string) {
     await onResolve(escalationId);
+    posthog.capture("escalation_resolved", { escalation_id: escalationId });
     router.refresh();
   }
 
