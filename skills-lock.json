@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "auditing-experiments-flags": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "559d54d96f815ac3cd969c0c7714076bbfd068f2d7e33e2234641cc8e5d6b7f7"
+    },
     "autumn-best-practices": {
       "source": "useautumn/skills",
       "sourceType": "github",
@@ -11,10 +16,125 @@
       "sourceType": "github",
       "computedHash": "a24359053259e55a75972cab4bf0b0e37e1393bac5f3756ec2e3a7b4b3778d2a"
     },
+    "error-tracking-nextjs": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "51dd0f0aa5ae213ff18bf42d1c882a070d2e458a2e6ea1e18111cc085981c131"
+    },
+    "error-tracking-node": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "b1171b4fc8c663f1fc61bd3cf0733b9d52785790948518d08275a4e8532c3cde"
+    },
+    "error-tracking-react": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "7ed90977476a34ef3c8994bfe16a97ae8d067e80054bcd1f771359ef80136052"
+    },
+    "error-tracking-web": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "cf2a34e84a4e990a8b62ad3dd876dc48443212b842f2d724d9fe423124beb54f"
+    },
+    "exploring-autocapture-events": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "7d05c5b45c15bd7625acb60de202a3572b4012ad3bee06f15b0102ffc4c3fb5a"
+    },
+    "exploring-llm-clusters": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "2a44b4be75566798c4da51ac67142abeec39f57f69029e9b377887eaa5fec91b"
+    },
+    "exploring-llm-evaluations": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "188cfa7099dbe33e00f25164fa1ef7ee080422d50be62db3238e16a957533daa"
+    },
+    "feature-flags-api": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "277555b7cb0669c29e7158455bb1a46b9aad9eb9ccdd054a458c4a77d5fb4b9f"
+    },
+    "feature-flags-nextjs": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "c27f9ae1be443af8a8f37319af852fb21f57f380f5d86f63ca1b4bc091dbcdf3"
+    },
+    "feature-flags-nodejs": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "379b7958f447302b1a049e33397447a8660d35b9f1d0741ddfbd5678e6183a38"
+    },
+    "feature-flags-react": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "4dbe14c34998a3e7c73887c179f0dbd52bc2c11017a6e77c6978cb62727d5a9b"
+    },
+    "feature-flags-web": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "1f826c6cdb6fee72cb99f49f6c89dccb7864ef2d8ab371974c3cb51e8c2576bd"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "instrument-error-tracking": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "a4aba89b1a34f995a6386c2a7f4af576c65925a04b78a7b74b523dd7735f15aa"
+    },
+    "instrument-feature-flags": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "e0483c500a2723947cbd98a0128c06a512fa414b89568ce7f08737d04f73368d"
+    },
+    "instrument-integration": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "bbc002451433139205b4710af0176b5ebe41061161f3c7540a6c84fc65b32b01"
+    },
+    "instrument-logs": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "0158e5aedaae924ae5e279b8d842023a842d12ac434f393314fbc919de08c2d9"
+    },
+    "instrument-product-analytics": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "25fee4e1686c12d9538e6e4374fcf8362e1f22e6be036925316532cf66914b2d"
+    },
+    "integration-flask": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "301e048c95d229eb83b114c47e031087c8b1348b73e2d4735b85175d5cd420a6"
+    },
+    "integration-javascript_node": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "17331d605781821fb8c32972cf171f881eb2378fc9c781e90b9d8fc1be1d2359"
+    },
+    "integration-javascript_web": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "c1aa7364d391472affe83bb8c0a979ef2173368d80cf5b69dd0c2868ec3a6c66"
+    },
+    "integration-nextjs-app-router": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "2d399ac3d7b90fefa4349f08ac395471d8fdf8b00761363997da44bfa2d127e2"
+    },
+    "logs-nextjs": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "cbe2487d3409ceb005af4d6b45b255aa4fd470022d8f59b4ab94bf30edf2d8a5"
+    },
+    "logs-nodejs": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "computedHash": "20faf2c9852c8b662cb1f1f7c3cfb2a6c9071d1e3f7c02f1228e2421a6fa30e7"
     },
     "neon-postgres": {
       "source": "neondatabase/agent-skills",
