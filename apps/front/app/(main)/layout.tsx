@@ -8,11 +8,13 @@ export const metadata: Metadata = {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-svh overflow-hidden bg-background dark">
+    <div className="flex h-svh overflow-hidden bg-[#040404] dark">
       <Suspense fallback={null}>
         <AppNavbar />
       </Suspense>
-      <main className="flex-1 overflow-y-auto px-8 py-10">{children}</main>
+      <main className="flex-1 overflow-y-auto">
+        <div className="px-8 py-10">{children}</div>
+      </main>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 import { Reveal } from "./reveal";
 
-const faqs = [
+const FAQS = [
   {
     question: "Does Dunlo work with Stripe Connect?",
     answer:
@@ -13,61 +13,76 @@ const faqs = [
   {
     question: "What happens after the beta?",
     answer:
-      "During beta, every plan is free. When we launch, you'll pick the tier that fits (Starter €49/mo, Growth €149/mo, or Scale €399/mo). We'll give you a heads-up before any billing starts.",
+      "During beta, every plan is free. When we launch, you'll pick the tier that fits (Solo €19/mo, Starter €49/mo, Growth €149/mo, or Scale €399/mo). We'll give you a heads-up before any billing starts.",
   },
   {
     question: "Will my recovery emails go to spam?",
     answer:
-      "Dunlo sends from your domain via your own email provider (we integrate with Resend, SendGrid, etc.). You control deliverability. We also recommend SPF/DKIM setup and avoid spam-trigger words — our templates are written for high inbox placement.",
+      "Dunlo sends from your domain via your own email provider (Resend, SendGrid, etc.). You control deliverability. We avoid spam-trigger words and our templates are written for high inbox placement.",
   },
   {
     question: "How long does setup take?",
     answer:
-      "About 5 minutes: connect Stripe, add your email provider, review the default sequences. No code, no engineering team needed. You can customize sequences later.",
+      "About 5 minutes: connect Stripe, add your email provider, review the default sequences. No code, no engineering team needed. Customize sequences any time after.",
   },
   {
     question: "Can I cancel anytime?",
     answer:
-      "Yes. No lock-in. During beta there's nothing to cancel. After launch, you can downgrade or pause your subscription at any time.",
+      "Yes. No lock-in. During beta there's nothing to cancel. After launch, you can downgrade or pause at any time.",
   },
 ] as const;
 
 export function FAQSection() {
   return (
-    <section className="relative px-6 py-32 md:py-44">
-      <div className="mx-auto max-w-2xl">
-        <Reveal>
-          <span className="font-body text-xs font-medium uppercase tracking-[0.25em] text-landing-accent">
-            FAQ
-          </span>
-        </Reveal>
+    <section className="relative px-6 py-32 md:px-10 md:py-44">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 gap-16 md:grid-cols-[280px_1fr] lg:grid-cols-[340px_1fr]">
 
-        <Reveal delay={100}>
-          <h2 className="mt-6 font-display text-4xl leading-[1.1] text-landing-text md:text-5xl">
-            Common questions
-          </h2>
-        </Reveal>
+          {/* Left: section header */}
+          <Reveal>
+            <div className="md:sticky md:top-32">
+              <span className="font-body text-xs font-semibold uppercase tracking-[0.25em] text-landing-accent">
+                FAQ
+              </span>
+              <h2 className="mt-6 font-display text-4xl leading-[1.08] text-landing-text md:text-5xl">
+                Common questions
+              </h2>
+              <p className="mt-4 font-body text-sm leading-relaxed text-landing-text-muted">
+                Anything else? Email us at{" "}
+                <a
+                  href="mailto:hello@dunlo.io"
+                  className="text-landing-text-secondary underline underline-offset-4 transition-colors hover:text-landing-text"
+                >
+                  hello@dunlo.io
+                </a>
+              </p>
+            </div>
+          </Reveal>
 
-        <Reveal delay={200}>
-          <div className="mt-12 space-y-4">
-            {faqs.map((faq) => (
-              <details
-                key={faq.question}
-                className="group border border-landing-border bg-landing-surface/30 transition-colors hover:border-landing-border"
-              >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 px-6 font-body text-sm font-medium text-landing-text [&::-webkit-details-marker]:hidden">
-                  {faq.question}
-                  <ChevronDown className="size-4 shrink-0 text-landing-text-muted transition-transform duration-200 group-open:rotate-180" />
-                </summary>
-                <div className="border-t border-landing-border/50 px-6 py-4">
-                  <p className="font-body text-sm leading-relaxed text-landing-text-secondary">
-                    {faq.answer}
-                  </p>
-                </div>
-              </details>
-            ))}
-          </div>
-        </Reveal>
+          {/* Right: accordion */}
+          <Reveal delay={150}>
+            <div>
+              {FAQS.map((faq, i) => (
+                <details
+                  key={faq.question}
+                  className={`group border-b border-landing-border transition-colors last:border-b ${
+                    i === 0 ? "border-t" : ""
+                  }`}
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 font-body text-base font-medium text-landing-text transition-colors hover:text-landing-text [&::-webkit-details-marker]:hidden">
+                    {faq.question}
+                    <ChevronDown className="size-4 shrink-0 text-landing-text-muted transition-transform duration-200 group-open:rotate-180" />
+                  </summary>
+                  <div className="pb-6 pr-8">
+                    <p className="font-body text-sm leading-relaxed text-landing-text-secondary">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
   );

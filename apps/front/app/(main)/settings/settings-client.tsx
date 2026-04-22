@@ -218,17 +218,6 @@ export function SettingsClient({
       `}</style>
 
       <div className="pb-32">
-        {/* Header */}
-        <div
-          className="settings-section mb-12"
-          style={{ animationDelay: "0ms" }}
-        >
-          <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            Configuration
-          </p>
-          <h1 className="font-display text-3xl text-foreground">Settings</h1>
-        </div>
-
         <div className="max-w-3xl">
           {/* Section 01 — Stripe */}
           <Section

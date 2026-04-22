@@ -1,7 +1,6 @@
 import { TrendingDown, TrendingUp, AlertTriangle } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getDashboardData } from "@/actions/payments";
 import { getSession } from "@/actions/auth";
@@ -15,52 +14,6 @@ function formatAmount(cents: number, currency: string) {
   }).format(cents / 100);
 }
 
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  accent,
-  subtitle,
-}: {
-  title: string;
-  value: string;
-  icon: React.ComponentType<{ className?: string }>;
-  accent: "red" | "green" | "amber";
-  subtitle?: string;
-}) {
-  const accentClasses = {
-    red: "text-red-400 bg-red-500/10 border-red-500/20",
-    green: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-    amber: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  };
-
-  return (
-    <Card className="border border-border bg-card">
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle className="text-xs font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        <div
-          className={cn(
-            "flex size-8 items-center justify-center border",
-            accentClasses[accent],
-          )}
-        >
-          <Icon className="size-4" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-semibold tracking-tight text-foreground">
-          {value}
-        </div>
-        {subtitle && (
-          <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) {
@@ -70,56 +23,97 @@ export default async function DashboardPage() {
   const data = await getDashboardData();
 
   return (
-    <div className="space-y-8">
-      {data.hasActiveFailedPayments && (
-        <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
-          <p className="text-sm font-medium text-red-400">
-            We found {data.activeFailedCount} failed payment
-            {data.activeFailedCount > 1 ? "s" : ""} totaling{" "}
-            {formatAmount(data.activeFailedTotal, "eur")}.
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Sequences have been started automatically.
-          </p>
+    <div className="app-page space-y-9">
+      {/* Header */}
+      <div className="app-row" style={{ "--delay": "0ms" } as React.CSSProperties}>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/50">
+              Recovery
+            </p>
+            <h1 className="font-display text-3xl tracking-tight text-foreground">
+              Dashboard
+            </h1>
+          </div>
+          {data.hasActiveFailedPayments && (
+            <div className="flex items-center gap-2 border border-red-500/20 bg-red-500/5 px-3 py-2">
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-40" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-red-400" />
+              </span>
+              <p className="text-[11px] font-medium text-red-400">
+                {data.activeFailedCount} active · {formatAmount(data.activeFailedTotal, "eur")} at risk
+              </p>
+            </div>
+          )}
         </div>
-      )}
-
-      <div>
-        <h1 className="font-display text-2xl text-foreground">Dashboard</h1>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Welcome back, {session.user.name}. Here&apos;s your payment recovery
-          overview.
-        </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          title="At risk"
-          value={formatAmount(data.stats.atRisk, "eur")}
-          icon={TrendingDown}
-          accent="red"
-          subtitle="Active failed payments"
-        />
-        <StatCard
-          title="Recovered this month"
-          value={formatAmount(data.stats.recoveredThisMonth, "eur")}
-          icon={TrendingUp}
-          accent="green"
-          subtitle="Successfully recovered"
-        />
-        <StatCard
-          title="Need your attention"
-          value={String(data.stats.needsAttention)}
-          icon={AlertTriangle}
-          accent="amber"
-          subtitle="Escalated accounts"
-        />
+      {/* Stats strip — asymmetric, no equal cards */}
+      <div
+        className="app-row border-y border-white/[0.05]"
+        style={{ "--delay": "60ms" } as React.CSSProperties}
+      >
+        <div className="grid grid-cols-[2fr_1px_1.2fr_1px_1.2fr]">
+          {/* Primary — At risk */}
+          <div className="py-6 pr-8">
+            <div className="mb-3 flex items-center gap-2">
+              <TrendingDown className="size-3.5 text-red-400" strokeWidth={1.75} />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                At risk
+              </span>
+            </div>
+            <p className="font-display text-4xl tracking-tight text-foreground">
+              {formatAmount(data.stats.atRisk, "eur")}
+            </p>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              Active failed payments
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="bg-white/[0.05]" />
+
+          {/* Secondary — Recovered */}
+          <div className="py-6 px-8">
+            <div className="mb-3 flex items-center gap-2">
+              <TrendingUp className="size-3.5 text-primary" strokeWidth={1.75} />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Recovered
+              </span>
+            </div>
+            <p className="font-mono text-2xl font-semibold tracking-tight text-foreground">
+              {formatAmount(data.stats.recoveredThisMonth, "eur")}
+            </p>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">This month</p>
+          </div>
+
+          {/* Divider */}
+          <div className="bg-white/[0.05]" />
+
+          {/* Tertiary — Attention */}
+          <div className="py-6 pl-8">
+            <div className="mb-3 flex items-center gap-2">
+              <AlertTriangle className="size-3.5 text-amber-400" strokeWidth={1.75} />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Attention
+              </span>
+            </div>
+            <p className="font-mono text-2xl font-semibold tracking-tight text-foreground">
+              {data.stats.needsAttention}
+            </p>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">Escalated accounts</p>
+          </div>
+        </div>
       </div>
 
-      <DashboardClient
-        payments={data.payments}
-        breakdown={data.stats.breakdown}
-      />
+      {/* Payments table */}
+      <div className="app-row" style={{ "--delay": "120ms" } as React.CSSProperties}>
+        <DashboardClient
+          payments={data.payments}
+          breakdown={data.stats.breakdown}
+        />
+      </div>
     </div>
   );
 }
