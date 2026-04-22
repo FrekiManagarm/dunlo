@@ -9,7 +9,6 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 import { dunloFontsLink, dunloStyles } from "./dunlo-styles";
 import type { CustomerRiskProfile } from "@/lib/morning-brief";
 
@@ -84,7 +83,9 @@ export function MorningBriefEmail({
                     marginBottom: "20px",
                   }}
                 >
-                  <Text style={{ ...dunloStyles.textStrong, margin: "0 0 4px" }}>
+                  <Text
+                    style={{ ...dunloStyles.textStrong, margin: "0 0 4px" }}
+                  >
                     → {profile.email} — {fmt(profile.amount, currency)}
                   </Text>
                   <Text style={{ ...dunloStyles.text, margin: "0 0 8px" }}>
@@ -127,7 +128,9 @@ export function MorningBriefEmail({
                     marginBottom: "16px",
                   }}
                 >
-                  <Text style={{ ...dunloStyles.textStrong, margin: "0 0 4px" }}>
+                  <Text
+                    style={{ ...dunloStyles.textStrong, margin: "0 0 4px" }}
+                  >
                     → {profile.email} — {fmt(profile.amount, currency)}
                   </Text>
                   <Text style={{ ...dunloStyles.text, margin: "0" }}>

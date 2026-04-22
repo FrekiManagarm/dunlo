@@ -10,7 +10,6 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 import type { EscalationPriority } from "../lib/escalations/draft-generator";
 import { dunloFontsLink, dunloStyles } from "./dunlo-styles";
 

@@ -60,8 +60,8 @@ export function HeroSection() {
           Dunlo recovers the payments.
           <br />
           <span className="font-display italic text-landing-accent">
-            You recover
-          </span>{" "}
+            You recover{" "}
+          </span>
           the customers that matter.
         </h1>
 

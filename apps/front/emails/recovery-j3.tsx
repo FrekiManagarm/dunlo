@@ -9,7 +9,6 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 
 import { dunloFontsLink, dunloStyles } from "./dunlo-styles";
 
@@ -19,7 +18,8 @@ type RecoveryJ3Props = {
 };
 
 export function RecoveryJ3({ customerName, updateCardUrl }: RecoveryJ3Props) {
-  const displayName = customerName && customerName !== "Unknown" ? customerName : "Bonjour";
+  const displayName =
+    customerName && customerName !== "Unknown" ? customerName : "Bonjour";
 
   return (
     <Html>
@@ -34,13 +34,13 @@ export function RecoveryJ3({ customerName, updateCardUrl }: RecoveryJ3Props) {
           </Section>
           <Heading style={dunloStyles.h1}>{displayName},</Heading>
           <Text style={dunloStyles.text}>
-            Nous vous avons contacté il y a quelques jours concernant un problème
-            avec votre paiement. Votre accès sera bientôt suspendu si nous ne
-            recevons pas de mise à jour.
+            Nous vous avons contacté il y a quelques jours concernant un
+            problème avec votre paiement. Votre accès sera bientôt suspendu si
+            nous ne recevons pas de mise à jour.
           </Text>
           <Text style={dunloStyles.text}>
-            Mettre à jour votre carte ne prend que 2 clics — pas de friction, pas
-            d&apos;attente.
+            Mettre à jour votre carte ne prend que 2 clics — pas de friction,
+            pas d&apos;attente.
           </Text>
           <Section style={dunloStyles.buttonContainer}>
             <Button style={dunloStyles.button} href={updateCardUrl}>

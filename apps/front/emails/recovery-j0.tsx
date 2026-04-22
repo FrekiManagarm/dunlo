@@ -9,7 +9,6 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 
 import type { FailureCategory } from "../lib/escalations/draft-generator";
 import { dunloFontsLink, dunloStyles } from "./dunlo-styles";
@@ -84,7 +83,9 @@ export function RecoveryJ0({
           ) : (
             <Section style={dunloStyles.buttonContainer}>
               <Button
-                style={isCompromised ? dunloStyles.buttonUrgent : dunloStyles.button}
+                style={
+                  isCompromised ? dunloStyles.buttonUrgent : dunloStyles.button
+                }
                 href={updateCardUrl}
               >
                 {isCompromised

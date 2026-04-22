@@ -9,7 +9,6 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 
 import { dunloFontsLink, dunloStyles } from "./dunlo-styles";
 
@@ -26,7 +25,8 @@ export function RecoveryJ7({
   formattedAmount,
   updateCardUrl,
 }: RecoveryJ7Props) {
-  const displayName = customerName && customerName !== "Unknown" ? customerName : "Bonjour";
+  const displayName =
+    customerName && customerName !== "Unknown" ? customerName : "Bonjour";
   const product = productName || "votre abonnement";
 
   return (
@@ -49,7 +49,8 @@ export function RecoveryJ7({
             {product} sera suspendu dans 48h.
           </Text>
           <Text style={dunloStyles.text}>
-            Valeur de votre abonnement : <strong style={{ color: "#ebebeb" }}>{formattedAmount}</strong>
+            Valeur de votre abonnement :{" "}
+            <strong style={{ color: "#ebebeb" }}>{formattedAmount}</strong>
           </Text>
           <Section style={dunloStyles.buttonContainer}>
             <Button style={dunloStyles.buttonUrgent} href={updateCardUrl}>
