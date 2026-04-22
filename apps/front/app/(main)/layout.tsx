@@ -13,7 +13,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <AppNavbar />
       </Suspense>
       <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-5xl px-8 py-10">{children}</div>
+        <div className="px-8 py-10">{children}</div>
       </main>
     </div>
   );
