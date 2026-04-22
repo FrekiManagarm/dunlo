@@ -211,6 +211,24 @@
   animation-play-state: paused;
 }
 
+/* App interior — staggered fade-in */
+@keyframes app-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-row {
+  opacity: 0;
+  animation: app-row-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
 /* Solution step connector */
 .solution-step-line {
   position: absolute;

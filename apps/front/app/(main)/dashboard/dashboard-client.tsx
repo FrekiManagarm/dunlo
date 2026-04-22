@@ -2,18 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { cn, formatAmount } from "@/lib/utils";
-import { ExternalLink } from "lucide-react";
 import type { FailureBreakdown, TablePayment } from "@/actions/payments";
 
 const FILTER_OPTIONS = [
@@ -28,55 +19,36 @@ const FILTER_OPTIONS = [
 const statusConfig = {
   recovered: {
     label: "Recovered",
-    class: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    class: "text-emerald-400 bg-emerald-500/8 border-emerald-500/15",
     dot: "bg-emerald-400",
   },
   emailing: {
     label: "Emailing",
-    class: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    class: "text-amber-400 bg-amber-500/8 border-amber-500/15",
     dot: "bg-amber-400",
   },
   escalated: {
     label: "Escalated",
-    class: "bg-red-500/10 text-red-400 border-red-500/20",
+    class: "text-red-400 bg-red-500/8 border-red-500/15",
     dot: "bg-red-400",
   },
   lost: {
     label: "Lost",
-    class: "bg-neutral-500/10 text-neutral-400 border-neutral-500/20",
-    dot: "bg-neutral-500",
+    class: "text-neutral-500 bg-neutral-500/8 border-neutral-500/15",
+    dot: "bg-neutral-600",
   },
   detected: {
     label: "Detected",
-    class: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    class: "text-blue-400 bg-blue-500/8 border-blue-500/15",
     dot: "bg-blue-400",
   },
 } as const;
 
-const CATEGORY_COLORS: Record<
-  string,
-  { bar: string; text: string; bg: string }
-> = {
-  expired_card: {
-    bar: "bg-amber-500",
-    text: "text-amber-400",
-    bg: "bg-amber-500/10",
-  },
-  insufficient_funds: {
-    bar: "bg-red-500",
-    text: "text-red-400",
-    bg: "bg-red-500/10",
-  },
-  compromised_card: {
-    bar: "bg-rose-500",
-    text: "text-rose-400",
-    bg: "bg-rose-500/10",
-  },
-  generic: {
-    bar: "bg-muted-foreground/50",
-    text: "text-muted-foreground",
-    bg: "bg-muted/40",
-  },
+const CATEGORY_COLORS: Record<string, { bar: string; text: string }> = {
+  expired_card: { bar: "bg-amber-500", text: "text-amber-400" },
+  insufficient_funds: { bar: "bg-red-500", text: "text-red-400" },
+  compromised_card: { bar: "bg-rose-500", text: "text-rose-400" },
+  generic: { bar: "bg-muted-foreground/40", text: "text-muted-foreground" },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -91,84 +63,68 @@ function StatusBadge({ status }: { status: keyof typeof statusConfig }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+        "inline-flex items-center gap-1.5 border px-2 py-0.5 font-mono text-[10px] tracking-wider",
         config.class,
       )}
     >
-      <span className={cn("size-1.5 rounded-full", config.dot)} />
+      <span className={cn("size-1 rounded-full", config.dot)} />
       {config.label}
     </span>
   );
 }
 
-function RecoveryScoreBar({ score }: { score: number }) {
+function RecoveryBar({ score }: { score: number }) {
   const color =
-    score >= 60
-      ? "bg-emerald-500"
-      : score >= 30
-        ? "bg-amber-500"
-        : "bg-red-500/70";
+    score >= 60 ? "bg-primary" : score >= 30 ? "bg-amber-500" : "bg-red-500/70";
   return (
-    <div className="flex items-center gap-1.5">
-      <div className="h-1 w-16 overflow-hidden rounded-full bg-muted/40">
-        <div
-          className={cn("h-full transition-all duration-500", color)}
-          style={{ width: `${score}%` }}
-        />
+    <div className="flex items-center gap-2">
+      <div className="h-px w-14 overflow-hidden bg-white/[0.06]">
+        <div className={cn("h-full transition-all", color)} style={{ width: `${score}%` }} />
       </div>
-      <span className="font-mono text-[10px] text-muted-foreground">
+      <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
         {score}%
       </span>
     </div>
   );
 }
 
-function BreakdownSection({ breakdown }: { breakdown: FailureBreakdown[] }) {
+function BreakdownBar({ breakdown }: { breakdown: FailureBreakdown[] }) {
   if (breakdown.length === 0) return null;
-  const totalCount = breakdown.reduce((sum, b) => sum + b.count, 0);
+  const total = breakdown.reduce((s, b) => s + b.count, 0);
 
   return (
-    <div className="mb-6 border border-border p-4">
-      <p className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+    <div className="mb-7 border-b border-white/[0.05] pb-7">
+      <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/50">
         Failure breakdown
       </p>
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         {breakdown.map((item) => {
           const colors = CATEGORY_COLORS[item.category] ?? CATEGORY_COLORS.generic;
           const label = CATEGORY_LABELS[item.category] ?? item.category;
-          const widthPct =
-            totalCount > 0 ? (item.count / totalCount) * 100 : 0;
+          const pct = total > 0 ? (item.count / total) * 100 : 0;
 
           return (
-            <div key={item.category} className="flex items-center gap-3">
-              <span
-                className={cn(
-                  "w-28 shrink-0 text-[11px] font-medium",
-                  colors.text,
-                )}
-              >
+            <div key={item.category} className="flex items-center gap-4">
+              <span className={cn("w-32 shrink-0 text-[11px] font-medium", colors.text)}>
                 {label}
               </span>
-              <div className="flex-1 overflow-hidden rounded-none bg-muted/20 h-1.5">
-                <div
-                  className={cn("h-full", colors.bar)}
-                  style={{ width: `${widthPct.toFixed(1)}%` }}
-                />
+              <div className="flex-1 overflow-hidden bg-white/[0.04] h-px">
+                <div className={cn("h-full", colors.bar)} style={{ width: `${pct.toFixed(1)}%` }} />
               </div>
-              <span className="w-8 text-right font-mono text-[10px] text-muted-foreground">
+              <span className="w-6 text-right font-mono text-[10px] tabular-nums text-muted-foreground">
                 {item.count}
               </span>
               <span
                 className={cn(
-                  "w-16 text-right text-[10px] font-medium",
+                  "w-14 text-right font-mono text-[10px] tabular-nums",
                   item.recoveryRate >= 60
-                    ? "text-emerald-400"
+                    ? "text-primary"
                     : item.recoveryRate >= 30
                       ? "text-amber-400"
                       : "text-red-400",
                 )}
               >
-                {item.recoveryRate}% rec.
+                {item.recoveryRate}% rec
               </span>
             </div>
           );
@@ -187,30 +143,28 @@ export function DashboardClient({
 }) {
   const [filter, setFilter] = useState<string>("all");
 
-  const filteredPayments =
-    filter === "all"
-      ? payments
-      : payments.filter((p) => p.status === filter);
+  const filtered = filter === "all" ? payments : payments.filter((p) => p.status === filter);
 
   return (
     <div>
-      <BreakdownSection breakdown={breakdown} />
+      <BreakdownBar breakdown={breakdown} />
 
+      {/* Table header row */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-medium text-foreground">
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/50">
           Failed payments
-        </h2>
-        <div className="flex items-center gap-1">
+        </p>
+        <div className="flex items-center gap-px">
           {FILTER_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               type="button"
               onClick={() => setFilter(opt.value)}
               className={cn(
-                "px-2.5 py-1 text-[11px] font-medium transition-colors",
+                "px-2.5 py-1 font-mono text-[10px] tracking-wide transition-colors",
                 filter === opt.value
                   ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                  : "text-muted-foreground/50 hover:text-muted-foreground",
               )}
             >
               {opt.label}
@@ -219,77 +173,61 @@ export function DashboardClient({
         </div>
       </div>
 
-      {filteredPayments.length === 0 ? (
-        <Card className="border border-border">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <p className="text-sm text-muted-foreground">
-              {filter === "all"
-                ? "No failed payments detected yet. Connect Stripe to get started."
-                : `No payments with status "${filter}".`}
-            </p>
-          </CardContent>
-        </Card>
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center border border-white/[0.05] py-20">
+          <p className="text-[11px] text-muted-foreground/50">
+            {filter === "all"
+              ? "No failed payments detected yet."
+              : `No payments with status "${filter}".`}
+          </p>
+        </div>
       ) : (
-        <div className="overflow-hidden border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Customer</TableHead>
-                <TableHead className="text-muted-foreground">Amount</TableHead>
-                <TableHead className="text-muted-foreground">Reason</TableHead>
-                <TableHead className="text-muted-foreground">Step</TableHead>
-                <TableHead className="text-muted-foreground">Score</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
-                <TableHead className="w-10" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPayments.map((payment) => (
-                <TableRow
-                  key={payment.id}
-                  className="group border-border transition-colors hover:bg-muted/30"
+        <div className="border-t border-white/[0.05]">
+          {/* Column headers */}
+          <div className="grid grid-cols-[2fr_1fr_1.2fr_0.6fr_0.8fr_1fr_1.5rem] border-b border-white/[0.05] py-2.5">
+            {["Customer", "Amount", "Reason", "Step", "Score", "Status"].map((h) => (
+              <span key={h} className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/40">
+                {h}
+              </span>
+            ))}
+            <span />
+          </div>
+
+          {/* Rows */}
+          <div className="divide-y divide-white/[0.03]">
+            {filtered.map((payment) => (
+              <div
+                key={payment.id}
+                className="group grid grid-cols-[2fr_1fr_1.2fr_0.6fr_0.8fr_1fr_1.5rem] items-center py-3.5 transition-colors hover:bg-white/[0.015]"
+              >
+                <div>
+                  <p className="text-[13px] font-medium text-foreground">
+                    {payment.customerName}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground/60">
+                    {payment.customerEmail}
+                  </p>
+                </div>
+                <span className="font-mono text-[13px] tabular-nums text-foreground">
+                  {formatAmount(payment.amount, payment.currency)}
+                </span>
+                <span className="text-[12px] text-muted-foreground">
+                  {payment.failureReason}
+                </span>
+                <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
+                  {payment.currentStep}/{payment.totalSteps}
+                </span>
+                <RecoveryBar score={payment.recoveryScore} />
+                <StatusBadge status={payment.status as keyof typeof statusConfig} />
+                <Link
+                  href={`/payment/${payment.id}`}
+                  className="text-muted-foreground/20 transition-colors group-hover:text-muted-foreground/60 hover:!text-primary"
                 >
-                  <TableCell>
-                    <div>
-                      <div className="font-medium text-foreground">
-                        {payment.customerName}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {payment.customerEmail}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-foreground">
-                    {formatAmount(payment.amount, payment.currency)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {payment.failureReason}
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-mono text-muted-foreground">
-                      {payment.currentStep}/{payment.totalSteps}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <RecoveryScoreBar score={payment.recoveryScore} />
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge
-                      status={payment.status as keyof typeof statusConfig}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Link
-                      href={`/payment/${payment.id}`}
-                      className="inline-flex items-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
-                    >
-                      <ExternalLink className="size-3.5" />
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  <ArrowRight className="size-3.5" strokeWidth={1.5} />
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -11,50 +11,72 @@ export function AuthLayout({
 }) {
   return (
     <div className="landing-grain landing-grid-bg relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-landing-bg">
-      <div className="landing-hero-glow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      {/* Glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(0,232,123,0.06)_0%,transparent_65%)]" />
 
+      {/* Top-left logo */}
       <Link
         href="/"
-        className="auth-stagger absolute left-6 top-6 z-20 transition-opacity hover:opacity-80 md:left-10"
+        className="auth-stagger absolute left-8 top-7 z-20 transition-opacity hover:opacity-70 md:left-10"
       >
         <DunloLogo sizeClassName="text-xl" wordmarkClassName="text-landing-text" />
       </Link>
 
-      <div className="auth-stagger relative z-10 w-full max-w-[500px] px-6">
-        <div className="rounded-sm border border-landing-border bg-landing-surface/70 px-8 py-10 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_24px_80px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+      {/* Card */}
+      <div
+        className="auth-stagger relative z-10 w-full max-w-[440px] px-5"
+        style={{ animationDelay: "80ms" }}
+      >
+        <div className="border border-white/[0.07] bg-[#0e0e0e]/80 px-8 py-9 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_24px_80px_-12px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
           {children}
+
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/[0.06]" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40">
+              or
+            </span>
+            <div className="h-px flex-1 bg-white/[0.06]" />
+          </div>
+
           <GoogleSignInButton callbackURL={showSignIn ? "/dashboard" : "/onboarding"} />
         </div>
 
         <p
-          className="auth-stagger mt-6 text-center font-body text-sm text-landing-text-muted"
-          style={{ animationDelay: "400ms" }}
+          className="auth-stagger mt-5 text-center font-mono text-[11px] text-landing-text-muted"
+          style={{ animationDelay: "300ms" }}
         >
           {showSignIn ? (
-            <Link
-              href="/register"
-              className="text-landing-accent transition-colors hover:underline"
-            >
-              Create an account
-            </Link>
+            <>
+              No account?{" "}
+              <Link
+                href="/register"
+                className="text-landing-accent transition-colors hover:underline"
+              >
+                Create one
+              </Link>
+            </>
           ) : (
-            <Link
-              href="/login"
-              className="text-landing-accent transition-colors hover:underline"
-            >
-              Already have an account?
-            </Link>
+            <>
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="text-landing-accent transition-colors hover:underline"
+              >
+                Sign in
+              </Link>
+            </>
           )}
         </p>
       </div>
 
+      {/* Back link */}
       <div
-        className="auth-stagger absolute bottom-8 left-1/2 z-10 -translate-x-1/2"
-        style={{ animationDelay: "500ms" }}
+        className="auth-stagger absolute bottom-7 left-1/2 z-10 -translate-x-1/2"
+        style={{ animationDelay: "450ms" }}
       >
         <Link
           href="/"
-          className="font-body text-xs text-landing-text-muted transition-colors hover:text-landing-text-secondary"
+          className="font-mono text-[10px] uppercase tracking-widest text-landing-text-muted/50 transition-colors hover:text-landing-text-muted"
         >
           ← Back to home
         </Link>
