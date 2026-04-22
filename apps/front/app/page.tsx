@@ -7,7 +7,7 @@ import { LandingNav } from "@/components/landing/landing-nav";
 import { PricingSection } from "@/components/landing/pricing";
 import { ProblemSection } from "@/components/landing/problem";
 import { SolutionSection } from "@/components/landing/solution";
-// import { TestimonialsSection } from "@/components/landing/testimonials";
+import { StatsBar } from "@/components/landing/stats-bar";
 
 export default function LandingPage() {
   return (
@@ -16,39 +16,29 @@ export default function LandingPage() {
 
       <HeroSection />
 
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="h-px bg-linear-to-r from-transparent via-landing-border to-transparent" />
-      </div>
+      <StatsBar />
 
       <ProblemSection />
 
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="h-px bg-linear-to-r from-transparent via-landing-accent/20 to-transparent" />
+      <div className="mx-auto max-w-7xl px-6 md:px-10">
+        <div className="h-px bg-linear-to-r from-transparent via-landing-accent/15 to-transparent" />
       </div>
 
       <SolutionSection />
 
-      {/*<div className="mx-auto max-w-5xl px-6">
+      <div className="mx-auto max-w-7xl px-6 md:px-10">
         <div className="h-px bg-linear-to-r from-transparent via-landing-border to-transparent" />
       </div>
 
-      <TestimonialsSection />*/}
+      <PricingSection />
 
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="h-px bg-linear-to-r from-transparent via-landing-accent/20 to-transparent" />
-      </div>
-
-      <div id="pricing">
-        <PricingSection />
-      </div>
-
-      <div className="mx-auto max-w-5xl px-6">
+      <div className="mx-auto max-w-7xl px-6 md:px-10">
         <div className="h-px bg-linear-to-r from-transparent via-landing-border to-transparent" />
       </div>
 
       <FAQSection />
 
-      <div className="mx-auto max-w-5xl px-6">
+      <div className="mx-auto max-w-7xl px-6 md:px-10">
         <div className="h-px bg-linear-to-r from-transparent via-landing-border to-transparent" />
       </div>
 
