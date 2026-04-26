@@ -75,7 +75,7 @@ export function SolutionSection() {
             <div className="space-y-0">
               {STEPS.map((step, i) => (
                 <Reveal key={step.step} delay={i * 130}>
-                  <div className="group relative pb-16 last:pb-0">
+                  <div className="group relative pb-24 last:pb-0">
                     {/* Step circle */}
                     <div className="absolute -left-10 top-0 flex size-7 items-center justify-center border border-landing-border bg-landing-bg font-body text-[10px] font-semibold text-landing-text-muted transition-colors duration-300 group-hover:border-landing-accent/40 group-hover:text-landing-accent md:-left-14">
                       {step.step}
