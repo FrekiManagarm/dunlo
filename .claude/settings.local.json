@@ -35,7 +35,8 @@
       "Bash(echo \"Exit: $?\")",
       "Bash(python3:*)",
       "Bash(gh pr *)",
-      "Bash(bun x *)"
+      "Bash(bun x *)",
+      "Bash(grep \":{$\")"
     ]
   },
   "enabledMcpjsonServers": [

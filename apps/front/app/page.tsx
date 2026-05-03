@@ -1,4 +1,5 @@
-"use client";
+import type { Metadata } from "next";
+import { SEO_DEFAULTS, SITE_URL } from "@/lib/seo";
 
 import { FAQSection } from "@/components/landing/faq";
 import { FooterSection } from "@/components/landing/footer";
@@ -8,6 +9,37 @@ import { PricingSection } from "@/components/landing/pricing";
 import { ProblemSection } from "@/components/landing/problem";
 import { SolutionSection } from "@/components/landing/solution";
 import { StatsBar } from "@/components/landing/stats-bar";
+
+export const metadata: Metadata = {
+  title: SEO_DEFAULTS.title,
+  description: SEO_DEFAULTS.description,
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: SEO_DEFAULTS.title,
+    description: SEO_DEFAULTS.description,
+    url: SITE_URL,
+    type: "website",
+    siteName: SEO_DEFAULTS.siteName,
+    locale: SEO_DEFAULTS.locale,
+    images: [
+      {
+        url: SEO_DEFAULTS.ogImage,
+        width: 1200,
+        height: 630,
+        alt: SEO_DEFAULTS.title,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SEO_DEFAULTS.title,
+    description: SEO_DEFAULTS.description,
+    creator: SEO_DEFAULTS.twitterHandle,
+    images: [SEO_DEFAULTS.ogImage],
+  },
+};
 
 export default function LandingPage() {
   return (
