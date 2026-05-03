@@ -1,8 +1,6 @@
 import { ImageResponse } from "next/og";
 import { blogSource } from "@/lib/blog/source";
 
-export const runtime = "edge";
-
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ slug: string[] }> },
