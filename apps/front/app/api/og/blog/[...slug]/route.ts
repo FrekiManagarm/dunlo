@@ -1,15 +1,12 @@
 import { ImageResponse } from "next/og";
 import { blogSource } from "@/lib/blog/source";
 
-export const alt = "Dunlo Blog";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const runtime = "edge";
 
-export default async function Image({
-  params,
-}: {
-  params: Promise<{ slug: string[] }>;
-}) {
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ slug: string[] }> },
+) {
   const { slug } = await params;
   const page = blogSource.getPage(slug);
   const title = page?.data.title ?? "Blog";
@@ -107,6 +104,6 @@ export default async function Image({
         </div>
       </div>
     ),
-    { ...size },
+    { width: 1200, height: 630 },
   );
 }

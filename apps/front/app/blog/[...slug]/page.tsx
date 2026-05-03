@@ -5,7 +5,7 @@ import { format, parseISO } from "date-fns";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { InlineTOC } from "fumadocs-ui/components/inline-toc";
 import { blogSource } from "@/lib/blog/source";
-import { SEO_DEFAULTS, SITE_URL } from "@/lib/seo";
+import { SITE_URL } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;
@@ -36,11 +36,13 @@ export async function generateMetadata(
       type: "article",
       publishedTime: String(page.data.date),
       authors: [page.data.author],
+      images: [`${SITE_URL}/api/og/blog/${params.slug.join("/")}`],
     },
     twitter: {
       card: "summary_large_image",
       title: page.data.title,
       description: page.data.description,
+      images: [`${SITE_URL}/api/og/blog/${params.slug.join("/")}`],
     },
   };
 }
