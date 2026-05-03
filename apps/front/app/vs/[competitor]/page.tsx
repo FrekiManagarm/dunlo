@@ -4,6 +4,7 @@ import { Check, X, ArrowRight, Minus } from "lucide-react";
 import { notFound } from "next/navigation";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { FooterSection } from "@/components/landing/footer";
+import { SEO_DEFAULTS, SITE_URL } from "@/lib/seo";
 
 type CellValue = boolean | "partial" | string;
 
@@ -274,6 +275,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Dunlo vs ${data.name} — Payment Recovery Comparison`,
     description: `Compare Dunlo and ${data.name} for failed payment recovery. See which tool recovers more revenue for bootstrapped SaaS founders.`,
+    alternates: { canonical: `${SITE_URL}/vs/${competitor}` },
+    openGraph: {
+      title: `Dunlo vs ${data.name} — Payment Recovery Comparison`,
+      description: `Compare Dunlo and ${data.name} for failed payment recovery. See which tool recovers more revenue for bootstrapped SaaS founders.`,
+      url: `${SITE_URL}/vs/${competitor}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Dunlo vs ${data.name} — Payment Recovery Comparison`,
+      description: `Compare Dunlo and ${data.name} for failed payment recovery.`,
+    },
   };
 }
 

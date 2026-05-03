@@ -30,11 +30,15 @@ export const metadata: Metadata = {
     title: SEO_DEFAULTS.title,
     description: SEO_DEFAULTS.description,
     url: SITE_URL,
+    type: "website",
+    siteName: SEO_DEFAULTS.siteName,
+    locale: SEO_DEFAULTS.locale,
   },
   twitter: {
     card: "summary_large_image",
     title: SEO_DEFAULTS.title,
     description: SEO_DEFAULTS.description,
+    creator: SEO_DEFAULTS.twitterHandle,
   },
   robots: "index, follow",
 };

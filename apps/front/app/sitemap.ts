@@ -6,6 +6,7 @@ const COMPETITOR_SLUGS = [
   "baremetrics-recover",
   "churn-buster",
   "stripe-smart-retries",
+  "stunning",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

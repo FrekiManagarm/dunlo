@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { InlineTOC } from "fumadocs-ui/components/inline-toc";
 import { blogSource } from "@/lib/blog/source";
+import { SEO_DEFAULTS, SITE_URL } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;
@@ -25,8 +26,22 @@ export async function generateMetadata(
   }
 
   return {
-    title: page.data.title,
+    title: `${page.data.title} — Dunlo`,
     description: page.data.description,
+    alternates: { canonical: `${SITE_URL}${page.url}` },
+    openGraph: {
+      title: page.data.title,
+      description: page.data.description,
+      url: `${SITE_URL}${page.url}`,
+      type: "article",
+      publishedTime: String(page.data.date),
+      authors: [page.data.author],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: page.data.title,
+      description: page.data.description,
+    },
   };
 }
 

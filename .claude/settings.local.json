@@ -36,7 +36,9 @@
       "Bash(python3:*)",
       "Bash(gh pr *)",
       "Bash(bun x *)",
-      "Bash(grep \":{$\")"
+      "Bash(grep \":{$\")",
+      "Bash(bunx tsc *)",
+      "WebSearch"
     ]
   },
   "enabledMcpjsonServers": [

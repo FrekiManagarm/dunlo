@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import { blogSource } from "@/lib/blog/source";
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Blog — Dunlo",
   description:
     "Notes sur la récupération des paiements, Stripe et le MRR pour les équipes SaaS.",
 };
