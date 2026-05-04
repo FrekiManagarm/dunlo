@@ -3,24 +3,24 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Conditions Générales d'Utilisation — Dunlo",
+  title: "Terms of Service — Dunlo",
   description:
-    "Conditions générales d'utilisation de Dunlo, la solution de récupération des paiements échoués pour les fondateurs SaaS.",
+    "Terms of service for Dunlo, the failed payment recovery solution for SaaS founders.",
   robots: "noindex",
 };
 
 const SECTIONS = [
-  { id: "objet", label: "1. Objet" },
-  { id: "definitions", label: "2. Définitions" },
-  { id: "acces", label: "3. Accès au service" },
-  { id: "compte", label: "4. Compte utilisateur" },
-  { id: "services", label: "5. Services proposés" },
-  { id: "prix", label: "6. Prix et facturation" },
-  { id: "donnees", label: "7. Protection des données" },
-  { id: "propriete", label: "8. Propriété intellectuelle" },
-  { id: "responsabilite", label: "9. Responsabilité" },
-  { id: "resiliation", label: "10. Résiliation" },
-  { id: "droit", label: "11. Droit applicable" },
+  { id: "purpose", label: "1. Purpose" },
+  { id: "definitions", label: "2. Definitions" },
+  { id: "access", label: "3. Access to the Service" },
+  { id: "account", label: "4. User Account" },
+  { id: "services", label: "5. Services Provided" },
+  { id: "pricing", label: "6. Pricing and Billing" },
+  { id: "data", label: "7. Personal Data" },
+  { id: "ip", label: "8. Intellectual Property" },
+  { id: "liability", label: "9. Limitation of Liability" },
+  { id: "termination", label: "10. Termination" },
+  { id: "law", label: "11. Governing Law" },
 ];
 
 export default function CGUPage() {
@@ -36,7 +36,7 @@ export default function CGUPage() {
           className="flex items-center gap-2 text-sm text-landing-text-secondary transition-colors hover:text-landing-text"
         >
           <ArrowLeft className="size-3.5" />
-          Retour
+          Back
         </Link>
       </nav>
 
@@ -44,23 +44,21 @@ export default function CGUPage() {
         {/* Header */}
         <div className="mb-16 border-b border-landing-border pb-12">
           <p className="mb-4 font-body text-xs uppercase tracking-[0.2em] text-landing-accent">
-            Légal
+            Legal
           </p>
           <h1 className="font-display text-4xl leading-tight text-landing-text md:text-5xl lg:text-6xl">
-            Conditions générales
+            Terms of
             <br />
-            <span className="italic text-landing-text-secondary">
-              d'utilisation
-            </span>
+            <span className="italic text-landing-text-secondary">Service</span>
           </h1>
           <div className="mt-6 flex flex-wrap gap-8 font-body text-sm text-landing-text-muted">
             <span>
-              Version en vigueur :{" "}
-              <span className="text-landing-text-secondary">1er avril 2026</span>
+              Effective date:{" "}
+              <span className="text-landing-text-secondary">April 1, 2026</span>
             </span>
             <span>
-              Dernière mise à jour :{" "}
-              <span className="text-landing-text-secondary">1er avril 2026</span>
+              Last updated:{" "}
+              <span className="text-landing-text-secondary">April 1, 2026</span>
             </span>
           </div>
         </div>
@@ -70,7 +68,7 @@ export default function CGUPage() {
           <aside className="shrink-0 lg:w-56">
             <div className="sticky top-28">
               <p className="mb-4 font-body text-xs uppercase tracking-[0.15em] text-landing-text-muted">
-                Sommaire
+                Contents
               </p>
               <nav className="flex flex-col gap-1">
                 {SECTIONS.map((s) => (
@@ -90,69 +88,68 @@ export default function CGUPage() {
           {/* Content */}
           <article className="min-w-0 flex-1 font-body text-base leading-relaxed text-landing-text-secondary">
             {/* Section 1 */}
-            <Section id="objet" title="1. Objet">
+            <Section id="purpose" title="1. Purpose">
               <p>
-                Les présentes conditions générales d'utilisation (ci-après «&nbsp;CGU&nbsp;») régissent
-                l'accès et l'utilisation de la plateforme Dunlo (ci-après «&nbsp;le Service&nbsp;»),
-                éditée par{" "}
-                <strong className="text-landing-text">Dunlo SAS</strong>, société par actions
-                simplifiée immatriculée au RCS de Paris, dont le siège social est situé en France
-                (ci-après «&nbsp;Dunlo&nbsp;»,&nbsp;«&nbsp;nous&nbsp;»).
+                These terms of service (the "Terms") govern access to and use of the Dunlo
+                platform (the "Service"), operated by{" "}
+                <strong className="text-landing-text">Dunlo SAS</strong>, a simplified
+                joint-stock company registered with the Paris Commercial Registry (RCS de
+                Paris), headquartered in France ("Dunlo", "we").
               </p>
               <p className="mt-4">
-                En accédant au Service ou en créant un compte, vous acceptez sans réserve les
-                présentes CGU. Si vous n'acceptez pas ces conditions, vous devez cesser d'utiliser
-                le Service immédiatement.
+                By accessing the Service or creating an account, you unconditionally accept
+                these Terms. If you do not accept these Terms, you must immediately stop
+                using the Service.
               </p>
             </Section>
 
             {/* Section 2 */}
-            <Section id="definitions" title="2. Définitions">
+            <Section id="definitions" title="2. Definitions">
               <DefinitionList
                 items={[
                   {
                     term: "Service",
-                    def: "La plateforme Dunlo accessible via dunlo.io, permettant la récupération automatisée des paiements Stripe échoués.",
+                    def: "The Dunlo platform accessible at dunlo.io, enabling automated recovery of failed Stripe payments.",
                   },
                   {
-                    term: "Utilisateur",
-                    def: "Toute personne physique ou morale qui accède au Service et y crée un compte.",
+                    term: "User",
+                    def: "Any individual or legal entity that accesses the Service and creates an account.",
                   },
                   {
-                    term: "Compte Connect",
-                    def: "Le compte Stripe de l'Utilisateur connecté à Dunlo via l'OAuth Stripe Connect.",
+                    term: "Connect Account",
+                    def: "The User's Stripe account connected to Dunlo via Stripe Connect OAuth.",
                   },
                   {
-                    term: "Paiement échoué",
-                    def: "Tout PaymentIntent ou Invoice Stripe dont le statut est \"failed\" ou \"past_due\".",
+                    term: "Failed Payment",
+                    def: 'Any Stripe PaymentIntent or Invoice with a status of "failed" or "past_due".',
                   },
                   {
-                    term: "Séquence email",
-                    def: "L'ensemble des emails automatisés envoyés par Dunlo à l'acheteur final d'un Utilisateur afin de récupérer un paiement échoué.",
+                    term: "Email Sequence",
+                    def: "The set of automated emails sent by Dunlo to a User's end buyer to recover a failed payment.",
                   },
                   {
-                    term: "Escalade",
-                    def: "L'alerte adressée à l'Utilisateur lorsqu'un paiement échoué dépasse le seuil défini dans ses paramètres.",
+                    term: "Escalation",
+                    def: "The alert sent to the User when a failed payment exceeds the threshold defined in their settings.",
                   },
                 ]}
               />
             </Section>
 
             {/* Section 3 */}
-            <Section id="acces" title="3. Accès au service">
+            <Section id="access" title="3. Access to the Service">
               <p>
-                Le Service est accessible à toute personne disposant d'un compte Stripe actif et
-                d'une connexion internet. L'accès est conditionné à la création d'un compte Dunlo
-                et à la connexion d'au moins un compte Stripe via Stripe Connect.
+                The Service is accessible to any person with an active Stripe account and an
+                internet connection. Access requires creating a Dunlo account and connecting
+                at least one Stripe account via Stripe Connect.
               </p>
               <p className="mt-4">
-                Dunlo se réserve le droit de suspendre ou de limiter l'accès au Service sans
-                préavis en cas de violation des présentes CGU, de comportement frauduleux, ou pour
-                des raisons de maintenance technique.
+                Dunlo reserves the right to suspend or restrict access to the Service without
+                notice in the event of a breach of these Terms, fraudulent behavior, or for
+                technical maintenance reasons.
               </p>
               <p className="mt-4">
-                L'Utilisateur est responsable de la sécurité de ses identifiants de connexion et
-                doit signaler immédiatement toute utilisation non autorisée de son compte à{" "}
+                The User is responsible for the security of their login credentials and must
+                immediately report any unauthorized use of their account to{" "}
                 <a
                   href="mailto:support@dunlo.io"
                   className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
@@ -164,39 +161,36 @@ export default function CGUPage() {
             </Section>
 
             {/* Section 4 */}
-            <Section id="compte" title="4. Compte utilisateur">
+            <Section id="account" title="4. User Account">
               <p>
-                Pour utiliser le Service, l'Utilisateur doit créer un compte en fournissant une
-                adresse email valide et en définissant un mot de passe sécurisé, ou en s'authentifiant
-                via un fournisseur d'identité tiers (Google).
+                To use the Service, the User must create an account by providing a valid
+                email address and setting a secure password, or by authenticating via a
+                third-party identity provider (Google).
               </p>
               <p className="mt-4">
-                L'Utilisateur s'engage à fournir des informations exactes et à les maintenir à
-                jour. Toute information inexacte ou incomplète peut entraîner la suspension du
-                compte. Un seul compte est autorisé par entité juridique.
+                The User agrees to provide accurate information and keep it up to date.
+                Inaccurate or incomplete information may result in account suspension. Only
+                one account is permitted per legal entity.
               </p>
               <p className="mt-4">
-                En connectant son compte Stripe, l'Utilisateur autorise Dunlo à accéder en lecture
-                aux données de paiement, à créer des endpoints webhook sur son compte Stripe, et
-                à interagir avec l'API Stripe dans le cadre strict du Service. Ces autorisations
-                peuvent être révoquées à tout moment depuis le tableau de bord Stripe de
-                l'Utilisateur.
+                By connecting their Stripe account, the User authorizes Dunlo to read
+                payment data, create webhook endpoints on their Stripe account, and interact
+                with the Stripe API strictly within the scope of the Service. These
+                permissions can be revoked at any time from the User's Stripe dashboard.
               </p>
             </Section>
 
             {/* Section 5 */}
-            <Section id="services" title="5. Services proposés">
-              <p>
-                Dunlo propose les fonctionnalités suivantes, selon le plan souscrit :
-              </p>
+            <Section id="services" title="5. Services Provided">
+              <p>Dunlo offers the following features, depending on the subscribed plan:</p>
               <ul className="mt-4 flex flex-col gap-3">
                 {[
-                  "Détection en temps réel des paiements Stripe échoués via webhooks",
-                  "Envoi automatisé de séquences d'emails de récupération aux acheteurs finaux",
-                  "Génération de liens Stripe Billing Portal personnalisés pour la mise à jour de moyen de paiement",
-                  "Système d'escalade avec alertes email et/ou Slack pour les comptes à haute valeur",
-                  "Brief matinal récapitulatif des activités de recovery",
-                  "Tableau de bord de suivi des paiements échoués et récupérés",
+                  "Real-time detection of failed Stripe payments via webhooks",
+                  "Automated sending of recovery email sequences to end buyers",
+                  "Generation of personalized Stripe Billing Portal links for payment method updates",
+                  "Escalation system with email and/or Slack alerts for high-value accounts",
+                  "Daily morning brief summarizing recovery activity",
+                  "Dashboard to track failed and recovered payments",
                 ].map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-accent" />
@@ -205,67 +199,65 @@ export default function CGUPage() {
                 ))}
               </ul>
               <p className="mt-6">
-                Dunlo n'est pas partie prenante aux transactions entre l'Utilisateur et ses
-                acheteurs finaux. Le Service se limite à l'envoi de communications et à la mise
-                à disposition d'outils de suivi. Dunlo ne stocke pas les données de carte bancaire
-                et n'initie aucun débit.
+                Dunlo is not a party to transactions between the User and their end buyers.
+                The Service is limited to sending communications and providing tracking tools.
+                Dunlo does not store card data and does not initiate any charges.
               </p>
             </Section>
 
             {/* Section 6 */}
-            <Section id="prix" title="6. Prix et facturation">
+            <Section id="pricing" title="6. Pricing and Billing">
               <p>
-                L'accès au Service est soumis à un abonnement mensuel dont les tarifs sont
-                disponibles sur la page{" "}
+                Access to the Service is subject to a monthly subscription, with pricing
+                available on the{" "}
                 <Link
                   href="/#pricing"
                   className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
                 >
-                  Tarifs
+                  Pricing
                 </Link>{" "}
-                du site. Les prix sont exprimés en euros, hors taxes.
+                page. Prices are listed in euros, exclusive of taxes.
               </p>
               <p className="mt-4">
-                La facturation est gérée par notre partenaire de billing Autumn. Le premier
-                prélèvement intervient à la fin de la période d'essai gratuite, si applicable.
-                Les abonnements sont renouvelés automatiquement chaque mois, sauf résiliation
-                avant la date d'échéance.
+                Billing is managed by our billing partner Autumn. The first charge occurs at
+                the end of the free trial period, if applicable. Subscriptions renew
+                automatically each month unless cancelled before the renewal date.
               </p>
               <p className="mt-4">
-                En cas d'échec de paiement de l'abonnement Dunlo, le Service sera suspendu après
-                un délai de grâce de 7 jours. L'Utilisateur sera notifié par email. Dunlo se
-                réserve le droit de modifier ses tarifs en informant l'Utilisateur avec un préavis
-                de 30 jours.
+                In the event of a failed payment for a Dunlo subscription, the Service will
+                be suspended after a 7-day grace period. The User will be notified by email.
+                Dunlo reserves the right to modify its pricing by giving the User 30 days'
+                advance notice.
               </p>
               <Callout>
-                Pendant la période beta, le plan Growth est accessible gratuitement. Les conditions
-                tarifaires définitives seront communiquées avant la fin de la période beta.
+                During the beta period, the Growth plan is available free of charge. Final
+                pricing terms will be communicated before the end of the beta period.
               </Callout>
             </Section>
 
             {/* Section 7 */}
-            <Section id="donnees" title="7. Protection des données personnelles">
+            <Section id="data" title="7. Personal Data Protection">
               <p>
-                Dans le cadre du Service, Dunlo est amené à traiter des données personnelles
-                relevant de deux catégories :
+                In the course of providing the Service, Dunlo processes personal data in two
+                categories:
               </p>
               <p className="mt-4">
-                <strong className="text-landing-text">Données de l'Utilisateur&nbsp;:</strong>{" "}
-                email, nom, préférences de notification, seuil d'escalade. Ces données sont
-                nécessaires à la fourniture du Service et conservées pendant toute la durée de
-                la relation contractuelle, puis 3 ans à des fins comptables.
+                <strong className="text-landing-text">User data:</strong> email, name,
+                notification preferences, escalation threshold. This data is necessary for
+                providing the Service and retained for the duration of the contractual
+                relationship, then 3 years for accounting purposes.
               </p>
               <p className="mt-4">
-                <strong className="text-landing-text">Données des acheteurs finaux&nbsp;:</strong>{" "}
-                email, nom, montant de transaction. Ces données sont issues du compte Stripe de
-                l'Utilisateur. L'Utilisateur est responsable de traitement au sens du RGPD pour
-                ces données ; Dunlo agit en tant que sous-traitant.
+                <strong className="text-landing-text">End buyer data:</strong> email, name,
+                transaction amount. This data comes from the User's Stripe account. The User
+                is the data controller under GDPR for this data; Dunlo acts as a data
+                processor.
               </p>
               <p className="mt-4">
-                Les tokens d'accès Stripe sont chiffrés au repos (AES-256). Les données de
-                paiement transitent sur des connexions TLS. Dunlo ne vend ni ne loue aucune
-                donnée à des tiers. Pour exercer vos droits (accès, rectification, suppression),
-                contactez{" "}
+                Stripe access tokens are encrypted at rest (AES-256). Payment data is
+                transmitted over TLS connections. Dunlo does not sell or rent any data to
+                third parties. To exercise your rights (access, rectification, deletion),
+                contact{" "}
                 <a
                   href="mailto:privacy@dunlo.io"
                   className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
@@ -277,42 +269,41 @@ export default function CGUPage() {
             </Section>
 
             {/* Section 8 */}
-            <Section id="propriete" title="8. Propriété intellectuelle">
+            <Section id="ip" title="8. Intellectual Property">
               <p>
-                L'ensemble des éléments constituant le Service (code source, interfaces,
-                algorithmes, marques, logos, contenus) est la propriété exclusive de Dunlo
-                ou de ses concédants de licence. Toute reproduction, modification, distribution
-                ou exploitation, même partielle, sans autorisation écrite préalable de Dunlo,
-                est strictement interdite.
+                All elements of the Service (source code, interfaces, algorithms, trademarks,
+                logos, content) are the exclusive property of Dunlo or its licensors. Any
+                reproduction, modification, distribution, or exploitation, even partial,
+                without prior written authorization from Dunlo, is strictly prohibited.
               </p>
               <p className="mt-4">
-                L'Utilisateur conserve la propriété de ses données. En utilisant le Service,
-                il accorde à Dunlo une licence limitée, non exclusive, pour traiter ces données
-                dans le strict cadre de la fourniture du Service.
+                The User retains ownership of their data. By using the Service, they grant
+                Dunlo a limited, non-exclusive license to process this data strictly in the
+                context of providing the Service.
               </p>
               <p className="mt-4">
-                L'utilisation du Service ne confère à l'Utilisateur aucun droit de propriété
-                intellectuelle sur le Service ou ses composants.
+                Using the Service does not grant the User any intellectual property rights
+                over the Service or its components.
               </p>
             </Section>
 
             {/* Section 9 */}
-            <Section id="responsabilite" title="9. Limitation de responsabilité">
+            <Section id="liability" title="9. Limitation of Liability">
               <p>
-                Le Service est fourni «&nbsp;en l'état&nbsp;». Dunlo s'engage à maintenir une
-                disponibilité supérieure à 99,5% sur une base mensuelle, hors maintenance
-                planifiée notifiée en avance.
+                The Service is provided "as is". Dunlo commits to maintaining availability
+                above 99.5% on a monthly basis, excluding scheduled maintenance communicated
+                in advance.
               </p>
               <p className="mt-4">
-                Dunlo ne peut être tenu responsable des pertes de revenus résultant de :
+                Dunlo cannot be held liable for revenue losses resulting from:
               </p>
               <ul className="mt-4 flex flex-col gap-2">
                 {[
-                  "Indisponibilités de l'API Stripe indépendantes de Dunlo",
-                  "Emails de récupération marqués comme spam par les serveurs destinataires",
-                  "Décisions des acheteurs finaux de ne pas mettre à jour leur moyen de paiement",
-                  "Utilisations non conformes du Service par l'Utilisateur",
-                  "Cas de force majeure",
+                  "Stripe API outages beyond Dunlo's control",
+                  "Recovery emails marked as spam by recipient mail servers",
+                  "End buyers choosing not to update their payment method",
+                  "Non-compliant use of the Service by the User",
+                  "Force majeure events",
                 ].map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-border-strong" />
@@ -321,49 +312,47 @@ export default function CGUPage() {
                 ))}
               </ul>
               <p className="mt-6">
-                La responsabilité totale de Dunlo, toutes causes confondues, est plafonnée au
-                montant des sommes effectivement versées par l'Utilisateur au cours des 3 mois
-                précédant l'événement ayant causé le dommage.
+                Dunlo's total liability, for any reason, is capped at the amounts actually
+                paid by the User in the 3 months preceding the event that caused the damage.
               </p>
             </Section>
 
             {/* Section 10 */}
-            <Section id="resiliation" title="10. Résiliation">
+            <Section id="termination" title="10. Termination">
               <p>
-                L'Utilisateur peut résilier son abonnement à tout moment depuis son espace
-                client. La résiliation prend effet à la fin de la période de facturation en
-                cours. Aucun remboursement au prorata n'est accordé.
+                The User may cancel their subscription at any time from their account.
+                Cancellation takes effect at the end of the current billing period. No
+                prorated refunds are provided.
               </p>
               <p className="mt-4">
-                Dunlo peut résilier ou suspendre le compte de l'Utilisateur sans préavis en
-                cas de : violation des présentes CGU, comportement abusif, non-paiement prolongé,
-                ou activité frauduleuse détectée.
+                Dunlo may terminate or suspend a User's account without notice in the event
+                of: breach of these Terms, abusive behavior, prolonged non-payment, or
+                detected fraudulent activity.
               </p>
               <p className="mt-4">
-                À la suite de la résiliation, les données de l'Utilisateur sont conservées
-                pendant 30 jours puis supprimées définitivement, sauf obligation légale contraire.
-                L'Utilisateur peut demander l'export de ses données avant la suppression.
+                Following termination, the User's data is retained for 30 days and then
+                permanently deleted, unless legally required otherwise. The User may request
+                a data export before deletion.
               </p>
             </Section>
 
             {/* Section 11 */}
-            <Section id="droit" title="11. Droit applicable et litiges">
+            <Section id="law" title="11. Governing Law and Disputes">
               <p>
-                Les présentes CGU sont régies par le droit français. En cas de litige relatif
-                à leur interprétation ou leur exécution, les parties s'engagent à rechercher
-                une solution amiable avant tout recours judiciaire.
+                These Terms are governed by French law. In the event of a dispute regarding
+                their interpretation or performance, the parties agree to seek an amicable
+                resolution before pursuing legal action.
               </p>
               <p className="mt-4">
-                À défaut d'accord amiable dans un délai de 30 jours à compter de la notification
-                du litige par l'une des parties, les tribunaux compétents du ressort de Paris
-                auront compétence exclusive.
+                Failing an amicable agreement within 30 days of notification of the dispute
+                by either party, the courts of Paris will have exclusive jurisdiction.
               </p>
               <p className="mt-4">
-                Si une clause des présentes CGU est déclarée nulle ou inapplicable, les autres
-                clauses demeurent en vigueur.
+                If any clause of these Terms is declared void or unenforceable, the remaining
+                clauses remain in force.
               </p>
               <p className="mt-6 border-t border-landing-border pt-6 text-sm text-landing-text-muted">
-                Pour toute question relative aux présentes CGU :{" "}
+                For any question regarding these Terms:{" "}
                 <a
                   href="mailto:legal@dunlo.io"
                   className="text-landing-text-secondary underline underline-offset-2 transition-colors hover:text-landing-text"
@@ -383,7 +372,7 @@ export default function CGUPage() {
             dunlo
           </Link>
           <span className="font-body text-xs text-landing-text-muted">
-            © {new Date().getFullYear()} Dunlo. Tous droits réservés.
+            © {new Date().getFullYear()} Dunlo. All rights reserved.
           </span>
         </div>
       </div>

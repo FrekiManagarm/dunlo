@@ -14,7 +14,7 @@ export async function GET(
   const parsed = verifyCardUpdateToken(token);
 
   if (!parsed) {
-    return new Response("Lien invalide ou expiré", { status: 400 });
+    return new Response("Invalid or expired link", { status: 400 });
   }
 
   const payment = await db.query.failedPayments.findFirst({
@@ -23,7 +23,7 @@ export async function GET(
   });
 
   if (!payment || !payment.userId) {
-    return new Response("Paiement introuvable", { status: 404 });
+    return new Response("Payment not found", { status: 404 });
   }
 
   const connection = await db.query.stripeConnection.findFirst({
@@ -31,7 +31,7 @@ export async function GET(
   });
 
   if (!connection?.accessToken || !payment.stripeCustomerId) {
-    return new Response("Configuration introuvable", { status: 404 });
+    return new Response("Configuration not found", { status: 404 });
   }
 
   const stripe =

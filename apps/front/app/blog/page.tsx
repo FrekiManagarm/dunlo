@@ -6,7 +6,7 @@ import { blogSource } from "@/lib/blog/source";
 export const metadata: Metadata = {
   title: "Blog — Dunlo",
   description:
-    "Notes sur la récupération des paiements, Stripe et le MRR pour les équipes SaaS.",
+    "Notes on payment recovery, Stripe, and MRR for SaaS founders.",
 };
 
 function sortByDateDesc(
@@ -33,8 +33,7 @@ export default function BlogIndexPage() {
             Blog
           </h1>
           <p className="mt-4 max-w-2xl font-body text-lg text-landing-text-secondary">
-            Idées et mises à jour sur le payment recovery, les paiements échoués
-            et la croissance SaaS.
+            Ideas and updates on payment recovery, failed payments, and SaaS growth.
           </p>
         </header>
 
@@ -76,7 +75,7 @@ export default function BlogIndexPage() {
 
         <p className="mt-14 font-body text-sm text-landing-text-muted">
           <Link href="/" className="text-landing-accent hover:underline">
-            ← Retour à l’accueil
+            ← Home
           </Link>
         </p>
       </div>

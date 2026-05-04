@@ -6,6 +6,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import { InlineTOC } from "fumadocs-ui/components/inline-toc";
 import { blogSource } from "@/lib/blog/source";
 import { SITE_URL } from "@/lib/seo";
+import { BlogArticleCTA } from "@/components/blog/article-cta";
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;
@@ -15,14 +16,12 @@ export function generateStaticParams() {
   return blogSource.generateParams();
 }
 
-export async function generateMetadata(
-  props: PageProps,
-): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   const page = blogSource.getPage(params.slug);
 
   if (!page) {
-    return { title: "Article introuvable" };
+    return { title: "Article not found" };
   }
 
   return {
@@ -64,7 +63,7 @@ export default async function BlogArticlePage(props: PageProps) {
             href="/blog"
             className="font-body text-sm text-landing-accent hover:underline"
           >
-            ← Tous les articles
+            ← All articles
           </Link>
           <time
             dateTime={String(page.data.date)}
@@ -79,7 +78,7 @@ export default async function BlogArticlePage(props: PageProps) {
             {page.data.description}
           </p>
           <p className="mt-6 font-body text-sm text-landing-text-muted">
-            Par <span className="text-landing-text">{page.data.author}</span>
+            By <span className="text-landing-text">{page.data.author}</span>
           </p>
           {page.data.tags.length > 0 ? (
             <ul className="mt-4 flex flex-wrap gap-2">
@@ -99,7 +98,7 @@ export default async function BlogArticlePage(props: PageProps) {
           {page.data.toc.length > 0 ? (
             <aside className="shrink-0 md:w-56">
               <p className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-landing-text-muted">
-                Sur cette page
+                On this page
               </p>
               <InlineTOC
                 items={page.data.toc}
@@ -111,6 +110,8 @@ export default async function BlogArticlePage(props: PageProps) {
             <Mdx components={defaultMdxComponents} />
           </div>
         </div>
+
+        <BlogArticleCTA />
       </article>
     </div>
   );

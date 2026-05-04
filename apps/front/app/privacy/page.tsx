@@ -3,24 +3,24 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialité — Dunlo",
+  title: "Privacy Policy — Dunlo",
   description:
-    "Politique de confidentialité de Dunlo : comment nous collectons, utilisons et protégeons vos données personnelles.",
+    "Privacy policy for Dunlo: how we collect, use, and protect your personal data.",
   robots: "noindex",
 };
 
 const SECTIONS = [
   { id: "introduction", label: "1. Introduction" },
-  { id: "responsable", label: "2. Responsable de traitement" },
-  { id: "donnees-collectees", label: "3. Données collectées" },
-  { id: "finalites", label: "4. Finalités & bases légales" },
-  { id: "sous-traitants", label: "5. Sous-traitants & partage" },
-  { id: "conservation", label: "6. Durée de conservation" },
-  { id: "droits", label: "7. Vos droits RGPD" },
-  { id: "securite", label: "8. Sécurité" },
+  { id: "controller", label: "2. Data Controller" },
+  { id: "data-collected", label: "3. Data Collected" },
+  { id: "purposes", label: "4. Purposes & Legal Bases" },
+  { id: "sub-processors", label: "5. Sub-processors & Sharing" },
+  { id: "retention", label: "6. Retention Periods" },
+  { id: "rights", label: "7. Your GDPR Rights" },
+  { id: "security", label: "8. Security" },
   { id: "cookies", label: "9. Cookies" },
-  { id: "transferts", label: "10. Transferts hors UE" },
-  { id: "modifications", label: "11. Modifications" },
+  { id: "transfers", label: "10. International Transfers" },
+  { id: "changes", label: "11. Policy Changes" },
   { id: "contact", label: "12. Contact" },
 ];
 
@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           className="flex items-center gap-2 text-sm text-landing-text-secondary transition-colors hover:text-landing-text"
         >
           <ArrowLeft className="size-3.5" />
-          Retour
+          Back
         </Link>
       </nav>
 
@@ -45,23 +45,21 @@ export default function PrivacyPage() {
         {/* Header */}
         <div className="mb-16 border-b border-landing-border pb-12">
           <p className="mb-4 font-body text-xs uppercase tracking-[0.2em] text-landing-accent">
-            Légal
+            Legal
           </p>
           <h1 className="font-display text-4xl leading-tight text-landing-text md:text-5xl lg:text-6xl">
-            Politique de
+            Privacy
             <br />
-            <span className="italic text-landing-text-secondary">
-              confidentialité
-            </span>
+            <span className="italic text-landing-text-secondary">Policy</span>
           </h1>
           <div className="mt-6 flex flex-wrap gap-8 font-body text-sm text-landing-text-muted">
             <span>
-              Version en vigueur :{" "}
-              <span className="text-landing-text-secondary">1er avril 2026</span>
+              Effective date:{" "}
+              <span className="text-landing-text-secondary">April 1, 2026</span>
             </span>
             <span>
-              Dernière mise à jour :{" "}
-              <span className="text-landing-text-secondary">1er avril 2026</span>
+              Last updated:{" "}
+              <span className="text-landing-text-secondary">April 1, 2026</span>
             </span>
           </div>
         </div>
@@ -71,7 +69,7 @@ export default function PrivacyPage() {
           <aside className="shrink-0 lg:w-56">
             <div className="sticky top-28">
               <p className="mb-4 font-body text-xs uppercase tracking-[0.15em] text-landing-text-muted">
-                Sommaire
+                Contents
               </p>
               <nav className="flex flex-col gap-1">
                 {SECTIONS.map((s) => (
@@ -93,69 +91,66 @@ export default function PrivacyPage() {
             {/* Section 1 */}
             <Section id="introduction" title="1. Introduction">
               <p>
-                La présente politique de confidentialité décrit la manière dont{" "}
-                <strong className="text-landing-text">Dunlo SAS</strong> (ci-après
-                «&nbsp;Dunlo&nbsp;», «&nbsp;nous&nbsp;») collecte, utilise et protège les données
-                personnelles des utilisateurs de la plateforme dunlo.io (ci-après
-                «&nbsp;le Service&nbsp;»).
+                This privacy policy describes how{" "}
+                <strong className="text-landing-text">Dunlo SAS</strong> ("Dunlo", "we")
+                collects, uses, and protects the personal data of users of the dunlo.io
+                platform (the "Service").
               </p>
               <p className="mt-4">
-                Dunlo est engagé à respecter le Règlement Général sur la Protection des Données
-                (RGPD — Règlement (UE) 2016/679) ainsi que la loi française Informatique et
-                Libertés. En utilisant le Service, vous acceptez les pratiques décrites dans la
-                présente politique.
+                Dunlo is committed to complying with the General Data Protection Regulation
+                (GDPR — Regulation (EU) 2016/679) and applicable French data protection law.
+                By using the Service, you accept the practices described in this policy.
               </p>
               <p className="mt-4">
-                Cette politique s'applique aux données personnelles des fondateurs et équipes qui
-                utilisent Dunlo (les «&nbsp;Utilisateurs&nbsp;»), ainsi qu'aux données des
-                acheteurs finaux (les «&nbsp;Clients finaux&nbsp;») traitées par Dunlo pour le
-                compte des Utilisateurs.
+                This policy applies to the personal data of founders and teams who use Dunlo
+                ("Users"), as well as the data of end buyers ("End Buyers") processed by
+                Dunlo on behalf of Users.
               </p>
             </Section>
 
             {/* Section 2 */}
-            <Section id="responsable" title="2. Responsable de traitement">
+            <Section id="controller" title="2. Data Controller">
               <DefinitionList
                 items={[
                   {
-                    term: "Entité",
-                    def: "Dunlo SAS, société par actions simplifiée immatriculée au RCS de Paris.",
+                    term: "Entity",
+                    def: "Dunlo SAS, a simplified joint-stock company registered with the Paris Commercial Registry (RCS de Paris).",
                   },
                   {
-                    term: "Adresse",
-                    def: "France (adresse complète disponible sur demande à legal@dunlo.io).",
+                    term: "Address",
+                    def: "France (full address available on request at legal@dunlo.io).",
                   },
                   {
-                    term: "Contact DPO",
-                    def: "privacy@dunlo.io — pour toute question relative au traitement de vos données.",
+                    term: "DPO Contact",
+                    def: "privacy@dunlo.io — for any question regarding the processing of your data.",
                   },
                 ]}
               />
               <p className="mt-6">
-                Pour les données des Clients finaux (acheteurs de l'Utilisateur), l'Utilisateur
-                est le responsable de traitement au sens du RGPD. Dunlo agit en tant que
-                sous-traitant et traite ces données uniquement selon les instructions de
-                l'Utilisateur et dans le cadre strict du Service.
+                For End Buyer data (the User's customers), the User is the data controller
+                under GDPR. Dunlo acts as a data processor and processes this data solely
+                according to the User's instructions and strictly within the scope of the
+                Service.
               </p>
             </Section>
 
             {/* Section 3 */}
-            <Section id="donnees-collectees" title="3. Données collectées">
+            <Section id="data-collected" title="3. Data Collected">
               <p className="mb-5">
-                Dunlo collecte deux catégories de données personnelles distinctes :
+                Dunlo collects two distinct categories of personal data:
               </p>
 
               <p className="mb-3">
-                <strong className="text-landing-text">A. Données des Utilisateurs</strong>
+                <strong className="text-landing-text">A. User Data</strong>
               </p>
               <ul className="mb-6 flex flex-col gap-3">
                 {[
-                  "Identité : nom, adresse email",
-                  "Authentification : hash du mot de passe ou identifiants OAuth (Google)",
-                  "Préférences : timezone, seuil d'escalade, email de notification, horaire du brief matinal",
-                  "Intégrations : identifiant du compte Stripe Connect, token d'accès chiffré",
-                  "Données d'usage : logs de connexion, actions effectuées dans le tableau de bord",
-                  "Facturation : historique d'abonnement (géré par Autumn — nous ne stockons pas les données de carte)",
+                  "Identity: name, email address",
+                  "Authentication: password hash or OAuth credentials (Google)",
+                  "Preferences: timezone, escalation threshold, notification email, morning brief schedule",
+                  "Integrations: Stripe Connect account ID, encrypted access token",
+                  "Usage data: connection logs, actions performed in the dashboard",
+                  "Billing: subscription history (managed by Autumn — we do not store card data)",
                 ].map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-accent" />
@@ -165,18 +160,18 @@ export default function PrivacyPage() {
               </ul>
 
               <p className="mb-3">
-                <strong className="text-landing-text">B. Données des Clients finaux</strong>
+                <strong className="text-landing-text">B. End Buyer Data</strong>
               </p>
               <p className="mb-4">
-                Ces données nous sont transmises via l'API Stripe de l'Utilisateur et se limitent
-                strictement à ce qui est nécessaire pour la récupération du paiement :
+                This data is transmitted via the User's Stripe API and is strictly limited to
+                what is necessary for payment recovery:
               </p>
               <ul className="flex flex-col gap-3">
                 {[
-                  "Email et nom du client final",
-                  "Montant et devise du paiement échoué",
-                  "Code d'échec Stripe (ex. card_expired, insufficient_funds)",
-                  "Identifiants Stripe : PaymentIntent ID, Customer ID (pour générer le lien Billing Portal)",
+                  "End buyer's email and name",
+                  "Failed payment amount and currency",
+                  "Stripe failure code (e.g. card_expired, insufficient_funds)",
+                  "Stripe identifiers: PaymentIntent ID, Customer ID (to generate the Billing Portal link)",
                 ].map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-border-strong" />
@@ -185,62 +180,59 @@ export default function PrivacyPage() {
                 ))}
               </ul>
               <Callout>
-                Dunlo ne collecte jamais de données de carte bancaire. Les numéros de carte, CVV
-                et données sensibles de paiement restent exclusivement chez Stripe.
+                Dunlo never collects card data. Card numbers, CVV, and sensitive payment data
+                remain exclusively with Stripe.
               </Callout>
             </Section>
 
             {/* Section 4 */}
-            <Section id="finalites" title="4. Finalités & bases légales">
+            <Section id="purposes" title="4. Purposes & Legal Bases">
               <p className="mb-5">
-                Chaque traitement repose sur une base légale explicite au sens de l'article 6
-                du RGPD :
+                Each processing activity rests on an explicit legal basis under Article 6 of
+                the GDPR:
               </p>
               <div className="flex flex-col gap-5">
                 {[
                   {
-                    finalite: "Fourniture du Service",
-                    base: "Exécution du contrat",
+                    purpose: "Service delivery",
+                    basis: "Contract performance",
                     detail:
-                      "Créer et gérer votre compte, connecter votre Stripe, détecter les paiements échoués et envoyer les séquences de récupération.",
+                      "Create and manage your account, connect your Stripe, detect failed payments and send recovery sequences.",
                   },
                   {
-                    finalite: "Facturation",
-                    base: "Exécution du contrat + obligation légale",
+                    purpose: "Billing",
+                    basis: "Contract performance + legal obligation",
                     detail:
-                      "Gérer votre abonnement, émettre les factures et respecter les obligations comptables.",
+                      "Manage your subscription, issue invoices, and comply with accounting obligations.",
                   },
                   {
-                    finalite: "Notifications & alertes",
-                    base: "Exécution du contrat",
+                    purpose: "Notifications & alerts",
+                    basis: "Contract performance",
                     detail:
-                      "Vous envoyer les alertes d'escalade, le brief matinal et les notifications de votre choix.",
+                      "Send you escalation alerts, the morning brief, and notifications of your choice.",
                   },
                   {
-                    finalite: "Amélioration du Service",
-                    base: "Intérêt légitime",
+                    purpose: "Service improvement",
+                    basis: "Legitimate interest",
                     detail:
-                      "Analyser les métriques d'usage agrégées et anonymisées pour améliorer les fonctionnalités.",
+                      "Analyze aggregated and anonymized usage metrics to improve features.",
                   },
                   {
-                    finalite: "Sécurité & fraude",
-                    base: "Intérêt légitime",
+                    purpose: "Security & fraud prevention",
+                    basis: "Legitimate interest",
                     detail:
-                      "Détecter les accès non autorisés, prévenir la fraude et assurer l'intégrité du Service.",
+                      "Detect unauthorized access, prevent fraud, and ensure Service integrity.",
                   },
                   {
-                    finalite: "Communications marketing",
-                    base: "Consentement",
+                    purpose: "Marketing communications",
+                    basis: "Consent",
                     detail:
-                      "Vous envoyer des emails sur les nouveautés de Dunlo. Vous pouvez vous désabonner à tout moment.",
+                      "Send you emails about Dunlo updates. You can unsubscribe at any time.",
                   },
-                ].map(({ finalite, base, detail }) => (
-                  <div
-                    key={finalite}
-                    className="border-l border-landing-border pl-4"
-                  >
-                    <p className="text-sm font-semibold text-landing-text">{finalite}</p>
-                    <p className="mt-0.5 text-xs text-landing-accent">{base}</p>
+                ].map(({ purpose, basis, detail }) => (
+                  <div key={purpose} className="border-l border-landing-border pl-4">
+                    <p className="text-sm font-semibold text-landing-text">{purpose}</p>
+                    <p className="mt-0.5 text-xs text-landing-accent">{basis}</p>
                     <p className="mt-1.5 text-sm text-landing-text-secondary">{detail}</p>
                   </div>
                 ))}
@@ -248,175 +240,173 @@ export default function PrivacyPage() {
             </Section>
 
             {/* Section 5 */}
-            <Section id="sous-traitants" title="5. Sous-traitants & partage de données">
+            <Section id="sub-processors" title="5. Sub-processors & Data Sharing">
               <p className="mb-5">
-                Dunlo fait appel à des sous-traitants pour fournir le Service. Ces prestataires
-                agissent uniquement sur instruction de Dunlo et sont contractuellement tenus de
-                respecter le RGPD :
+                Dunlo uses sub-processors to provide the Service. These providers act solely
+                on Dunlo's instructions and are contractually required to comply with GDPR:
               </p>
               <div className="flex flex-col gap-4">
                 {[
                   {
-                    nom: "Neon (Base de données)",
-                    pays: "UE",
-                    donnees: "Toutes les données applicatives",
+                    name: "Neon (Database)",
+                    region: "EU",
+                    data: "All application data",
                   },
                   {
-                    nom: "Vercel (Hébergement)",
-                    pays: "UE / USA (SCC)",
-                    donnees: "Logs de requêtes, données en transit",
+                    name: "Vercel (Hosting)",
+                    region: "EU / USA (SCC)",
+                    data: "Request logs, data in transit",
                   },
                   {
-                    nom: "Resend (Emails transactionnels)",
-                    pays: "USA (SCC)",
-                    donnees: "Email des Clients finaux, contenu des emails de récupération",
+                    name: "Resend (Transactional emails)",
+                    region: "USA (SCC)",
+                    data: "End buyer email, recovery email content",
                   },
                   {
-                    nom: "Stripe (Paiement & Connect)",
-                    pays: "USA (SCC)",
-                    donnees: "Données de paiement, Customer ID, token d'accès",
+                    name: "Stripe (Payment & Connect)",
+                    region: "USA (SCC)",
+                    data: "Payment data, Customer ID, access token",
                   },
                   {
-                    nom: "Trigger.dev (Jobs asynchrones)",
-                    pays: "UE",
-                    donnees: "Paramètres des jobs (email, montant)",
+                    name: "Trigger.dev (Async jobs)",
+                    region: "EU",
+                    data: "Job parameters (email, amount)",
                   },
                   {
-                    nom: "Autumn (Billing)",
-                    pays: "USA (SCC)",
-                    donnees: "Email et historique d'abonnement Utilisateur",
+                    name: "Autumn (Billing)",
+                    region: "USA (SCC)",
+                    data: "User email and subscription history",
                   },
-                ].map(({ nom, pays, donnees }) => (
+                ].map(({ name, region, data }) => (
                   <div
-                    key={nom}
+                    key={name}
                     className="grid grid-cols-1 gap-1 border-l border-landing-border pl-4 sm:grid-cols-[1fr_auto]"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-landing-text">{nom}</p>
-                      <p className="mt-0.5 text-sm text-landing-text-secondary">{donnees}</p>
+                      <p className="text-sm font-semibold text-landing-text">{name}</p>
+                      <p className="mt-0.5 text-sm text-landing-text-secondary">{data}</p>
                     </div>
-                    <span className="self-start text-xs text-landing-text-muted">{pays}</span>
+                    <span className="self-start text-xs text-landing-text-muted">{region}</span>
                   </div>
                 ))}
               </div>
               <p className="mt-6">
-                Dunlo ne vend, ne loue et ne monétise jamais vos données ni celles de vos Clients
-                finaux à des tiers. Aucun partage à des fins publicitaires.
+                Dunlo never sells, rents, or monetizes your data or your End Buyers' data to
+                third parties. No sharing for advertising purposes.
               </p>
             </Section>
 
             {/* Section 6 */}
-            <Section id="conservation" title="6. Durée de conservation">
+            <Section id="retention" title="6. Retention Periods">
               <div className="flex flex-col gap-4">
                 {[
                   {
-                    categorie: "Données de compte Utilisateur",
-                    duree: "Durée de la relation contractuelle + 3 ans (obligations comptables)",
+                    category: "User account data",
+                    period: "Duration of the contractual relationship + 3 years (accounting obligations)",
                   },
                   {
-                    categorie: "Données des Clients finaux",
-                    duree: "12 mois après la résolution du paiement (recovered ou lost), puis suppression automatique",
+                    category: "End buyer data",
+                    period: "12 months after payment resolution (recovered or lost), then automatic deletion",
                   },
                   {
-                    categorie: "Logs de sécurité",
-                    duree: "12 mois glissants",
+                    category: "Security logs",
+                    period: "Rolling 12 months",
                   },
                   {
-                    categorie: "Données de facturation",
-                    duree: "10 ans (obligation légale comptable)",
+                    category: "Billing data",
+                    period: "10 years (legal accounting obligation)",
                   },
                   {
-                    categorie: "Après résiliation du compte",
-                    duree: "30 jours de rétention puis suppression définitive, sauf export demandé",
+                    category: "After account termination",
+                    period: "30-day retention then permanent deletion, unless export requested",
                   },
-                ].map(({ categorie, duree }) => (
-                  <div key={categorie} className="flex flex-col gap-1 border-l border-landing-border pl-4">
-                    <dt className="text-sm font-semibold text-landing-text">{categorie}</dt>
-                    <dd className="text-sm text-landing-text-secondary">{duree}</dd>
+                ].map(({ category, period }) => (
+                  <div key={category} className="flex flex-col gap-1 border-l border-landing-border pl-4">
+                    <dt className="text-sm font-semibold text-landing-text">{category}</dt>
+                    <dd className="text-sm text-landing-text-secondary">{period}</dd>
                   </div>
                 ))}
               </div>
             </Section>
 
             {/* Section 7 */}
-            <Section id="droits" title="7. Vos droits RGPD">
+            <Section id="rights" title="7. Your GDPR Rights">
               <p className="mb-5">
-                Conformément au RGPD (articles 15 à 22), vous disposez des droits suivants sur
-                vos données personnelles :
+                Under GDPR (Articles 15–22), you have the following rights over your personal
+                data:
               </p>
               <ul className="flex flex-col gap-4">
                 {[
                   {
-                    droit: "Droit d'accès",
-                    desc: "Obtenir une copie des données personnelles que nous détenons sur vous.",
+                    right: "Right of access",
+                    desc: "Obtain a copy of the personal data we hold about you.",
                   },
                   {
-                    droit: "Droit de rectification",
-                    desc: "Corriger des données inexactes ou incomplètes vous concernant.",
+                    right: "Right to rectification",
+                    desc: "Correct inaccurate or incomplete data about you.",
                   },
                   {
-                    droit: "Droit à l'effacement",
-                    desc: "Demander la suppression de vos données, sous réserve de nos obligations légales.",
+                    right: "Right to erasure",
+                    desc: "Request deletion of your data, subject to our legal obligations.",
                   },
                   {
-                    droit: "Droit à la portabilité",
-                    desc: "Recevoir vos données dans un format structuré et lisible par machine.",
+                    right: "Right to portability",
+                    desc: "Receive your data in a structured, machine-readable format.",
                   },
                   {
-                    droit: "Droit d'opposition",
-                    desc: "Vous opposer à un traitement fondé sur notre intérêt légitime, notamment à des fins marketing.",
+                    right: "Right to object",
+                    desc: "Object to processing based on our legitimate interest, including for marketing purposes.",
                   },
                   {
-                    droit: "Droit à la limitation",
-                    desc: "Demander la suspension temporaire d'un traitement pendant une contestation.",
+                    right: "Right to restriction",
+                    desc: "Request temporary suspension of processing during a dispute.",
                   },
                   {
-                    droit: "Retrait du consentement",
-                    desc: "Retirer à tout moment votre consentement aux traitements qui en dépendent (ex. emails marketing).",
+                    right: "Withdrawal of consent",
+                    desc: "Withdraw your consent at any time for processing that depends on it (e.g. marketing emails).",
                   },
-                ].map(({ droit, desc }) => (
-                  <li key={droit} className="flex gap-3">
+                ].map(({ right, desc }) => (
+                  <li key={right} className="flex gap-3">
                     <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-accent" />
                     <span>
-                      <strong className="text-landing-text">{droit} — </strong>
+                      <strong className="text-landing-text">{right} — </strong>
                       {desc}
                     </span>
                   </li>
                 ))}
               </ul>
               <p className="mt-6">
-                Pour exercer ces droits, envoyez votre demande à{" "}
+                To exercise these rights, send your request to{" "}
                 <a
                   href="mailto:privacy@dunlo.io"
                   className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
                 >
                   privacy@dunlo.io
                 </a>{" "}
-                en précisant votre identité. Nous répondrons dans un délai de 30 jours.
+                identifying yourself. We will respond within 30 days.
               </p>
               <p className="mt-4">
-                Si vous estimez que vos droits ne sont pas respectés, vous avez la possibilité
-                d'introduire une réclamation auprès de la{" "}
-                <strong className="text-landing-text">CNIL</strong> (Commission Nationale de
-                l'Informatique et des Libertés) : cnil.fr.
+                If you believe your rights are not being respected, you may lodge a complaint
+                with the{" "}
+                <strong className="text-landing-text">CNIL</strong> (French Data Protection
+                Authority): cnil.fr.
               </p>
             </Section>
 
             {/* Section 8 */}
-            <Section id="securite" title="8. Sécurité">
+            <Section id="security" title="8. Security">
               <p>
-                Dunlo met en œuvre des mesures techniques et organisationnelles adaptées pour
-                protéger vos données contre tout accès non autorisé, perte, altération ou
-                divulgation :
+                Dunlo implements appropriate technical and organizational measures to protect
+                your data against unauthorized access, loss, alteration, or disclosure:
               </p>
               <ul className="mt-4 flex flex-col gap-3">
                 {[
-                  "Chiffrement AES-256 des tokens d'accès Stripe au repos",
-                  "Transmission des données via TLS 1.3",
-                  "Accès aux données de production restreint au personnel autorisé, via authentification forte",
-                  "Journalisation des accès et surveillance des anomalies",
-                  "Clés de chiffrement stockées séparément des données chiffrées",
-                  "Revue régulière des accès et des permissions",
+                  "AES-256 encryption of Stripe access tokens at rest",
+                  "Data transmission via TLS 1.3",
+                  "Access to production data restricted to authorized personnel via strong authentication",
+                  "Access and anomaly monitoring",
+                  "Encryption keys stored separately from encrypted data",
+                  "Regular access and permissions review",
                 ].map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-accent" />
@@ -425,12 +415,12 @@ export default function PrivacyPage() {
                 ))}
               </ul>
               <p className="mt-6">
-                En cas de violation de données susceptible d'engendrer un risque élevé pour vos
-                droits et libertés, Dunlo s'engage à vous en informer dans les meilleurs délais,
-                conformément à l'article 34 du RGPD.
+                In the event of a data breach likely to create a high risk to your rights and
+                freedoms, Dunlo commits to informing you as soon as possible, in accordance
+                with Article 34 of the GDPR.
               </p>
               <p className="mt-4">
-                Pour signaler une vulnérabilité de sécurité, contactez-nous à{" "}
+                To report a security vulnerability, contact us at{" "}
                 <a
                   href="mailto:security@dunlo.io"
                   className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
@@ -444,50 +434,51 @@ export default function PrivacyPage() {
             {/* Section 9 */}
             <Section id="cookies" title="9. Cookies">
               <p>
-                Dunlo utilise un nombre minimal de cookies, strictement nécessaires au
-                fonctionnement du Service :
+                Dunlo uses a minimal number of cookies, strictly necessary for the Service to
+                function:
               </p>
               <div className="mt-5 flex flex-col gap-4">
                 {[
                   {
-                    nom: "Session auth (Better-Auth)",
-                    type: "Fonctionnel — nécessaire",
-                    duree: "Session / 30 jours",
-                    usage: "Maintenir votre session authentifiée dans le dashboard.",
+                    name: "Session auth (Better-Auth)",
+                    type: "Functional — required",
+                    period: "Session / 30 days",
+                    usage: "Maintain your authenticated session in the dashboard.",
                   },
                   {
-                    nom: "CSRF token",
-                    type: "Sécurité — nécessaire",
-                    duree: "Session",
-                    usage: "Protection contre les attaques Cross-Site Request Forgery.",
+                    name: "CSRF token",
+                    type: "Security — required",
+                    period: "Session",
+                    usage: "Protection against Cross-Site Request Forgery attacks.",
                   },
-                ].map(({ nom, type, duree, usage }) => (
-                  <div key={nom} className="flex flex-col gap-1 border-l border-landing-border pl-4">
-                    <p className="text-sm font-semibold text-landing-text">{nom}</p>
-                    <p className="text-xs text-landing-accent">{type} · {duree}</p>
+                ].map(({ name, type, period, usage }) => (
+                  <div key={name} className="flex flex-col gap-1 border-l border-landing-border pl-4">
+                    <p className="text-sm font-semibold text-landing-text">{name}</p>
+                    <p className="text-xs text-landing-accent">{type} · {period}</p>
                     <p className="text-sm text-landing-text-secondary">{usage}</p>
                   </div>
                 ))}
               </div>
               <Callout>
-                Dunlo n'utilise pas de cookies publicitaires, de tracking tiers, ni de cookies
-                analytics sans votre consentement explicite. La landing page peut utiliser des
-                scripts d'analyse agrégée (ex. Plausible) qui ne déposent aucun cookie.
+                Dunlo does not use advertising cookies, third-party tracking, or analytics
+                cookies without your explicit consent. The landing page may use aggregated
+                analytics scripts (e.g. Plausible) that set no cookies.
               </Callout>
             </Section>
 
             {/* Section 10 */}
-            <Section id="transferts" title="10. Transferts hors Union Européenne">
+            <Section id="transfers" title="10. International Transfers">
               <p>
-                Certains de nos sous-traitants (Vercel, Resend, Stripe, Autumn) sont établis aux
-                États-Unis. Ces transferts sont encadrés par les{" "}
-                <strong className="text-landing-text">Clauses Contractuelles Types (SCC)</strong>{" "}
-                approuvées par la Commission Européenne (décision 2021/914), conformément à
-                l'article 46 du RGPD.
+                Some of our sub-processors (Vercel, Resend, Stripe, Autumn) are based in the
+                United States. These transfers are covered by{" "}
+                <strong className="text-landing-text">
+                  Standard Contractual Clauses (SCC)
+                </strong>{" "}
+                approved by the European Commission (Decision 2021/914), in accordance with
+                Article 46 of the GDPR.
               </p>
               <p className="mt-4">
-                Vous pouvez obtenir une copie des garanties appropriées mises en place en
-                contactant{" "}
+                You can obtain a copy of the appropriate safeguards in place by contacting{" "}
                 <a
                   href="mailto:privacy@dunlo.io"
                   className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
@@ -499,20 +490,19 @@ export default function PrivacyPage() {
             </Section>
 
             {/* Section 11 */}
-            <Section id="modifications" title="11. Modifications de cette politique">
+            <Section id="changes" title="11. Policy Changes">
               <p>
-                Dunlo se réserve le droit de modifier la présente politique de confidentialité à
-                tout moment. En cas de modification substantielle affectant vos droits, vous serez
-                informé par email au moins 14 jours avant l'entrée en vigueur des nouvelles
-                dispositions.
+                Dunlo reserves the right to modify this privacy policy at any time. In the
+                event of a material change affecting your rights, you will be notified by
+                email at least 14 days before the new provisions take effect.
               </p>
               <p className="mt-4">
-                La date de «&nbsp;Dernière mise à jour&nbsp;» en haut de cette page indique quand
-                la politique a été révisée pour la dernière fois. Votre utilisation continue du
-                Service après cette date vaut acceptation des modifications.
+                The "Last updated" date at the top of this page indicates when the policy was
+                last revised. Your continued use of the Service after this date constitutes
+                acceptance of the changes.
               </p>
               <p className="mt-4">
-                L'historique des versions de cette politique est disponible sur demande à{" "}
+                The version history of this policy is available on request at{" "}
                 <a
                   href="mailto:privacy@dunlo.io"
                   className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
@@ -526,14 +516,14 @@ export default function PrivacyPage() {
             {/* Section 12 */}
             <Section id="contact" title="12. Contact">
               <p>
-                Pour toute question relative à la présente politique ou à l'exercice de vos droits,
-                vous pouvez nous contacter :
+                For any question regarding this policy or the exercise of your rights, you
+                can contact us:
               </p>
               <ul className="mt-4 flex flex-col gap-3">
                 <li className="flex gap-3">
                   <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-accent" />
                   <span>
-                    <strong className="text-landing-text">Email :</strong>{" "}
+                    <strong className="text-landing-text">Email: </strong>
                     <a
                       href="mailto:privacy@dunlo.io"
                       className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
@@ -545,7 +535,7 @@ export default function PrivacyPage() {
                 <li className="flex gap-3">
                   <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-landing-accent" />
                   <span>
-                    <strong className="text-landing-text">Support :</strong>{" "}
+                    <strong className="text-landing-text">Support: </strong>
                     <a
                       href="mailto:support@dunlo.io"
                       className="text-landing-accent underline underline-offset-2 transition-opacity hover:opacity-80"
@@ -556,12 +546,12 @@ export default function PrivacyPage() {
                 </li>
               </ul>
               <p className="mt-6 border-t border-landing-border pt-6 text-sm text-landing-text-muted">
-                Cette politique est régie par le droit français. Voir également nos{" "}
+                This policy is governed by French law. See also our{" "}
                 <Link
                   href="/cgu"
                   className="text-landing-text-secondary underline underline-offset-2 transition-colors hover:text-landing-text"
                 >
-                  Conditions Générales d'Utilisation
+                  Terms of Service
                 </Link>
                 .
               </p>
@@ -577,7 +567,7 @@ export default function PrivacyPage() {
             dunlo
           </Link>
           <span className="font-body text-xs text-landing-text-muted">
-            © {new Date().getFullYear()} Dunlo. Tous droits réservés.
+            © {new Date().getFullYear()} Dunlo. All rights reserved.
           </span>
         </div>
       </div>

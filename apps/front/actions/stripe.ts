@@ -272,7 +272,7 @@ export const simulatePaymentFailed = withEvlog(async function simulatePaymentFai
   const rawToken = decrypt(connection.accessToken);
   if (!rawToken.startsWith("sk_test_")) {
     throw new Error(
-      "La simulation n'est possible qu'en mode test Stripe (sk_test_).",
+      "Simulation is only available in Stripe test mode (sk_test_).",
     );
   }
 
@@ -330,7 +330,7 @@ export const simulatePaymentFailed = withEvlog(async function simulatePaymentFai
     success: true,
     paymentIntentId: failedPaymentIntent.id,
     customerEmail,
-    message: `Simulation créée sur Stripe. L'email J+0 sera envoyé à ${customerEmail}.`,
+    message: `Simulation created on Stripe. The day-0 email will be sent to ${customerEmail}.`,
   };
 });
 
@@ -354,7 +354,7 @@ export const simulatePaymentRecovered = withEvlog(async function simulatePayment
   const rawToken = decrypt(connection.accessToken);
   if (!rawToken.startsWith("sk_test_")) {
     throw new Error(
-      "La simulation n'est possible qu'en mode test Stripe (sk_test_).",
+      "Simulation is only available in Stripe test mode (sk_test_).",
     );
   }
 
@@ -370,7 +370,7 @@ export const simulatePaymentRecovered = withEvlog(async function simulatePayment
 
   if (!recentFailed) {
     throw new Error(
-      "Aucun paiement échoué en cours. Simule d'abord un paiement échoué.",
+      "No failed payment in progress. Simulate a failed payment first.",
     );
   }
 
@@ -384,7 +384,7 @@ export const simulatePaymentRecovered = withEvlog(async function simulatePayment
     paymentIntent.status !== "requires_confirmation"
   ) {
     throw new Error(
-      `Ce paiement n'est pas réessayable (statut: ${paymentIntent.status}).`,
+      `This payment cannot be retried (status: ${paymentIntent.status}).`,
     );
   }
 
@@ -401,7 +401,7 @@ export const simulatePaymentRecovered = withEvlog(async function simulatePayment
   return {
     success: true,
     paymentIntentId: recentFailed.stripePaymentIntentId,
-    message: `Paiement ${recentFailed.stripePaymentIntentId} marqué comme récupéré. Les emails J+3 et J+7 sont annulés.`,
+    message: `Payment ${recentFailed.stripePaymentIntentId} marked as recovered. Day-3 and day-7 emails cancelled.`,
   };
 });
 
@@ -431,7 +431,7 @@ export async function simulateEscalation() {
       amount,
       currency: "eur",
       failureReason: "card_declined",
-      productName: "Abonnement Premium (simulation)",
+      productName: "Premium Plan (simulation)",
       status: "escalated",
     })
     .returning();
@@ -443,11 +443,11 @@ export async function simulateEscalation() {
   await db.insert(escalations).values({
     failedPaymentId: payment.id,
     userId: session.user.id,
-    reason: `Simulation : montant ${amount / 100}€ > seuil. 3 emails envoyés, pas de réponse.`,
+    reason: `Simulation: amount ${amount / 100}€ > threshold. 3 emails sent, no response.`,
   });
 
   return {
     success: true,
-    message: `Escalade test créée. Va sur la page Escalations pour la voir.`,
+    message: `Test escalation created. Go to the Escalations page to see it.`,
   };
 }
