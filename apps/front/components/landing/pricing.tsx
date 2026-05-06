@@ -7,7 +7,8 @@ const FEATURED_PLAN = {
   name: "Growth",
   badge: "Most popular",
   price: 149,
-  description: "Built for founders at €20k–€80k MRR who need automation + escalation.",
+  description:
+    "Built for founders at €20k–€80k MRR who need automation + escalation.",
   features: [
     "Up to €80k MRR covered",
     "Unlimited email sequences",
@@ -28,7 +29,7 @@ const OTHER_PLANS = [
   },
   {
     name: "Starter",
-    price: 49,
+    price: 149,
     description: "€5k–€20k MRR · Growing",
     features: ["Up to €20k MRR", "2 email sequences", "All Solo features"],
   },
@@ -81,7 +82,6 @@ export function PricingSection() {
         {/* Main pricing grid */}
         <Reveal delay={260}>
           <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_380px]">
-
             {/* Left: Solo + Starter compact list */}
             <div className="flex flex-col gap-4">
               {OTHER_PLANS.map((plan) => (
